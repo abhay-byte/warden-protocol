@@ -22,6 +22,7 @@ fun OutcomeScreen(
 ) {
     var showClassification by remember { mutableStateOf(false) }
     var showNarrative by remember { mutableStateOf(false) }
+    var showStats by remember { mutableStateOf(false) }
     var showScore by remember { mutableStateOf(false) }
     var showButtons by remember { mutableStateOf(false) }
     
@@ -31,6 +32,8 @@ fun OutcomeScreen(
         delay(600)
         showNarrative = true
         delay(800)
+        showStats = true
+        delay(600)
         showScore = true
         delay(400)
         showButtons = true
@@ -80,6 +83,68 @@ fun OutcomeScreen(
         }
         
         AnimatedVisibility(
+            visible = showStats,
+            enter = fadeIn()
+        ) {
+            outcome.detailedStats?.let { stats ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = SurfaceBlack)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "FINAL STATISTICS",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = VaultGreen
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        StatRow("Survivors", "${stats.survivors} / 1000")
+                        StatRow("Deaths", "${stats.deaths}")
+                        StatRow("Years Underground", "${stats.yearsSinceWar}")
+                        StatRow("Location", stats.locationName)
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "LOCATION CONDITIONS",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = VaultGreen
+                        )
+                        
+                        StatRow("Radiation", stats.radiation)
+                        StatRow("Water", stats.water)
+                        StatRow("Food Potential", stats.food)
+                        StatRow("Shelter", stats.shelter)
+                        StatRow("Resources", stats.resources)
+                        StatRow("Threats", stats.threats)
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "VAULT SYSTEMS",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = VaultGreen
+                        )
+                        
+                        StatRow("Power Grid", "${stats.powerGrid}%")
+                        StatRow("Food Stores", "${stats.foodStores}%")
+                        StatRow("Medical Bay", "${stats.medicalBay}%")
+                        StatRow("Security", "${stats.securitySystem}%")
+                        StatRow("Construction", "${stats.constructionGear}%")
+                        StatRow("Atmosphere", "${stats.atmosphereScrubbers}%")
+                        StatRow("Cultural Archive", "${stats.culturalArchive}%")
+                        StatRow("Scientific Archive", "${stats.scientificArchive}%")
+                    }
+                }
+            }
+        }
+        
+        AnimatedVisibility(
             visible = showScore,
             enter = fadeIn()
         ) {
@@ -126,5 +191,24 @@ fun OutcomeScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StatRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextPrimary
+        )
     }
 }

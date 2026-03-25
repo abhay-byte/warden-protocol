@@ -140,6 +140,14 @@ class GameEngine(private val eventRepository: EventRepository) {
         val cultural = state.databases.culturalArchive
         val scientific = state.databases.scientificArchive
         
+        val (classification, tier) = when {
+            score >= 10000 -> "Golden Age Civilization" to 5
+            score >= 6000 -> "Thriving Society" to 4
+            score >= 3000 -> "Stable Settlement" to 3
+            score >= 1000 -> "Struggling Outpost" to 2
+            else -> "Doomed Colony" to 1
+        }
+        
         val societyType = when {
             cultural >= 70 && scientific >= 70 -> "enlightened democratic republic"
             cultural >= 70 && scientific < 40 -> "artistic but fragile theocracy"
@@ -172,26 +180,39 @@ class GameEngine(private val eventRepository: EventRepository) {
         
         val settlementName = generateSettlementName(location)
         
-        val classification = when {
-            score >= 8000 -> "Thriving Civilization"
-            score >= 5000 -> "Stable Colony"
-            score >= 3000 -> "Struggling Settlement"
-            score >= 1000 -> "Desperate Outpost"
-            else -> "Doomed Remnant"
+        val outcomeDetail = when (tier) {
+            5 -> "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment, and their descendants would remember this as humanity's second dawn."
+            4 -> "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment. While challenges remained, they had secured humanity's future. Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain."
+            3 -> "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment. Survival was uncertain, but they endured. ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above."
+            2 -> "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment, each day a battle for survival. ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade."
+            else -> "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word. ${1000 - state.survivors} died in the vault. The rest would follow within months. Humanity's light was extinguished."
         }
-        
-        val narrative = "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar} after the war. " +
-                "They built $settlementName on ${location.name}. " +
-                "Their society became a $societyType, sustained by $economy and governed through $politics. " +
-                "They lived in $environment. " +
-                "Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again. " +
-                "Their sacrifice will not be forgotten."
         
         return ColonyOutcome(
             score = score,
             classification = classification,
-            narrative = narrative,
-            settlementName = settlementName
+            narrative = outcomeDetail,
+            settlementName = settlementName,
+            detailedStats = OutcomeStats(
+                survivors = state.survivors,
+                yearsSinceWar = state.yearsSinceWar,
+                deaths = 1000 - state.survivors,
+                locationName = location.name,
+                radiation = location.radiation.displayName,
+                water = location.water.displayName,
+                food = location.food.displayName,
+                shelter = location.shelter.displayName,
+                resources = location.resources.displayName,
+                threats = location.nativeHostility.displayName,
+                powerGrid = state.vaultSystems.powerGrid,
+                foodStores = state.vaultSystems.foodStores,
+                medicalBay = state.vaultSystems.medicalBay,
+                securitySystem = state.vaultSystems.securitySystem,
+                constructionGear = state.vaultSystems.constructionGear,
+                atmosphereScrubbers = state.vaultSystems.atmosphereScrubbers,
+                culturalArchive = state.databases.culturalArchive,
+                scientificArchive = state.databases.scientificArchive
+            )
         )
     }
     

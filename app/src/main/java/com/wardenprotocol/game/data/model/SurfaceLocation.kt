@@ -9,7 +9,15 @@ data class SurfaceLocation(
     val shelter: ShelterQuality,
     val resources: ResourceRichness,
     val nativeHostility: Hostility,
-    val anomaly: SurfaceAnomaly?
+    val anomaly: SurfaceAnomaly?,
+    val probeData: ProbeData? = null
+)
+
+data class ProbeData(
+    val hiddenResources: String,
+    val structuralIntegrity: String,
+    val soilQuality: String,
+    val recommendation: String
 )
 
 enum class LocationType {

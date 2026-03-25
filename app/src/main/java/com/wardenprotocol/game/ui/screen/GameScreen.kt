@@ -123,6 +123,39 @@ fun GameScreen(
                         color = WarningAmber
                     )
                 }
+                
+                if (probeRevealed && location.probeData != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "PROBE ANALYSIS",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = VaultGreen
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = location.probeData.hiddenResources,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = location.probeData.structuralIntegrity,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = location.probeData.soilQuality,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "⚠ ${location.probeData.recommendation}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = WarningAmber
+                    )
+                }
             }
         }
         

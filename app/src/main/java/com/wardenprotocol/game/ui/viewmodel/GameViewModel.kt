@@ -95,8 +95,50 @@ class GameViewModel(
         if (state.surfaceProbes <= 0) return
         
         val location = state.currentLocation ?: return
-        _gameState.value = state.copy(surfaceProbes = state.surfaceProbes - 1)
-        _uiState.value = UiState.SurfaceScanning(location, probeRevealed = true)
+        
+        val probeData = generateProbeData(location)
+        val updatedLocation = location.copy(probeData = probeData)
+        
+        _gameState.value = state.copy(
+            surfaceProbes = state.surfaceProbes - 1,
+            currentLocation = updatedLocation
+        )
+        _uiState.value = UiState.SurfaceScanning(updatedLocation, probeRevealed = true)
+    }
+    
+    private fun generateProbeData(location: SurfaceLocation): ProbeData {
+        val hiddenResources = when {
+            location.resources == ResourceRichness.RICH -> "Underground mineral deposits detected. Valuable salvage potential."
+            location.resources == ResourceRichness.MODERATE -> "Scattered resources. Moderate salvage opportunities."
+            else -> "Depleted area. Minimal resources available."
+        }
+        
+        val structuralIntegrity = when {
+            location.shelter == ShelterQuality.EXCELLENT -> "Structures intact. Immediate habitation possible."
+            location.shelter == ShelterQuality.GOOD -> "Structures damaged but repairable. Shelter available."
+            location.shelter == ShelterQuality.POOR -> "Structures heavily damaged. Extensive repairs needed."
+            else -> "No viable structures. Must build from scratch."
+        }
+        
+        val soilQuality = when {
+            location.food == FoodPotential.FERTILE -> "Rich topsoil detected. Agriculture highly viable."
+            location.food == FoodPotential.MARGINAL -> "Contaminated soil. Limited agriculture possible with treatment."
+            else -> "Dead soil. Hydroponics or imports required for food."
+        }
+        
+        val scoreEstimate = when {
+            location.radiation == RadiationLevel.NONE && location.water == WaterAvailability.ABUNDANT && location.food == FoodPotential.FERTILE -> "EXCELLENT LOCATION - High survival probability"
+            location.radiation in listOf(RadiationLevel.HIGH, RadiationLevel.LETHAL) -> "DANGEROUS LOCATION - Low survival probability"
+            location.water == WaterAvailability.NONE -> "CRITICAL ISSUE - Water scarcity will be fatal"
+            else -> "VIABLE LOCATION - Moderate survival probability"
+        }
+        
+        return ProbeData(
+            hiddenResources = hiddenResources,
+            structuralIntegrity = structuralIntegrity,
+            soilQuality = soilQuality,
+            recommendation = scoreEstimate
+        )
     }
     
     private fun selectEventChoice(choice: EventChoice) {
