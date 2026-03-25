@@ -27,15 +27,15 @@ fun OutcomeScreen(
     var showButtons by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
-        delay(400)
-        showClassification = true
-        delay(600)
-        showNarrative = true
         delay(800)
+        showClassification = true
+        delay(1200)
+        showNarrative = true
+        delay(1500)
         showStats = true
-        delay(600)
+        delay(1200)
         showScore = true
-        delay(400)
+        delay(800)
         showButtons = true
     }
     

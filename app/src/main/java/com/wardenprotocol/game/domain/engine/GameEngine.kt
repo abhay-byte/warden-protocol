@@ -101,17 +101,40 @@ class GameEngine(private val eventRepository: EventRepository) {
         )
         
         systemsList.forEach { system ->
-            val decay = -(Random.nextInt(2, 9) * decayMultiplier).toInt()
+            val decay = -(Random.nextInt(3, 12) * decayMultiplier).toInt()
             systems = systems.applyDelta(system, decay)
         }
         
         var survivorLoss = 0
+        
+        // Food shortage deaths
         if (state.vaultSystems.foodStores < 30) {
-            survivorLoss += Random.nextInt(5, 21)
+            survivorLoss += Random.nextInt(10, 30)
         }
+        if (state.vaultSystems.foodStores < 15) {
+            survivorLoss += Random.nextInt(20, 40)
+        }
+        
+        // Atmosphere failure deaths
         if (state.vaultSystems.atmosphereScrubbers < 20) {
-            survivorLoss += Random.nextInt(3, 11)
+            survivorLoss += Random.nextInt(5, 20)
         }
+        if (state.vaultSystems.atmosphereScrubbers < 10) {
+            survivorLoss += Random.nextInt(15, 35)
+        }
+        
+        // Medical bay failure deaths
+        if (state.vaultSystems.medicalBay < 20) {
+            survivorLoss += Random.nextInt(3, 15)
+        }
+        
+        // Power grid critical failure
+        if (state.vaultSystems.powerGrid < 10) {
+            survivorLoss += Random.nextInt(10, 25)
+        }
+        
+        // Random deaths from time
+        survivorLoss += Random.nextInt(1, 5)
         
         return state.copy(
             vaultSystems = systems,
@@ -121,17 +144,36 @@ class GameEngine(private val eventRepository: EventRepository) {
     }
     
     fun scoreOutcome(state: GameState, location: SurfaceLocation): Int {
+        if (state.survivors <= 0) return 0
+        
         var score = state.survivors * 10
+        
+        // Location penalties/bonuses
         score += location.radiation.scoreModifier
         score += location.water.scoreModifier
         score += location.food.scoreModifier
         score += location.shelter.scoreModifier
         score += location.resources.scoreModifier
+        score += location.nativeHostility.scoreModifier
+        
+        // Vault systems (heavily weighted)
         score += (state.vaultSystems.constructionGear / 100.0 * 300).toInt()
+        score += (state.vaultSystems.powerGrid / 100.0 * 200).toInt()
+        score += (state.vaultSystems.foodStores / 100.0 * 200).toInt()
+        score += (state.vaultSystems.medicalBay / 100.0 * 150).toInt()
+        score += (state.vaultSystems.securitySystem / 100.0 * 150).toInt()
+        score += (state.vaultSystems.atmosphereScrubbers / 100.0 * 150).toInt()
+        
+        // Databases
         score += (state.databases.culturalArchive / 100.0 * 200).toInt()
         score += (state.databases.scientificArchive / 100.0 * 200).toInt()
-        score += location.nativeHostility.scoreModifier
+        
+        // Time penalty (longer = worse)
+        score -= (state.yearsSinceWar * 50)
+        
+        // Anomaly bonus
         location.anomaly?.let { score += it.scoreModifier }
+        
         return score.coerceAtLeast(0)
     }
     
@@ -141,10 +183,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scientific = state.databases.scientificArchive
         
         val (classification, tier) = when {
-            score >= 10000 -> "Golden Age Civilization" to 5
-            score >= 6000 -> "Thriving Society" to 4
-            score >= 3000 -> "Stable Settlement" to 3
-            score >= 1000 -> "Struggling Outpost" to 2
+            score >= 12000 -> "Golden Age Civilization" to 5
+            score >= 7000 -> "Thriving Society" to 4
+            score >= 4000 -> "Stable Settlement" to 3
+            score >= 1500 -> "Struggling Outpost" to 2
             else -> "Doomed Colony" to 1
         }
         

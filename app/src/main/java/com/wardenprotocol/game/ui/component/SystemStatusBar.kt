@@ -1,6 +1,8 @@
 package com.wardenprotocol.game.ui.component
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,11 @@ fun SystemStatusBar(
     value: Int,
     modifier: Modifier = Modifier
 ) {
-    val progress by animateFloatAsState(targetValue = value / 100f, label = "progress")
+    val progress by animateFloatAsState(
+        targetValue = value / 100f, 
+        animationSpec = tween(durationMillis = 1000, easing = EaseInOutCubic),
+        label = "progress"
+    )
     
     val color = when {
         value >= 70 -> VaultGreen
