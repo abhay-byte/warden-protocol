@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Outcome Vault Status And Background Cleanup
+
+- Status: completed
+- Title: Add expandable vault diagnostics to the result screen and simplify the shared background
+- Goal: Let players inspect bunker condition at the end of a run without cluttering the outcome card, and make the overall backdrop feel cleaner and less visually strange.
+- What changed: Added a hidden-by-default vault status section to the final run breakdown with compact metrics and expandable full system bars, and reworked the shared backdrop into a calmer command-console background with softer lines and glows.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Replace Glassy Home UI With Vault Console Style
 
 - Status: completed

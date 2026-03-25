@@ -76,55 +76,59 @@ fun WardenBackdrop(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundBlack, Color(0xFF0B101A), BackgroundBlue, BackgroundBlack)
+                    colors = listOf(
+                        BackgroundBlack,
+                        Color(0xFF09101B),
+                        BackgroundBlue,
+                        Color(0xFF08111E),
+                        BackgroundBlack
+                    )
                 )
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val leftColumn = size.width * 0.16f
-            val rightColumn = size.width * 0.84f
-
             drawRect(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF182333).copy(alpha = 0.9f), Color(0xFF0A0E16).copy(alpha = 0.6f))
+                    colors = listOf(Color(0xFF1A2435).copy(alpha = 0.18f), Color.Transparent)
                 ),
                 topLeft = Offset(0f, 0f),
-                size = androidx.compose.ui.geometry.Size(leftColumn, size.height)
-            )
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF182333).copy(alpha = 0.9f), Color(0xFF0A0E16).copy(alpha = 0.6f))
-                ),
-                topLeft = Offset(rightColumn, 0f),
-                size = androidx.compose.ui.geometry.Size(size.width - rightColumn, size.height)
+                size = androidx.compose.ui.geometry.Size(size.width, size.height * 0.24f)
             )
 
-            repeat(10) { index ->
-                val y = size.height * (0.1f + index * 0.09f)
+            repeat(8) { index ->
+                val y = size.height * (0.12f + index * 0.1f)
                 drawLine(
-                    color = SteelHighlight.copy(alpha = 0.06f),
-                    start = Offset(leftColumn * 0.2f, y),
-                    end = Offset(size.width - leftColumn * 0.2f, y),
-                    strokeWidth = 1.5f
+                    color = SteelHighlight.copy(alpha = if (index == 0) 0.08f else 0.035f),
+                    start = Offset(size.width * 0.06f, y),
+                    end = Offset(size.width * 0.94f, y),
+                    strokeWidth = 1.1f
                 )
             }
 
-            repeat(8) { index ->
-                val x = size.width * (0.22f + index * 0.08f)
+            repeat(5) { index ->
+                val x = size.width * (0.14f + index * 0.18f)
                 drawLine(
-                    color = CyanGlow.copy(alpha = if (index % 3 == 0) 0.08f else 0.03f),
-                    start = Offset(x, 0f),
-                    end = Offset(x, size.height),
-                    strokeWidth = 1.2f
+                    color = CyanGlow.copy(alpha = if (index == 2) 0.055f else 0.02f),
+                    start = Offset(x, size.height * 0.08f),
+                    end = Offset(x, size.height * 0.92f),
+                    strokeWidth = 1f
                 )
             }
 
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(CyanGlow.copy(alpha = 0.11f), Color.Transparent)
+                    colors = listOf(CyanGlow.copy(alpha = 0.08f), Color.Transparent)
+                ),
+                radius = size.minDimension * 0.34f,
+                center = Offset(size.width * 0.62f, size.height * 0.24f)
+            )
+
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0xFF203652).copy(alpha = 0.1f), Color.Transparent)
                 ),
                 radius = size.minDimension * 0.42f,
-                center = Offset(size.width * 0.5f, size.height * 0.34f)
+                center = Offset(size.width * 0.22f, size.height * 0.88f)
             )
         }
         content()

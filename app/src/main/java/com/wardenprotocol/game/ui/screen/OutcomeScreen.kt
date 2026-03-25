@@ -20,14 +20,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -38,14 +46,19 @@ import androidx.compose.ui.unit.dp
 import com.wardenprotocol.game.data.model.ColonyOutcome
 import com.wardenprotocol.game.ui.component.ActionButton
 import com.wardenprotocol.game.ui.component.CommandPanel
+import com.wardenprotocol.game.ui.component.DividerGlow
+import com.wardenprotocol.game.ui.component.SectionLabel
 import com.wardenprotocol.game.ui.component.StatusBadge
+import com.wardenprotocol.game.ui.component.SystemStatusBar
 import com.wardenprotocol.game.ui.component.WardenBackdrop
 import com.wardenprotocol.game.ui.component.animatedEntranceModifier
+import com.wardenprotocol.game.ui.theme.DangerRed
 import com.wardenprotocol.game.ui.theme.SignalCyan
 import com.wardenprotocol.game.ui.theme.TextPrimary
 import com.wardenprotocol.game.ui.theme.TextSecondary
 import com.wardenprotocol.game.ui.theme.VaultGreen
 import com.wardenprotocol.game.ui.theme.WarningAmber
+import kotlin.math.roundToInt
 
 @Composable
 fun OutcomeScreen(
@@ -140,6 +153,7 @@ fun OutcomeScreen(
                     StatRow("Shelter", stats.shelter)
                     StatRow("Resources", stats.resources)
                     StatRow("Threats", stats.threats)
+                    OutcomeVaultStatus(stats)
                 }
             }
 
@@ -328,6 +342,116 @@ private fun StatRow(label: String, value: String) {
         Text(text = label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
         Text(text = value, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
     }
+}
+
+@Composable
+private fun OutcomeVaultStatus(stats: com.wardenprotocol.game.data.model.OutcomeStats) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val systemValues = listOf(
+        stats.powerGrid,
+        stats.foodStores,
+        stats.medicalBay,
+        stats.securitySystem,
+        stats.constructionGear,
+        stats.atmosphereScrubbers
+    )
+    val archiveValues = listOf(stats.culturalArchive, stats.scientificArchive)
+    val averageCore = systemValues.average().roundToInt()
+    val averageArchives = archiveValues.average().roundToInt()
+    val criticalCount = (systemValues + archiveValues).count { it < 35 }
+    val unstableCount = (systemValues + archiveValues).count { it in 35..69 }
+
+    Spacer(modifier = Modifier.height(8.dp))
+    DividerGlow()
+    Spacer(modifier = Modifier.height(10.dp))
+
+    SectionLabel(
+        text = "Vault Status",
+        accent = VaultGreen,
+        trailing = {
+            TextButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = SignalCyan
+                )
+                Text(
+                    text = if (expanded) "Hide" else "Show",
+                    color = SignalCyan
+                )
+            }
+        }
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        StatusBadge(
+            icon = Icons.Filled.Memory,
+            label = "Core",
+            value = "$averageCore%",
+            accent = vaultHealthAccent(averageCore),
+            modifier = Modifier.weight(1f)
+        )
+        StatusBadge(
+            icon = Icons.Filled.History,
+            label = "Archives",
+            value = "$averageArchives%",
+            accent = vaultHealthAccent(averageArchives),
+            modifier = Modifier.weight(1f)
+        )
+        StatusBadge(
+            icon = Icons.Filled.Shield,
+            label = "Critical",
+            value = criticalCount.toString(),
+            accent = if (criticalCount == 0) VaultGreen else DangerRed,
+            modifier = Modifier.weight(1f)
+        )
+    }
+
+    Text(
+        text = conciseVaultOutcomeLine(averageCore, unstableCount, criticalCount),
+        style = MaterialTheme.typography.bodySmall,
+        color = TextSecondary
+    )
+
+    if (expanded) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SystemStatusBar("Power Grid", stats.powerGrid)
+            SystemStatusBar("Food Stores", stats.foodStores)
+            SystemStatusBar("Medical Bay", stats.medicalBay)
+            SystemStatusBar("Security System", stats.securitySystem)
+            SystemStatusBar("Construction Gear", stats.constructionGear)
+            SystemStatusBar("Atmosphere Scrubbers", stats.atmosphereScrubbers)
+            SectionLabel(text = "Database Archives", accent = SignalCyan)
+            SystemStatusBar("Cultural Archive", stats.culturalArchive)
+            SystemStatusBar("Scientific Archive", stats.scientificArchive)
+        }
+    }
+}
+
+private fun conciseVaultOutcomeLine(
+    averageCore: Int,
+    unstableCount: Int,
+    criticalCount: Int
+): String {
+    return when {
+        criticalCount > 0 -> "$criticalCount bunker systems finished in critical condition."
+        unstableCount > 0 -> "$unstableCount bunker systems were unstable by the end of the run."
+        averageCore >= 85 -> "The vault remained strong through launch and evacuation."
+        else -> "The vault held, but long-term bunker resilience was slipping."
+    }
+}
+
+private fun vaultHealthAccent(value: Int) = when {
+    value >= 70 -> VaultGreen
+    value >= 40 -> WarningAmber
+    value >= 15 -> WarningAmber
+    else -> DangerRed
 }
 
 private enum class OutcomeMood {
