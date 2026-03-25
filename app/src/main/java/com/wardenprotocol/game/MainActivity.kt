@@ -1,9 +1,13 @@
 package com.wardenprotocol.game
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
@@ -15,10 +19,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.wardenprotocol.game.data.repository.EventRepository
 import com.wardenprotocol.game.data.repository.HighScoreRepository
 import com.wardenprotocol.game.domain.engine.GameEngine
@@ -62,6 +70,16 @@ fun GameApp(viewModel: GameViewModel) {
     val highScore by viewModel.highScore.collectAsState()
     val leaderboard by viewModel.leaderboard.collectAsState()
     val runHistory by viewModel.runHistory.collectAsState()
+    val context = LocalContext.current
+    var showQuitDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        when {
+            showQuitDialog -> showQuitDialog = false
+            uiState != UiState.MainMenu -> viewModel.handleAction(GameAction.GoToMainMenu)
+            else -> showQuitDialog = true
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -153,6 +171,28 @@ fun GameApp(viewModel: GameViewModel) {
             }
         }
     }
+
+    if (showQuitDialog) {
+        AlertDialog(
+            onDismissRequest = { showQuitDialog = false },
+            title = { Text("Quit Game") },
+            text = { Text("Do you want to quit? 😢") },
+            confirmButton = {
+                TextButton(
+                    onClick = { context.findActivity()?.finish() }
+                ) {
+                    Text("Quit")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showQuitDialog = false }
+                ) {
+                    Text("Stay")
+                }
+            }
+        )
+    }
 }
 
 private fun screenKey(state: UiState): String = when (state) {
@@ -173,4 +213,10 @@ private fun screenRank(state: UiState): Int = when (state) {
     is UiState.RandomEvent -> 3
     is UiState.EventOutcome -> 4
     is UiState.GameOutcome -> 5
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
