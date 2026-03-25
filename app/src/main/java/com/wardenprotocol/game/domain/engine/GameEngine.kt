@@ -371,6 +371,10 @@ class GameEngine(private val eventRepository: EventRepository) {
 
         val settlementName = generateSettlementName(location)
         val transitLine = generateTransitLine(location, travelDeaths)
+        val casualtyLine = generateCasualtyLine(
+            survivors = state.survivors,
+            travelDeaths = travelDeaths
+        )
         val futureEpilogue = generateFutureEpilogue(
             state = state,
             location = location,
@@ -397,6 +401,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "They lived in $environment.",
                     transitLine,
                     specificEnding,
+                    casualtyLine,
                     "Their descendants would remember this as humanity's second dawn.",
                     futureEpilogue
                 )
@@ -415,7 +420,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "They lived in $environment.",
                     transitLine,
                     specificEnding,
-                    "Of the thousand people who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice still bought a future.",
+                    casualtyLine,
                     futureEpilogue
                 )
             }
@@ -433,7 +438,8 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "They lived in $environment.",
                     transitLine,
                     specificEnding,
-                    "${1000 - state.survivors} people died in the vault, and many more would die in the world above.",
+                    casualtyLine,
+                    "Many more would die in the world above.",
                     futureEpilogue
                 )
             }
@@ -453,7 +459,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "They lived in $environment.",
                     transitLine,
                     specificEnding,
-                    "${1000 - state.survivors} people died in the vault.",
+                    casualtyLine,
                     "Most of those who made it out would not survive another decade.",
                     futureEpilogue
                 )
@@ -474,7 +480,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "They tried to live in $environment, but even that word is too generous.",
                     transitLine,
                     specificEnding,
-                    "${1000 - state.survivors} people died in the vault.",
+                    casualtyLine,
                     "Humanity's light went out there.",
                     futureEpilogue
                 )
@@ -640,6 +646,28 @@ class GameEngine(private val eventRepository: EventRepository) {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .joinToString(" ")
+    }
+
+    private fun generateCasualtyLine(
+        survivors: Int,
+        travelDeaths: Int
+    ): String {
+        val totalDeaths = (1000 - survivors).coerceAtLeast(0)
+        if (totalDeaths == 0) {
+            return "All 1000 vault residents survived long enough to reach the new settlement."
+        }
+
+        val safeTravelDeaths = travelDeaths.coerceIn(0, totalDeaths)
+        val nonTransitDeaths = totalDeaths - safeTravelDeaths
+
+        return when {
+            safeTravelDeaths > 0 && nonTransitDeaths > 0 ->
+                "$totalDeaths people from the vault were lost before the colony could stabilize, including $safeTravelDeaths during the journey to the site."
+            safeTravelDeaths > 0 ->
+                "$totalDeaths people from the vault were lost, all of them during the journey to the site."
+            else ->
+                "$totalDeaths people from the vault were lost before the colony could stabilize."
+        }
     }
 
     private fun buildLocationIntel(

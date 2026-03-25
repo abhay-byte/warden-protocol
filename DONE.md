@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Result Casualty Wording Fix
+
+- Status: completed
+- Title: Fix the ending narration so it does not wrongly say all deaths happened in the vault
+- Goal: Make the result screen describe casualties accurately by separating total losses from travel losses instead of mislabeling them as vault-only deaths.
+- What changed: Replaced the hard-coded “died in the vault” phrasing in the outcome generator with a casualty summary that reports total losses honestly and explicitly calls out transit deaths when they occurred.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Ending Narrative Clarity Pass
 
 - Status: completed
