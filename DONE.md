@@ -35,3 +35,11 @@ This file tracks tasks that have been fully completed.
 - Goal: Replace the generic quit confirmation with a game-styled modal that feels like part of the bunker interface while keeping the back flow behavior.
 - What changed: Replaced the stock-looking quit prompt with a custom full-screen bunker-themed modal that uses the same cards, colors, iconography, and action buttons as the rest of the interface.
 - Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
+### 2026-03-25 - Randomized Vault-Opening Casualties
+
+- Status: completed
+- Title: Add more variation to how many survivors die when the vault opens
+- Goal: Avoid repetitive final death counts like 200 or 300 by making vault-opening casualties vary more while still matching the location hazards.
+- What changed: Replaced fixed casualty percentages in the vault-opening calculation with bounded random casualty bands for radiation, dehydration, hostility, and exposure effects.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.

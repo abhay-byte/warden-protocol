@@ -7,6 +7,7 @@ import com.wardenprotocol.game.data.repository.HighScoreRepository
 import com.wardenprotocol.game.domain.engine.GameEngine
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 sealed class GameAction {
     object StartNewGame : GameAction()
@@ -96,36 +97,36 @@ class GameViewModel(
         
         when {
             location.radiation == RadiationLevel.LETHAL -> {
-                immediateDeaths += (state.survivors * 0.5).toInt() // 50% die immediately
+                immediateDeaths += randomCasualties(state.survivors, 0.35f, 0.55f)
             }
             location.radiation == RadiationLevel.HIGH -> {
-                immediateDeaths += (state.survivors * 0.2).toInt() // 20% die immediately
+                immediateDeaths += randomCasualties(state.survivors, 0.12f, 0.28f)
             }
         }
         
         if (location.water == WaterAvailability.NONE) {
-            immediateDeaths += (state.survivors * 0.3).toInt() // 30% die from dehydration
+            immediateDeaths += randomCasualties(state.survivors, 0.18f, 0.34f)
         }
         
         if (location.food == FoodPotential.BARREN && location.water == WaterAvailability.NONE) {
-            immediateDeaths += (state.survivors * 0.2).toInt() // Additional 20% for combined effect
+            immediateDeaths += randomCasualties(state.survivors, 0.08f, 0.18f)
         }
         
         when (location.nativeHostility) {
             Hostility.WARLORD -> {
-                immediateDeaths += (state.survivors * 0.4).toInt() // 40% killed in attack
+                immediateDeaths += randomCasualties(state.survivors, 0.22f, 0.42f)
             }
             Hostility.WASTELAND_CULT -> {
-                immediateDeaths += (state.survivors * 0.2).toInt() // 20% killed
+                immediateDeaths += randomCasualties(state.survivors, 0.10f, 0.24f)
             }
             Hostility.BANDITS -> {
-                immediateDeaths += (state.survivors * 0.1).toInt() // 10% killed
+                immediateDeaths += randomCasualties(state.survivors, 0.04f, 0.14f)
             }
             else -> {}
         }
         
         if (location.shelter == ShelterQuality.NONE && location.radiation != RadiationLevel.NONE) {
-            immediateDeaths += (state.survivors * 0.15).toInt() // 15% die from exposure
+            immediateDeaths += randomCasualties(state.survivors, 0.06f, 0.16f)
         }
         
         // Apply deaths
@@ -240,5 +241,11 @@ class GameViewModel(
                 scientificArchive = state.databases.scientificArchive
             )
         )
+    }
+
+    private fun randomCasualties(survivors: Int, minFraction: Float, maxFraction: Float): Int {
+        val minDeaths = (survivors * minFraction).toInt()
+        val maxDeaths = (survivors * maxFraction).toInt().coerceAtLeast(minDeaths)
+        return if (maxDeaths <= minDeaths) minDeaths else Random.nextInt(minDeaths, maxDeaths + 1)
     }
 }
