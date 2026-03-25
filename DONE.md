@@ -43,3 +43,11 @@ This file tracks tasks that have been fully completed.
 - Goal: Avoid repetitive final death counts like 200 or 300 by making vault-opening casualties vary more while still matching the location hazards.
 - What changed: Replaced fixed casualty percentages in the vault-opening calculation with bounded random casualty bands for radiation, dehydration, hostility, and exposure effects.
 - Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
+### 2026-03-25 - UI Simplification Pass
+
+- Status: completed
+- Title: Simplify the UI for much better at-a-glance clarity
+- Goal: Make the interface easier to understand quickly by reducing clutter and applying a clearer visual hierarchy.
+- What changed: Simplified the shared chrome, flattened the visual styling, and redesigned the home and gameplay screens so the key information and next action are much easier to scan.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
