@@ -27,3 +27,11 @@ This file tracks tasks that have been fully completed.
 - Goal: Make the back button return the player to the home screen first, and only show a quit confirmation from the home screen instead of exiting immediately.
 - What changed: Added root-level back handling so non-home screens route back to the main menu, and the home screen now shows a quit confirmation dialog before closing the activity.
 - Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
+### 2026-03-25 - Quit Dialog Restyle
+
+- Status: completed
+- Title: Restyle the quit confirmation so it matches the game UI
+- Goal: Replace the generic quit confirmation with a game-styled modal that feels like part of the bunker interface while keeping the back flow behavior.
+- What changed: Replaced the stock-looking quit prompt with a custom full-screen bunker-themed modal that uses the same cards, colors, iconography, and action buttons as the rest of the interface.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.

@@ -16,22 +16,56 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.wardenprotocol.game.data.repository.EventRepository
 import com.wardenprotocol.game.data.repository.HighScoreRepository
 import com.wardenprotocol.game.domain.engine.GameEngine
+import com.wardenprotocol.game.ui.component.ActionButton
+import com.wardenprotocol.game.ui.component.StatusBadge
 import com.wardenprotocol.game.ui.screen.*
+import com.wardenprotocol.game.ui.theme.BackgroundBlack
+import com.wardenprotocol.game.ui.theme.PanelStroke
+import com.wardenprotocol.game.ui.theme.SignalCyan
+import com.wardenprotocol.game.ui.theme.SurfaceBlack
+import com.wardenprotocol.game.ui.theme.SurfaceElevated
+import com.wardenprotocol.game.ui.theme.TextPrimary
+import com.wardenprotocol.game.ui.theme.TextSecondary
+import com.wardenprotocol.game.ui.theme.VaultGreen
 import com.wardenprotocol.game.ui.theme.WardenProtocolTheme
+import com.wardenprotocol.game.ui.theme.WarningAmber
 import com.wardenprotocol.game.ui.viewmodel.GameViewModel
 import com.wardenprotocol.game.ui.viewmodel.GameAction
 import com.wardenprotocol.game.ui.viewmodel.UiState
@@ -173,24 +207,9 @@ fun GameApp(viewModel: GameViewModel) {
     }
 
     if (showQuitDialog) {
-        AlertDialog(
-            onDismissRequest = { showQuitDialog = false },
-            title = { Text("Quit Game") },
-            text = { Text("Do you want to quit? 😢") },
-            confirmButton = {
-                TextButton(
-                    onClick = { context.findActivity()?.finish() }
-                ) {
-                    Text("Quit")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showQuitDialog = false }
-                ) {
-                    Text("Stay")
-                }
-            }
+        QuitGameDialog(
+            onDismiss = { showQuitDialog = false },
+            onQuit = { context.findActivity()?.finish() }
         )
     }
 }
@@ -219,4 +238,105 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
     else -> null
+}
+
+@Composable
+private fun QuitGameDialog(
+    onDismiss: () -> Unit,
+    onQuit: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundBlack.copy(alpha = 0.72f))
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, PanelStroke, RoundedCornerShape(32.dp)),
+                colors = CardDefaults.cardColors(containerColor = SurfaceBlack.copy(alpha = 0.98f)),
+                shape = RoundedCornerShape(32.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(SurfaceElevated, SurfaceBlack)
+                            )
+                        )
+                        .padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(54.dp)
+                                .clip(CircleShape)
+                                .background(WarningAmber.copy(alpha = 0.14f))
+                                .border(1.dp, WarningAmber.copy(alpha = 0.28f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = null,
+                                tint = WarningAmber
+                            )
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Leave The Bunker?",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "The command feed will go dark if you exit now.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+                        }
+                    }
+
+                    StatusBadge(
+                        icon = Icons.Filled.Shield,
+                        label = "Command Prompt",
+                        value = "Do you want to quit? 😢",
+                        accent = WarningAmber
+                    )
+
+                    Text(
+                        text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextSecondary
+                    )
+
+                    ActionButton(
+                        title = "Stay In The Vault",
+                        subtitle = "Return to the home page and keep command online.",
+                        icon = Icons.Filled.Home,
+                        accent = VaultGreen,
+                        onClick = onDismiss
+                    )
+
+                    ActionButton(
+                        title = "Quit Game",
+                        subtitle = "Close the app and leave the bunker interface.",
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
+                        accent = SignalCyan,
+                        onClick = onQuit
+                    )
+                }
+            }
+        }
+    }
 }
