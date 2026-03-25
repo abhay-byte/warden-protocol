@@ -273,6 +273,15 @@ class GameEngine(private val eventRepository: EventRepository) {
         }
         
         val settlementName = generateSettlementName(location)
+        val futureEpilogue = generateFutureEpilogue(
+            state = state,
+            location = location,
+            score = score,
+            tier = tier,
+            classification = classification,
+            settlementName = settlementName,
+            vaultNumber = vaultNumber
+        )
         
         val outcomeDetail = when (tier) {
             5 -> {
@@ -282,7 +291,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Blessed Settlement" -> " The ${location.anomaly?.displayName} changed everything. What seemed like a curse became their greatest blessing. It provided resources, knowledge, or protection that made survival not just possible, but inevitable."
                     else -> " The location was perfect—clean air, abundant water, fertile soil. Humanity had been given a second chance, and they seized it."
                 }
-                "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment.$specificEnding Their descendants would remember this as humanity's second dawn."
+                "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment.$specificEnding Their descendants would remember this as humanity's second dawn. $futureEpilogue"
             }
             4 -> {
                 val specificEnding = when (classification) {
@@ -291,7 +300,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Oasis of Hope" -> " Abundant water was their salvation. While others fought over drops, they had rivers. They became a destination for desperate wanderers, growing their population and influence."
                     else -> " Despite the challenges of ${location.name}, they overcame every obstacle through ingenuity and determination."
                 }
-                "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment.$specificEnding Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain."
+                "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment.$specificEnding Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain. $futureEpilogue"
             }
             3 -> {
                 val specificEnding = when (classification) {
@@ -300,7 +309,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Irradiated Settlement" -> " The ${location.radiation.displayName} radiation was inescapable. They wore protective gear constantly. Cancers were common. Mutations appeared in the second generation. They survived, but at what cost?"
                     else -> " The harsh conditions tested them daily."
                 }
-                "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above."
+                "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above. $futureEpilogue"
             }
             2 -> {
                 val specificEnding = when (classification) {
@@ -310,7 +319,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Starving Remnant" -> " Food stores at ${state.vaultSystems.foodStores}%. They were already starving in the vault. The surface offered no relief. They ate rats, insects, anything. Cannibalism was whispered about but never proven. Starvation made them animals."
                     else -> " Every aspect of ${location.name} was hostile to human life. They had chosen poorly."
                 }
-                "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade."
+                "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade. $futureEpilogue"
             }
             else -> {
                 val specificEnding = when (classification) {
@@ -320,7 +329,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Conquered and Enslaved" -> " The warlord's forces were waiting. They had detected the vault years ago. The survivors were captured immediately, their technology stolen, their bodies enslaved. They died in chains, building monuments to their conquerors. A few escaped and spread the warning: never open the vault."
                     else -> " ${location.name} was a death sentence. They should have stayed in the vault."
                 }
-                "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word.$specificEnding ${1000 - state.survivors} died in the vault. Humanity's light was extinguished."
+                "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word.$specificEnding ${1000 - state.survivors} died in the vault. Humanity's light was extinguished. $futureEpilogue"
             }
         }
         
@@ -352,6 +361,108 @@ class GameEngine(private val eventRepository: EventRepository) {
         )
     }
     
+    private fun generateFutureEpilogue(
+        state: GameState,
+        location: SurfaceLocation,
+        score: Int,
+        tier: Int,
+        classification: String,
+        settlementName: String,
+        vaultNumber: Int
+    ): String {
+        val foundationYears = when (tier) {
+            5 -> (2 + (100 - state.vaultSystems.constructionGear) / 18).coerceAtLeast(2)
+            4 -> (4 + (100 - state.vaultSystems.constructionGear) / 12).coerceAtLeast(4)
+            3 -> (8 + (100 - state.vaultSystems.constructionGear) / 10).coerceAtLeast(6)
+            2 -> (6 + (100 - state.vaultSystems.constructionGear) / 14).coerceAtLeast(5)
+            else -> 1
+        }
+        val foundationYear = state.yearsSinceWar + foundationYears
+        val futureYear = state.yearsSinceWar + foundationYears + when (tier) {
+            5 -> 45
+            4 -> 30
+            3 -> 18
+            2 -> 8
+            else -> 1
+        }
+
+        return when (tier) {
+            5 -> {
+                val maturityYears = state.yearsSinceWar + 60 + (state.survivors / 25)
+                val milestone = when {
+                    location.resources == ResourceRichness.RICH ->
+                        "metalworks, power relays, and reclaimed transit routes tied neighboring settlements to $settlementName"
+                    state.databases.scientificArchive >= 80 ->
+                        "their engineers restored medicine, irrigation, and machine industry far faster than anyone expected"
+                    else ->
+                        "their schools, archives, and farms spread stable life across the surrounding region"
+                }
+                "Within $foundationYears years, they had raised permanent walls, clinics, and fields around $settlementName. By Year $futureYear after the war, the first generation born under open sky was reaching adulthood and no longer thought of the vault as home. By Year $maturityYears, $milestone. Historians would later mark the opening of Vault $vaultNumber as the beginning of a civilization that endured for centuries."
+            }
+
+            4 -> {
+                val civilizationYear = state.yearsSinceWar + 25 + (score / 350)
+                val milestone = when (classification) {
+                    "Industrial Haven" -> "workshops became foundries, and foundries became a true industrial district"
+                    "Oasis of Hope" -> "the settlement grew into a regional refuge, drawing migrants and forging alliances around its water supply"
+                    else -> "their camp hardened into a town, then into a recognized city-state with laws, markets, and a shared identity"
+                }
+                "They needed $foundationYears hard years to get past hunger, exposure, and panic, but by Year $foundationYear after the war the settlement was no longer temporary. By Year $civilizationYear, $milestone. The people of the vault did not simply survive; they created a durable society that outlived the bunker generation."
+            }
+
+            3 -> {
+                val survivalYears = 18 + (state.survivors / 35) + (state.databases.scientificArchive / 12)
+                val endYear = state.yearsSinceWar + survivalYears
+                val branch = when {
+                    classification == "Irradiated Settlement" ->
+                        "By Year $endYear after the war, they were still alive, but only through strict rationing, radiation discipline, and endless repair work. Their descendants inherited a functioning settlement, yet also inherited tumors, deformities, and a life expectancy far below that of the old world."
+                    classification == "Fragile Foothold" ->
+                        "They held on for roughly $survivalYears years. Births replaced some of the dead, but never enough to feel safe. By Year $endYear after the war, $settlementName remained inhabited, though it was more fortress than civilization and one bad winter from collapse."
+                    else ->
+                        "For about $survivalYears years, the colony wavered between recovery and ruin. By Year $endYear after the war, they had not died out, but neither had they truly rebuilt the world. They became one more stubborn survivor culture in the ashes, remembered more for endurance than triumph."
+                }
+                "It took them until Year $foundationYear after the war to build anything that deserved the name settlement. $branch"
+            }
+
+            2 -> {
+                val survivalYears = when (classification) {
+                    "Besieged Outpost" -> 3 + (state.survivors / 90)
+                    "Thirst-Cursed Camp" -> 1 + (state.survivors / 140)
+                    "Starving Remnant" -> 2 + (state.survivors / 110)
+                    else -> 4 + (state.survivors / 80)
+                }
+                val endYear = state.yearsSinceWar + survivalYears
+                val ending = when (classification) {
+                    "Besieged Outpost" ->
+                        "They managed to resist for about $survivalYears years, but every season cost lives they could not replace. By Year $endYear after the war, the settlement had either been overrun or abandoned by the few survivors still able to flee."
+                    "Thirst-Cursed Camp" ->
+                        "Water broke them first. Within roughly $survivalYears years, disease, dehydration, and infighting had gutted the camp. By Year $endYear after the war, only ruins and shallow graves marked where they had tried to live."
+                    "Starving Remnant" ->
+                        "They stretched scavenged calories further than seemed possible, but hunger ruled every choice. They lasted around $survivalYears years before the settlement fragmented into wandering families and the name $settlementName disappeared from memory."
+                    else ->
+                        "They clung to life for roughly $survivalYears years, never secure enough to raise a second stable generation. By Year $endYear after the war, the colony had dwindled into scattered survivors, and the dream of rebuilding died with it."
+                }
+                "They never truly stabilized after leaving the vault. $ending"
+            }
+
+            else -> {
+                val timing = when (classification) {
+                    "Final Gasps" -> "within weeks"
+                    "Radiation Tomb" -> "within hours"
+                    "Conquered and Enslaved" -> "within months"
+                    "Total Extinction" -> "before the first day ended"
+                    else -> "within the first year"
+                }
+                val finalYearText = if (state.yearsSinceWar == 0) {
+                    "the same year the vault opened"
+                } else {
+                    "Year ${state.yearsSinceWar + 1} after the war"
+                }
+                "Their final fate was sealed $timing. By $finalYearText, no free community remained from Vault $vaultNumber. At most, later travelers found a few relics, a half-finished wall, or stories told by strangers about people who had emerged too late into a dead world."
+            }
+        }
+    }
+
     private fun generateSettlementName(location: SurfaceLocation): String {
         val prefixes = listOf("New", "Fort", "Haven", "Hope", "Last", "First", "Eden", "Sanctuary")
         val suffixes = listOf("Dawn", "Light", "Home", "Rest", "Peace", "Tomorrow", "Spring", "Harbor")
