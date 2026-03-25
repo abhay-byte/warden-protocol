@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Replace Glassy Home UI With Vault Console Style
+
+- Status: completed
+- Title: Redesign the home UI away from glassmorphism into a stronger game-like vault console presentation
+- Goal: Make the main menu feel like a proper game interface with a more physical, mechanical vault aesthetic inspired by the reference direction.
+- What changed: Reworked the shared chrome with heavier steel/brass panel styling, a more industrial background, and hardware-style buttons; redesigned the home screen around a drawn vault-core hero seal, stronger mission cards, and a more deliberate command-console hierarchy; and kept the implementation code-driven because no image-generation tool was available in this session.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Add 20 Apex Threat Encounters
 
 - Status: completed
