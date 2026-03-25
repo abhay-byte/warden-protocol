@@ -91,10 +91,14 @@ class GameViewModel(
     private fun openVault() {
         var state = _gameState.value
         val location = state.currentLocation ?: return
-        
-        // Apply immediate location consequences
-        var immediateDeaths = 0
-        
+
+        val travelDeaths = randomCasualties(
+            state.survivors,
+            location.travelProfile.minLossPercent / 100f,
+            location.travelProfile.maxLossPercent / 100f
+        )
+        var immediateDeaths = travelDeaths
+
         when {
             location.radiation == RadiationLevel.LETHAL -> {
                 immediateDeaths += randomCasualties(state.survivors, 0.35f, 0.55f)
@@ -128,12 +132,16 @@ class GameViewModel(
         if (location.shelter == ShelterQuality.NONE && location.radiation != RadiationLevel.NONE) {
             immediateDeaths += randomCasualties(state.survivors, 0.06f, 0.16f)
         }
-        
-        // Apply deaths
+
         state = state.copy(survivors = (state.survivors - immediateDeaths).coerceAtLeast(0))
         _gameState.value = state
-        
-        val outcome = gameEngine.generateOutcomeNarrative(state, location, gameEngine.scoreOutcome(state, location))
+
+        val outcome = gameEngine.generateOutcomeNarrative(
+            state = state,
+            location = location,
+            score = gameEngine.scoreOutcome(state, location),
+            travelDeaths = travelDeaths
+        )
         finishGame(state.copy(phase = GamePhase.OPEN_VAULT), outcome)
     }
     
@@ -225,6 +233,10 @@ class GameViewModel(
                 yearsSinceWar = state.yearsSinceWar,
                 deaths = 1000,
                 locationName = locationName,
+                travelRoute = state.currentLocation?.travelProfile?.routeName ?: "Unavailable",
+                travelTime = state.currentLocation?.travelProfile?.durationText ?: "Unavailable",
+                travelRisk = state.currentLocation?.travelProfile?.riskLevel?.displayName ?: "Unknown",
+                travelDeaths = 0,
                 radiation = state.currentLocation?.radiation?.displayName ?: "Unknown",
                 water = state.currentLocation?.water?.displayName ?: "Unknown",
                 food = state.currentLocation?.food?.displayName ?: "Unknown",

@@ -10,8 +10,28 @@ data class SurfaceLocation(
     val resources: ResourceRichness,
     val nativeHostility: Hostility,
     val anomaly: SurfaceAnomaly?,
+    val shortDescription: String,
+    val longDescription: String,
+    val travelProfile: TravelProfile,
     val probeData: ProbeData? = null
 )
+
+data class TravelProfile(
+    val routeName: String,
+    val durationText: String,
+    val riskLevel: TravelRisk,
+    val riskSummary: String,
+    val minLossPercent: Int,
+    val maxLossPercent: Int,
+    val scorePenalty: Int
+)
+
+enum class TravelRisk(val displayName: String) {
+    LOW("Low"),
+    MODERATE("Moderate"),
+    HIGH("High"),
+    EXTREME("Extreme")
+}
 
 data class ProbeData(
     val hiddenResources: String,

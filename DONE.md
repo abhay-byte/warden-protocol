@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Surface Descriptions and Transit Penalty
+
+- Status: completed
+- Title: Add short and long outside-world descriptions plus transit penalty before opening the vault
+- Goal: Make each scanned location explain what the area outside the vault is actually like, and show the journey cost to reach it before the player commits.
+- What changed: Added short and expandable long field descriptions for every generated surface location; introduced route, travel time, risk, attrition estimate, and score penalty telemetry on the gameplay screen; applied the travel attrition and score penalty when opening the vault; and carried the transit details into the final outcome breakdown.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - UI Rehaul, Archives, and Motion Polish
 
 - Status: completed

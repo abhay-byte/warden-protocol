@@ -9,14 +9,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TipsAndUpdates
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -46,6 +54,8 @@ fun GameScreen(
     onDeployProbe: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var detailsExpanded by rememberSaveable(location.name) { mutableStateOf(false) }
+
     WardenBackdrop(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -92,12 +102,65 @@ fun GameScreen(
                     style = MaterialTheme.typography.labelMedium,
                     color = TextSecondary
                 )
+                Text(
+                    text = location.shortDescription,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextPrimary
+                )
+                TextButton(
+                    onClick = { detailsExpanded = !detailsExpanded },
+                    modifier = animatedEntranceModifier(Modifier, delayMillis = 45)
+                ) {
+                    Icon(
+                        imageVector = if (detailsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        tint = SignalCyan
+                    )
+                    Text(
+                        text = if (detailsExpanded) "Hide field report" else "Expand field report",
+                        color = SignalCyan
+                    )
+                }
+                if (detailsExpanded) {
+                    Text(
+                        text = location.longDescription,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                }
+
+                DividerGlow()
                 SimpleIntelRow("Radiation", scannerValue(gameState.vaultSystems.radiationScanner, location.radiation.displayName), hazardAccent(location.radiation.name))
                 SimpleIntelRow("Water", scannerValue(gameState.vaultSystems.waterScanner, location.water.displayName), hazardAccent(location.water.name))
                 SimpleIntelRow("Food", scannerValue(gameState.vaultSystems.agriculturalScanner, location.food.displayName), hazardAccent(location.food.name))
                 SimpleIntelRow("Shelter", scannerValue(gameState.vaultSystems.structureScanner, location.shelter.displayName), hazardAccent(location.shelter.name))
                 SimpleIntelRow("Resources", scannerValue(gameState.vaultSystems.resourceScanner, location.resources.displayName), hazardAccent(location.resources.name))
                 SimpleIntelRow("Threats", scannerValue(gameState.vaultSystems.threatAssessment, location.nativeHostility.displayName), hazardAccent(location.nativeHostility.name))
+
+                DividerGlow()
+                Text(
+                    text = "Transit to Site",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = WarningAmber
+                )
+                Text(
+                    text = location.travelProfile.routeName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextPrimary
+                )
+                Text(
+                    text = location.travelProfile.riskSummary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+                SimpleIntelRow("Travel Time", location.travelProfile.durationText, TextPrimary)
+                SimpleIntelRow("Risk", location.travelProfile.riskLevel.displayName, hazardAccent(location.travelProfile.riskLevel.name))
+                SimpleIntelRow(
+                    "Estimated Attrition",
+                    "${location.travelProfile.minLossPercent}% to ${location.travelProfile.maxLossPercent}%",
+                    WarningAmber
+                )
+                SimpleIntelRow("Score Penalty", "-${location.travelProfile.scorePenalty}", DangerRed)
 
                 if (probeRevealed && location.anomaly != null) {
                     DividerGlow()
@@ -141,7 +204,7 @@ fun GameScreen(
                 )
                 ActionButton(
                     title = "Open The Vault",
-                    subtitle = "Commit to this location and end the run.",
+                    subtitle = "Commit to this location. Transit losses apply on launch.",
                     icon = Icons.Filled.Public,
                     accent = DangerRed,
                     onClick = onOpenVault
