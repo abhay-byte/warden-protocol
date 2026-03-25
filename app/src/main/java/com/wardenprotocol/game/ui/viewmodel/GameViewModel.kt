@@ -75,8 +75,49 @@ class GameViewModel(
     }
     
     private fun openVault() {
-        val state = _gameState.value
+        var state = _gameState.value
         val location = state.currentLocation ?: return
+        
+        // Apply immediate location consequences
+        var immediateDeaths = 0
+        
+        when {
+            location.radiation == RadiationLevel.LETHAL -> {
+                immediateDeaths += (state.survivors * 0.5).toInt() // 50% die immediately
+            }
+            location.radiation == RadiationLevel.HIGH -> {
+                immediateDeaths += (state.survivors * 0.2).toInt() // 20% die immediately
+            }
+        }
+        
+        if (location.water == WaterAvailability.NONE) {
+            immediateDeaths += (state.survivors * 0.3).toInt() // 30% die from dehydration
+        }
+        
+        if (location.food == FoodPotential.BARREN && location.water == WaterAvailability.NONE) {
+            immediateDeaths += (state.survivors * 0.2).toInt() // Additional 20% for combined effect
+        }
+        
+        when (location.nativeHostility) {
+            Hostility.WARLORD -> {
+                immediateDeaths += (state.survivors * 0.4).toInt() // 40% killed in attack
+            }
+            Hostility.WASTELAND_CULT -> {
+                immediateDeaths += (state.survivors * 0.2).toInt() // 20% killed
+            }
+            Hostility.BANDITS -> {
+                immediateDeaths += (state.survivors * 0.1).toInt() // 10% killed
+            }
+            else -> {}
+        }
+        
+        if (location.shelter == ShelterQuality.NONE && location.radiation != RadiationLevel.NONE) {
+            immediateDeaths += (state.survivors * 0.15).toInt() // 15% die from exposure
+        }
+        
+        // Apply deaths
+        state = state.copy(survivors = (state.survivors - immediateDeaths).coerceAtLeast(0))
+        _gameState.value = state
         
         val score = gameEngine.scoreOutcome(state, location)
         val outcome = gameEngine.generateOutcomeNarrative(state, location, score)
