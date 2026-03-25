@@ -179,7 +179,7 @@ class GameEngine(private val eventRepository: EventRepository) {
     }
 
     fun applyEventChoice(state: GameState, choice: EventChoice): Pair<GameState, String> {
-        var newState = state.copy(survivors = state.survivors + choice.outcome.survivorDelta)
+        var newState = state.copy(survivors = (state.survivors + choice.outcome.survivorDelta).coerceAtLeast(0))
 
         var systems = newState.vaultSystems
         choice.outcome.systemDeltas.forEach { (system, delta) ->

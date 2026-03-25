@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Expand Encounters to 200
+
+- Status: completed
+- Title: Raise the random encounter pool from 40 to 200 with darker and more varied outcomes
+- Goal: Add 160 new events so the game has many more dangerous, lucky, brutal, and high-stakes encounters, including some that can end a run.
+- What changed: Added a new encounter expansion catalog with 160 unique in-theme events across vault, surface, and cosmic categories; brought the total encounter count to exactly 200; added much more variance in rewards, repairs, losses, and grim choices; and updated event resolution so an encounter that kills the last survivors now properly triggers game over.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Add 100 More Dangerous Locations
 
 - Status: completed

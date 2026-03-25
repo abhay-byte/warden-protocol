@@ -198,6 +198,13 @@ class GameViewModel(
     
     private fun selectEventChoice(choice: EventChoice) {
         val (newState, narrative) = gameEngine.applyEventChoice(_gameState.value, choice)
+        if (newState.survivors <= 0) {
+            val gameOver = createGameOverOutcome(newState).copy(
+                narrative = "$narrative The encounter finished what was left of the vault. No recovery followed."
+            )
+            finishGame(newState.copy(phase = GamePhase.GAME_OVER), gameOver)
+            return
+        }
         _gameState.value = newState.copy(lastEventOutcome = narrative)
         _uiState.value = UiState.EventOutcome(narrative)
     }

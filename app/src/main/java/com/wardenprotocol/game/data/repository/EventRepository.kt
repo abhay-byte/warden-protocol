@@ -6,7 +6,9 @@ import com.wardenprotocol.game.data.model.GameEvent
 
 class EventRepository {
 
-    fun getAllEvents(): List<GameEvent> = vaultEvents + surfaceEvents + cosmicEvents
+    fun getAllEvents(): List<GameEvent> = vaultEvents + ExpandedEventCatalog.vaultEvents +
+        surfaceEvents + ExpandedEventCatalog.surfaceEvents +
+        cosmicEvents + ExpandedEventCatalog.cosmicEvents
 
     // ── VAULT INTERNAL EVENTS ─────────────────────────────────────────────────
 
