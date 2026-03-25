@@ -61,7 +61,7 @@ fun VaultStatusPanel(
 
     CommandPanel(
         title = "Vault Status",
-        subtitle = if (expanded) "Full bunker diagnostics" else "Core health at a glance",
+        subtitle = if (expanded) "Full bunker diagnostics" else null,
         icon = Icons.Filled.Memory,
         accent = VaultGreen,
         modifier = modifier
@@ -92,7 +92,7 @@ fun VaultStatusPanel(
 
         Text(
             text = conciseVaultStatusLine(averageCore, unstableCount, criticalCount),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = TextSecondary
         )
 
@@ -106,7 +106,7 @@ fun VaultStatusPanel(
                 tint = SignalCyan
             )
             Text(
-                text = if (expanded) "Hide system details" else "Expand system details",
+                text = if (expanded) "Hide details" else "Show details",
                 color = SignalCyan
             )
         }
@@ -149,8 +149,8 @@ private fun CompactVaultMetric(
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.Start
         ) {
             Text(
@@ -160,7 +160,7 @@ private fun CompactVaultMetric(
             )
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = tone
             )
         }
@@ -173,10 +173,10 @@ private fun conciseVaultStatusLine(
     criticalCount: Int
 ): String {
     return when {
-        criticalCount > 0 -> "$criticalCount systems are critical. Command attention required before long-term survival degrades."
-        unstableCount > 0 -> "$unstableCount systems are unstable. The bunker is holding, but maintenance pressure is rising."
-        averageCore >= 85 -> "Vault infrastructure is strong. The colony can act from a stable bunker position."
-        else -> "Vault operations remain functional, but overall resilience is trending downward."
+        criticalCount > 0 -> "$criticalCount critical systems need command attention."
+        unstableCount > 0 -> "$unstableCount systems are unstable, but the bunker is holding."
+        averageCore >= 85 -> "Vault stable and ready for surface action."
+        else -> "Vault functional, but resilience is slipping."
     }
 }
 

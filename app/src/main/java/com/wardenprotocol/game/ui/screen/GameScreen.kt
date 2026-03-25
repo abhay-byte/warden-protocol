@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -17,6 +20,9 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.TipsAndUpdates
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,11 +33,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.wardenprotocol.game.data.model.GameState
 import com.wardenprotocol.game.data.model.SurfaceLocation
-import com.wardenprotocol.game.ui.component.ActionButton
 import com.wardenprotocol.game.ui.component.CommandPanel
 import com.wardenprotocol.game.ui.component.DividerGlow
 import com.wardenprotocol.game.ui.component.StatusBadge
@@ -39,6 +46,7 @@ import com.wardenprotocol.game.ui.component.VaultStatusPanel
 import com.wardenprotocol.game.ui.component.WardenBackdrop
 import com.wardenprotocol.game.ui.component.animatedEntranceModifier
 import com.wardenprotocol.game.ui.theme.DangerRed
+import com.wardenprotocol.game.ui.theme.SurfaceElevated
 import com.wardenprotocol.game.ui.theme.SignalCyan
 import com.wardenprotocol.game.ui.theme.TextPrimary
 import com.wardenprotocol.game.ui.theme.TextSecondary
@@ -195,36 +203,41 @@ fun GameScreen(
             }
 
             CommandPanel(
-                title = "Next Action",
-                subtitle = "Command tray",
+                title = "Commands",
+                subtitle = null,
                 icon = Icons.Filled.Explore,
                 accent = VaultGreen,
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                ActionButton(
-                    title = "Continue Searching",
-                    subtitle = "Advance one year.",
-                    icon = Icons.Filled.Explore,
-                    accent = VaultGreen,
-                    onClick = onContinueSearching
-                )
-                ActionButton(
-                    title = "Deploy Probe",
-                    subtitle = "Reveal deeper scan data.",
-                    icon = Icons.Filled.Radar,
-                    accent = WarningAmber,
-                    onClick = onDeployProbe,
-                    enabled = gameState.surfaceProbes > 0
-                )
-                ActionButton(
-                    title = "Open The Vault",
-                    subtitle = "Commit and accept transit losses.",
-                    icon = Icons.Filled.Public,
-                    accent = DangerRed,
-                    onClick = onOpenVault
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CompactCommandButton(
+                        label = "Search",
+                        icon = Icons.Filled.Explore,
+                        accent = VaultGreen,
+                        onClick = onContinueSearching,
+                        modifier = Modifier.weight(1f)
+                    )
+                    CompactCommandButton(
+                        label = "Probe",
+                        icon = Icons.Filled.Radar,
+                        accent = WarningAmber,
+                        onClick = onDeployProbe,
+                        enabled = gameState.surfaceProbes > 0,
+                        modifier = Modifier.weight(1f)
+                    )
+                    CompactCommandButton(
+                        label = "Open",
+                        icon = Icons.Filled.Public,
+                        accent = DangerRed,
+                        onClick = onOpenVault,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -254,4 +267,48 @@ private fun hazardAccent(name: String): Color = when (name) {
     "SCARCE", "MARGINAL", "MODERATE", "BANDITS", "POOR" -> WarningAmber
     "UNKNOWN" -> TextSecondary
     else -> DangerRed
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CompactCommandButton(
+    label: String,
+    icon: ImageVector,
+    accent: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    Card(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = animatedEntranceModifier(
+            modifier = modifier.height(72.dp),
+            delayMillis = 70
+        ),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (enabled) SurfaceElevated else SurfaceElevated.copy(alpha = 0.45f)
+        ),
+        border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) 0.42f else 0.18f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 10.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (enabled) accent else TextSecondary
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (enabled) TextPrimary else TextSecondary
+            )
+        }
+    }
 }

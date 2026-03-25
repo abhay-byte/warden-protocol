@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Compact Command Tray and More Reading Space
+
+- Status: completed
+- Title: Make next actions more concise and free more space for the outside-location condition
+- Goal: Reduce the height of the fixed gameplay chrome so the player can read the location panel more comfortably.
+- What changed: Shortened the collapsed vault summary, tightened its copy and metric blocks, and replaced the large bottom action stack with a compact three-button command tray using concise labels (`Search`, `Probe`, `Open`).
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Vault Summary and Fixed Command Tray
 
 - Status: completed
