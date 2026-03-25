@@ -146,7 +146,7 @@ class GameEngine(private val eventRepository: EventRepository) {
     fun scoreOutcome(state: GameState, location: SurfaceLocation): Int {
         if (state.survivors <= 0) return 0
         
-        var score = state.survivors * 10
+        var score = state.survivors * 5  // Reduced from 10
         
         // Location penalties/bonuses
         score += location.radiation.scoreModifier
@@ -156,20 +156,35 @@ class GameEngine(private val eventRepository: EventRepository) {
         score += location.resources.scoreModifier
         score += location.nativeHostility.scoreModifier
         
-        // Vault systems (heavily weighted)
-        score += (state.vaultSystems.constructionGear / 100.0 * 300).toInt()
-        score += (state.vaultSystems.powerGrid / 100.0 * 200).toInt()
-        score += (state.vaultSystems.foodStores / 100.0 * 200).toInt()
-        score += (state.vaultSystems.medicalBay / 100.0 * 150).toInt()
-        score += (state.vaultSystems.securitySystem / 100.0 * 150).toInt()
-        score += (state.vaultSystems.atmosphereScrubbers / 100.0 * 150).toInt()
+        // Vault systems (reduced weights)
+        score += (state.vaultSystems.constructionGear / 100.0 * 150).toInt()
+        score += (state.vaultSystems.powerGrid / 100.0 * 100).toInt()
+        score += (state.vaultSystems.foodStores / 100.0 * 100).toInt()
+        score += (state.vaultSystems.medicalBay / 100.0 * 80).toInt()
+        score += (state.vaultSystems.securitySystem / 100.0 * 80).toInt()
+        score += (state.vaultSystems.atmosphereScrubbers / 100.0 * 80).toInt()
         
-        // Databases
-        score += (state.databases.culturalArchive / 100.0 * 200).toInt()
-        score += (state.databases.scientificArchive / 100.0 * 200).toInt()
+        // Databases (reduced)
+        score += (state.databases.culturalArchive / 100.0 * 100).toInt()
+        score += (state.databases.scientificArchive / 100.0 * 100).toInt()
         
-        // Time penalty (longer = worse)
-        score -= (state.yearsSinceWar * 50)
+        // Heavy penalties
+        score -= (state.yearsSinceWar * 100)  // Increased from 50
+        score -= ((1000 - state.survivors) * 3)  // Death penalty
+        
+        // System damage penalties
+        val avgSystemHealth = (state.vaultSystems.powerGrid + state.vaultSystems.foodStores + 
+                               state.vaultSystems.medicalBay + state.vaultSystems.securitySystem +
+                               state.vaultSystems.constructionGear + state.vaultSystems.atmosphereScrubbers) / 6
+        if (avgSystemHealth < 50) {
+            score -= (50 - avgSystemHealth) * 20
+        }
+        
+        // Database damage penalty
+        val avgDatabaseHealth = (state.databases.culturalArchive + state.databases.scientificArchive) / 2
+        if (avgDatabaseHealth < 50) {
+            score -= (50 - avgDatabaseHealth) * 15
+        }
         
         // Anomaly bonus
         location.anomaly?.let { score += it.scoreModifier }
@@ -183,10 +198,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scientific = state.databases.scientificArchive
         
         val (classification, tier) = when {
-            score >= 12000 -> "Golden Age Civilization" to 5
-            score >= 7000 -> "Thriving Society" to 4
-            score >= 4000 -> "Stable Settlement" to 3
-            score >= 1500 -> "Struggling Outpost" to 2
+            score >= 8000 -> "Golden Age Civilization" to 5
+            score >= 5000 -> "Thriving Society" to 4
+            score >= 2500 -> "Stable Settlement" to 3
+            score >= 1000 -> "Struggling Outpost" to 2
             else -> "Doomed Colony" to 1
         }
         
