@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Vault Summary and Fixed Command Tray
+
+- Status: completed
+- Title: Move vault systems to the top as a concise expandable summary and pin actions to the bottom
+- Goal: Make the gameplay screen easier to read by showing vault status first in compact form and keeping the next actions statically available at the bottom.
+- What changed: Reworked the vault panel into a collapsed top summary with core, archive, and critical metrics plus expandable full diagnostics; moved the gameplay layout to a split structure where the middle content scrolls; and pinned the action tray to the bottom with shorter, clearer command labels.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Surface Descriptions and Transit Penalty
 
 - Status: completed

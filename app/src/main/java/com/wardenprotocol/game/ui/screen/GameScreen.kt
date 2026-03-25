@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -60,143 +61,158 @@ fun GameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 24.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                StatusBadge(
-                    icon = Icons.Filled.Groups,
-                    label = "Survivors",
-                    value = gameState.survivors.toString(),
-                    accent = VaultGreen,
-                    modifier = Modifier.weight(1f)
-                )
-                StatusBadge(
-                    icon = Icons.Filled.TipsAndUpdates,
-                    label = "Year",
-                    value = gameState.yearsSinceWar.toString(),
-                    accent = SignalCyan,
-                    modifier = Modifier.weight(1f)
-                )
-                StatusBadge(
-                    icon = Icons.Filled.Radar,
-                    label = "Probes",
-                    value = gameState.surfaceProbes.toString(),
-                    accent = WarningAmber,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            VaultStatusPanel(
+                systems = gameState.vaultSystems,
+                databases = gameState.databases,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            CommandPanel(
-                title = location.name,
-                subtitle = location.type.name.replace('_', ' '),
-                icon = Icons.Filled.Public,
-                accent = SignalCyan
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Current surface target",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = TextSecondary
-                )
-                Text(
-                    text = location.shortDescription,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextPrimary
-                )
-                TextButton(
-                    onClick = { detailsExpanded = !detailsExpanded },
-                    modifier = animatedEntranceModifier(Modifier, delayMillis = 45)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(
-                        imageVector = if (detailsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                        contentDescription = null,
-                        tint = SignalCyan
+                    StatusBadge(
+                        icon = Icons.Filled.Groups,
+                        label = "Survivors",
+                        value = gameState.survivors.toString(),
+                        accent = VaultGreen,
+                        modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = if (detailsExpanded) "Hide field report" else "Expand field report",
-                        color = SignalCyan
+                    StatusBadge(
+                        icon = Icons.Filled.TipsAndUpdates,
+                        label = "Year",
+                        value = gameState.yearsSinceWar.toString(),
+                        accent = SignalCyan,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatusBadge(
+                        icon = Icons.Filled.Radar,
+                        label = "Probes",
+                        value = gameState.surfaceProbes.toString(),
+                        accent = WarningAmber,
+                        modifier = Modifier.weight(1f)
                     )
                 }
-                if (detailsExpanded) {
+
+                CommandPanel(
+                    title = location.name,
+                    subtitle = location.type.name.replace('_', ' '),
+                    icon = Icons.Filled.Public,
+                    accent = SignalCyan
+                ) {
                     Text(
-                        text = location.longDescription,
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Current surface target",
+                        style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
                     )
-                }
+                    Text(
+                        text = location.shortDescription,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextPrimary
+                    )
+                    TextButton(
+                        onClick = { detailsExpanded = !detailsExpanded },
+                        modifier = animatedEntranceModifier(Modifier, delayMillis = 45)
+                    ) {
+                        Icon(
+                            imageVector = if (detailsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = null,
+                            tint = SignalCyan
+                        )
+                        Text(
+                            text = if (detailsExpanded) "Hide field report" else "Expand field report",
+                            color = SignalCyan
+                        )
+                    }
+                    if (detailsExpanded) {
+                        Text(
+                            text = location.longDescription,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
+                        )
+                    }
 
-                DividerGlow()
-                SimpleIntelRow("Radiation", scannerValue(gameState.vaultSystems.radiationScanner, location.radiation.displayName), hazardAccent(location.radiation.name))
-                SimpleIntelRow("Water", scannerValue(gameState.vaultSystems.waterScanner, location.water.displayName), hazardAccent(location.water.name))
-                SimpleIntelRow("Food", scannerValue(gameState.vaultSystems.agriculturalScanner, location.food.displayName), hazardAccent(location.food.name))
-                SimpleIntelRow("Shelter", scannerValue(gameState.vaultSystems.structureScanner, location.shelter.displayName), hazardAccent(location.shelter.name))
-                SimpleIntelRow("Resources", scannerValue(gameState.vaultSystems.resourceScanner, location.resources.displayName), hazardAccent(location.resources.name))
-                SimpleIntelRow("Threats", scannerValue(gameState.vaultSystems.threatAssessment, location.nativeHostility.displayName), hazardAccent(location.nativeHostility.name))
-
-                DividerGlow()
-                Text(
-                    text = "Transit to Site",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = WarningAmber
-                )
-                Text(
-                    text = location.travelProfile.routeName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextPrimary
-                )
-                Text(
-                    text = location.travelProfile.riskSummary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
-                SimpleIntelRow("Travel Time", location.travelProfile.durationText, TextPrimary)
-                SimpleIntelRow("Risk", location.travelProfile.riskLevel.displayName, hazardAccent(location.travelProfile.riskLevel.name))
-                SimpleIntelRow(
-                    "Estimated Attrition",
-                    "${location.travelProfile.minLossPercent}% to ${location.travelProfile.maxLossPercent}%",
-                    WarningAmber
-                )
-                SimpleIntelRow("Score Penalty", "-${location.travelProfile.scorePenalty}", DangerRed)
-
-                if (probeRevealed && location.anomaly != null) {
                     DividerGlow()
-                    SimpleIntelRow("Anomaly", location.anomaly.displayName, WarningAmber)
-                }
+                    SimpleIntelRow("Radiation", scannerValue(gameState.vaultSystems.radiationScanner, location.radiation.displayName), hazardAccent(location.radiation.name))
+                    SimpleIntelRow("Water", scannerValue(gameState.vaultSystems.waterScanner, location.water.displayName), hazardAccent(location.water.name))
+                    SimpleIntelRow("Food", scannerValue(gameState.vaultSystems.agriculturalScanner, location.food.displayName), hazardAccent(location.food.name))
+                    SimpleIntelRow("Shelter", scannerValue(gameState.vaultSystems.structureScanner, location.shelter.displayName), hazardAccent(location.shelter.name))
+                    SimpleIntelRow("Resources", scannerValue(gameState.vaultSystems.resourceScanner, location.resources.displayName), hazardAccent(location.resources.name))
+                    SimpleIntelRow("Threats", scannerValue(gameState.vaultSystems.threatAssessment, location.nativeHostility.displayName), hazardAccent(location.nativeHostility.name))
 
-                if (probeRevealed && location.probeData != null) {
                     DividerGlow()
                     Text(
-                        text = "Probe Report",
+                        text = "Transit to Site",
                         style = MaterialTheme.typography.labelLarge,
                         color = WarningAmber
                     )
-                    Text(text = location.probeData.recommendation, style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
-                    Text(text = location.probeData.hiddenResources, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                    Text(text = location.probeData.structuralIntegrity, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                    Text(text = location.probeData.soilQuality, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                    Text(
+                        text = location.travelProfile.routeName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextPrimary
+                    )
+                    Text(
+                        text = location.travelProfile.riskSummary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                    SimpleIntelRow("Travel Time", location.travelProfile.durationText, TextPrimary)
+                    SimpleIntelRow("Risk", location.travelProfile.riskLevel.displayName, hazardAccent(location.travelProfile.riskLevel.name))
+                    SimpleIntelRow(
+                        "Estimated Attrition",
+                        "${location.travelProfile.minLossPercent}% to ${location.travelProfile.maxLossPercent}%",
+                        WarningAmber
+                    )
+                    SimpleIntelRow("Score Penalty", "-${location.travelProfile.scorePenalty}", DangerRed)
+
+                    if (probeRevealed && location.anomaly != null) {
+                        DividerGlow()
+                        SimpleIntelRow("Anomaly", location.anomaly.displayName, WarningAmber)
+                    }
+
+                    if (probeRevealed && location.probeData != null) {
+                        DividerGlow()
+                        Text(
+                            text = "Probe Report",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = WarningAmber
+                        )
+                        Text(text = location.probeData.recommendation, style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
+                        Text(text = location.probeData.hiddenResources, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                        Text(text = location.probeData.structuralIntegrity, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                        Text(text = location.probeData.soilQuality, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                    }
                 }
             }
 
             CommandPanel(
                 title = "Next Action",
-                subtitle = "Choose one",
+                subtitle = "Command tray",
                 icon = Icons.Filled.Explore,
-                accent = VaultGreen
+                accent = VaultGreen,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
             ) {
                 ActionButton(
                     title = "Continue Searching",
-                    subtitle = "Advance one year and scan another location.",
+                    subtitle = "Advance one year.",
                     icon = Icons.Filled.Explore,
                     accent = VaultGreen,
                     onClick = onContinueSearching
                 )
                 ActionButton(
                     title = "Deploy Probe",
-                    subtitle = "Reveal more details about this location.",
+                    subtitle = "Reveal deeper scan data.",
                     icon = Icons.Filled.Radar,
                     accent = WarningAmber,
                     onClick = onDeployProbe,
@@ -204,17 +220,12 @@ fun GameScreen(
                 )
                 ActionButton(
                     title = "Open The Vault",
-                    subtitle = "Commit to this location. Transit losses apply on launch.",
+                    subtitle = "Commit and accept transit losses.",
                     icon = Icons.Filled.Public,
                     accent = DangerRed,
                     onClick = onOpenVault
                 )
             }
-
-            VaultStatusPanel(
-                systems = gameState.vaultSystems,
-                databases = gameState.databases
-            )
         }
     }
 }
