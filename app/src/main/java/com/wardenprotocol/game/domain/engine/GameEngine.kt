@@ -24,7 +24,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         LocationType.RUINED_CITY to listOf(
             "Flooded Detroit", "Silent Chicago Ruins", "Ash-Covered Boston", "Broken Los Angeles",
             "Shattered New York", "Hollow Philadelphia", "Scorched Phoenix", "Frozen Minneapolis",
-            "Crumbling Seattle", "Dead Miami", "Ghost Atlanta", "Buried Denver"
+            "Crumbling Seattle", "Dead Miami", "Ghost Atlanta", "Buried Denver",
+            "Ashen St. Louis", "Blasted Newark", "Sunken Baltimore", "Husk of Houston",
+            "Static Las Vegas", "Melted Cleveland", "Bonewhite Dallas", "Collapsed Sacramento",
+            "Dread Memphis", "Shiver Portland"
         ),
         LocationType.FOREST to listOf(
             "Ash-Grey Pinelands", "Recovering Oak Valley", "Mutant Redwood Grove", "Dead Birch Forest",
@@ -34,7 +37,9 @@ class GameEngine(private val eventRepository: EventRepository) {
         LocationType.MILITARY_BASE to listOf(
             "Fort Zulu", "Outpost Kilo-7", "Fort Alpha Ruins", "Base Tango-9", "Fort Whiskey",
             "Outpost Delta", "Fort November", "Base Echo-3", "Fort Sierra", "Outpost Bravo-6",
-            "Missile Silo Raven", "Checkpoint Mordred"
+            "Missile Silo Raven", "Checkpoint Mordred", "Fort Blackglass", "Outpost Widow",
+            "Battery Helix", "Silo Jericho", "Camp Raptor", "Redoubt Cain",
+            "Ordnance Yard 14", "Fort Harrow", "Launch Complex M", "Garrison Hollow"
         ),
         LocationType.FARMLAND to listOf(
             "Withered Corn Belt", "Salted Wheat Fields", "Toxic Vineyard", "Barren Pastures",
@@ -49,12 +54,18 @@ class GameEngine(private val eventRepository: EventRepository) {
         LocationType.MOUNTAIN_PASS to listOf(
             "Frozen Summit Trail", "Rockslide Pass", "Avalanche Corridor", "High Ridge Path",
             "Shattered Peak Route", "Windswept Col", "Glacier Pass", "Stone Gate Mountains",
-            "Bleak Horn Divide", "Bonewind Ascent", "Needle Ridge", "Frostbite Traverse"
+            "Bleak Horn Divide", "Bonewind Ascent", "Needle Ridge", "Frostbite Traverse",
+            "Widowmaker Notch", "Ashcliff Traverse", "Hollow Fang Pass", "Razor Scree Ascent",
+            "Crowstep Ridge", "The Ice Maw", "Black Flag Switchback", "Deadfall Crest",
+            "Stormblind Gap", "Hanging Rock Ladder"
         ),
         LocationType.COASTAL_TOWN to listOf(
             "Drowned Harbor", "Tsunami-Swept Bay", "Radioactive Shoreline", "Flooded Pier Town",
             "Toxic Beach Settlement", "Submerged Port", "Poisoned Fishing Village", "Dead Seaside",
-            "Barnacle Mile", "Oil-Black Cove", "Rotted Marina", "Saltgrave Inlet"
+            "Barnacle Mile", "Oil-Black Cove", "Rotted Marina", "Saltgrave Inlet",
+            "Corpse Tide Wharf", "Deadlight Breakwater", "Anchor Grave", "Blightwater Quay",
+            "The Black Jetty", "Foamrot Village", "Harpoon Wreck", "Tideburn Reach",
+            "Siltlung Coast", "Mildew Pier"
         ),
         LocationType.RESEARCH_FACILITY to listOf(
             "Blacksite Omega", "Research Station 7", "Laboratory Complex Alpha", "Science Outpost Theta",
@@ -64,27 +75,42 @@ class GameEngine(private val eventRepository: EventRepository) {
         LocationType.RADIOACTIVE_SWAMP to listOf(
             "Glowmire Basin", "Irradiated Fen", "Neon Bog", "Rotwater Marsh", "Cinder Reed Flats",
             "Luminous Peat", "Fever Swale", "Sourwater Hollow", "Mire Delta 6", "Blister Marsh",
-            "Yellow Silt Wetland", "Dead Lantern Bog", "Hotmist Fen"
+            "Yellow Silt Wetland", "Dead Lantern Bog", "Hotmist Fen", "Boilroot Marsh",
+            "Greenfire Mire", "Sludge Bloom Wetlands", "Mutter Fen", "The Leech Beds",
+            "Glowrot Backwater", "Ashswell Marsh", "Canker Reed Delta", "Slimewake Basin",
+            "Bilewater Sump"
         ),
         LocationType.MEGACRATER to listOf(
             "Impact Cradle", "Saint Helix Crater", "Obsidian Bowl", "Ashfall Caldera", "Broken Horizon Pit",
             "Red Mile Crater", "Thunder Glass Basin", "Meteor Hollow", "Char Basin Prime", "The Long Scar",
-            "Sulfur Crown", "Shatter Rim", "Gravesmoke Crater"
+            "Sulfur Crown", "Shatter Rim", "Gravesmoke Crater", "The Ember Throat",
+            "Widow's Caldera", "Ashwheel Pit", "Meltline Crater", "Skullglass Hollow",
+            "Black Echo Basin", "The Fallen Eye", "Shrapnel Crown", "Breach Bowl",
+            "Smokeveil Impact"
         ),
         LocationType.PLAGUE_ZONE to listOf(
             "Quarantine Block K", "The Fever District", "Carrion Ward", "Mourning Blocks", "Bleachline Sector",
             "Triage Ruins", "Bodyburn Square", "Red Mask Borough", "Sickhouse Row", "Isolation Parish",
-            "Pestilent Commons", "Grief Market", "The Coughing Mile"
+            "Pestilent Commons", "Grief Market", "The Coughing Mile", "Septic Avenue",
+            "Vomit Gate", "Last Breath Quarter", "Pall Street", "Ashen Infirmary",
+            "Needle Market", "Woundbridge", "The Weeping Blocks", "Mortuary Circle",
+            "Contagion Court"
         ),
         LocationType.SCRAP_HEAP to listOf(
             "Titan Scrap Fields", "The Iron Mound", "Crushed Freight Sea", "Rust Cathedral", "Wrecker's Spine",
             "Machine Grave", "Tangle Yard", "The Broken Conveyor", "Magnet Hill", "Smelter Bones",
-            "Derelict Stack", "Copper Teeth", "Junkspire"
+            "Derelict Stack", "Copper Teeth", "Junkspire", "The Razor Yard",
+            "Crankshaft Ridge", "Broken Axle Plain", "Shearwall Heap", "Rustwake Valley",
+            "The Shredder Fields", "Wiregut Dump", "Bleeding Foundry", "Gearstorm Mound",
+            "Hacksaw Terrace"
         ),
         LocationType.ABANDONED_SUBWAY to listOf(
             "Line Zero", "Collapsed Metro Arc", "Tunnel 19", "Ghost Platform", "Station Mercy",
             "Flooded Transfer", "Black Rail Junction", "Sublevel Delta", "Terminal Ash", "Signal Pit",
-            "Platform Thirteen", "Rat King Interchange", "Last Stop Hollow"
+            "Platform Thirteen", "Rat King Interchange", "Last Stop Hollow", "Blind Switch Nine",
+            "Mold Rail Annex", "Red Signal Tunnel", "The Hollow Concourse", "Dripshaft Terminal",
+            "Grime Loop", "Third Rail Catacomb", "Station Dread", "The Choking Underpass",
+            "Trackbed Ossuary"
         ),
         LocationType.FUNGAL_WASTES to listOf(
             "Mycelium Flats", "Spore Bloom Expanse", "The Mold Barrens", "Fungal Drift", "Puffball Valley",
@@ -99,7 +125,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         LocationType.CULT_TERRITORY to listOf(
             "Pilgrim's Ash", "Shrine Belt", "The Chanting Vale", "Icon Graveyard", "Ash Sermon Camp",
             "Red Banner Reach", "Temple of Static", "Bellfire Steppe", "Sacrament Ditch", "Prophet's Crossing",
-            "The Tithe Roads", "Oracle Stockade", "Martyr's Gate"
+            "The Tithe Roads", "Oracle Stockade", "Martyr's Gate", "Bone Reliquary Plains",
+            "The Witness Roads", "Ash Halo Station", "Sermon Basin", "The Burning Choir",
+            "Ritual Fence", "Censer Hollow", "Static Gospel Camp", "Saintwire Encampment",
+            "The Kneeling Mile"
         )
     )
 

@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Add 100 More Dangerous Locations
+
+- Status: completed
+- Title: Add 100 more dangerous named locations to the generator
+- Goal: Push the world map further into hostile territory by expanding only the harshest location pools.
+- What changed: Added exactly 100 more named locations, concentrated in dangerous categories like ruined cities, military bases, mountain passes, poisoned coasts, radioactive swamps, megacraters, plague zones, scrap heaps, abandoned subways, and cult territory; the total named location pool is now exactly 300.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Expand Surface World to 200 Locations
 
 - Status: completed
