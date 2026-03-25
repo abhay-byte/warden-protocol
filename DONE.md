@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Ending Narrative Clarity Pass
+
+- Status: completed
+- Title: Rewrite the final result description so it is easier to understand without losing detail
+- Goal: Keep the same outcome facts, harshness, and long-term settlement information while making the result screen narration read more clearly and naturally.
+- What changed: Rewrote the endgame narrative templates and future epilogues in the outcome generator into shorter, clearer sentence groups, preserving the same information while improving flow, consistency, and readability across success, middling, and failure endings.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the updated debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Outcome Vault Status And Background Cleanup
 
 - Status: completed

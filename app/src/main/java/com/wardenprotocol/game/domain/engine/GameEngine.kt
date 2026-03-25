@@ -384,54 +384,100 @@ class GameEngine(private val eventRepository: EventRepository) {
         val outcomeDetail = when (tier) {
             5 -> {
                 val specificEnding = when (classification) {
-                    "Paradise Reclaimed" -> " With over ${state.survivors} survivors, they had the numbers to build a true civilization. Within a generation, ${location.name} transformed from wasteland to wonderland. Schools, hospitals, farms, and markets returned in stronger form."
-                    "Renaissance of Humanity" -> " They emerged not just with bodies, but with minds intact. The cultural and scientific archives were nearly complete. Artists painted murals on vault walls. Scientists developed radiation treatments. Philosophers debated the meaning of their survival. Humanity's soul had survived."
-                    "Blessed Settlement" -> " The ${location.anomaly?.displayName} changed everything. What seemed like a curse became their greatest blessing. It provided resources, knowledge, or protection that made survival not just possible, but inevitable."
-                    else -> " The location was unusually favorable, and humanity used that second chance with discipline and ambition."
+                    "Paradise Reclaimed" -> "With over ${state.survivors} survivors, they had the numbers to build a true civilization. Within a generation, ${location.name} changed from wasteland to thriving homeland, with schools, clinics, farms, and markets."
+                    "Renaissance of Humanity" -> "They emerged with more than enough bodies to survive; they also preserved memory and knowledge. The archives stayed largely intact. Artists painted new murals. Scientists developed radiation treatments. Philosophers argued about what survival should mean. Humanity kept its soul as well as its bloodline."
+                    "Blessed Settlement" -> "The ${location.anomaly?.displayName} reshaped their fate. What first looked like a curse became their greatest advantage, giving them resources, knowledge, or protection strong enough to turn survival into certainty."
+                    else -> "The site gave them a rare second chance, and they used it with discipline and ambition."
                 }
-                "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment.$transitLine$specificEnding Their descendants would remember this as humanity's second dawn. $futureEpilogue"
+                composeNarrative(
+                    "Humanity did more than survive. It recovered and flourished.",
+                    "${state.survivors} people emerged from Vault $vaultNumber after ${state.yearsSinceWar} years underground and founded $settlementName on ${location.name}.",
+                    "The settlement became a beacon of hope in the wasteland.",
+                    "They built a $societyType, sustained by $economy and guided by $politics.",
+                    "They lived in $environment.",
+                    transitLine,
+                    specificEnding,
+                    "Their descendants would remember this as humanity's second dawn.",
+                    futureEpilogue
+                )
             }
 
             4 -> {
                 val specificEnding = when (classification) {
-                    "Prosperous Colony" -> " ${state.survivors} survivors was more than enough. They divided into specialized roles: farmers, builders, guards, and teachers. Within five years, they had a functioning town with trade routes to other survivor groups."
-                    "Industrial Haven" -> " The construction gear at ${state.vaultSystems.constructionGear}% capacity allowed them to build rapidly. Factories rose from ruins. They manufactured tools, weapons, and eventually luxuries. Other settlements came to trade."
-                    "Oasis of Hope" -> " Abundant water was their salvation. While others fought over drops, they had rivers. They became a destination for desperate wanderers, growing their population and influence."
-                    else -> " Despite the challenges of ${location.name}, they overcame every obstacle through ingenuity and determination."
+                    "Prosperous Colony" -> "${state.survivors} survivors were enough to divide labor properly. They fielded farmers, builders, guards, teachers, and repair crews. Within a few years, they had a functioning town and trade with other survivor groups."
+                    "Industrial Haven" -> "Construction gear still operating at ${state.vaultSystems.constructionGear}% let them build quickly. Workshops rose from the ruins. Soon they were producing tools, weapons, and eventually comforts worth trading."
+                    "Oasis of Hope" -> "Water saved them. While other groups fought over drops, they had a reliable supply. Wanderers came to them for safety, and their population and influence grew."
+                    else -> "Even with the hazards of ${location.name}, they overcame one obstacle after another through planning and persistence."
                 }
-                "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment.$transitLine$specificEnding Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain. $futureEpilogue"
+                composeNarrative(
+                    "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar} after the war.",
+                    "They built $settlementName on ${location.name} and established a $societyType sustained by $economy and governed through $politics.",
+                    "They lived in $environment.",
+                    transitLine,
+                    specificEnding,
+                    "Of the thousand people who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice still bought a future.",
+                    futureEpilogue
+                )
             }
 
             3 -> {
                 val specificEnding = when (classification) {
-                    "Fragile Foothold" -> " With only ${state.survivors} survivors, every death was a catastrophe. They could not afford to lose anyone. Reproduction became a duty. Children were raised communally. They survived, but barely."
-                    "Weary Survivors" -> " ${state.yearsSinceWar} years underground had broken something in them. They emerged old, tired, and traumatized. The young had never seen the sun. The old barely remembered it. They built $settlementName, but their hearts remained in the vault."
-                    "Irradiated Settlement" -> " The ${location.radiation.displayName} radiation was inescapable. They wore protective gear constantly. Cancers were common. Mutations appeared in the second generation. They survived, but at great cost."
-                    else -> " The harsh conditions tested them daily."
+                    "Fragile Foothold" -> "With only ${state.survivors} survivors, every death mattered. They could not absorb losses. Children were raised communally, and rebuilding became an obligation as much as a hope. They endured, but only barely."
+                    "Weary Survivors" -> "${state.yearsSinceWar} years underground had worn them down. They emerged tired, traumatized, and uncertain. The young had never seen the sun, and the old barely remembered it. They built $settlementName, but part of them never left the vault."
+                    "Irradiated Settlement" -> "The ${location.radiation.displayName} radiation never stopped shaping their lives. Protective gear became routine. Cancer rates climbed. By the second generation, mutations were already appearing. They survived, but they paid for survival every year."
+                    else -> "The conditions above ground tested them every day."
                 }
-                "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment.$transitLine$specificEnding ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above. $futureEpilogue"
+                composeNarrative(
+                    "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground.",
+                    "$settlementName rose on ${location.name} as a modest $societyType trying to function through $economy under $politics.",
+                    "They lived in $environment.",
+                    transitLine,
+                    specificEnding,
+                    "${1000 - state.survivors} people died in the vault, and many more would die in the world above.",
+                    futureEpilogue
+                )
             }
 
             2 -> {
                 val specificEnding = when (classification) {
-                    "Dying Ember" -> " ${state.survivors} survivors. That was all that remained of humanity's hope. Too few to maintain genetic diversity. Too few to defend against threats. Too few to rebuild. They knew they were watching humanity's final chapter."
-                    "Besieged Outpost" -> " The ${location.nativeHostility.displayName} attacked constantly. Every day was a battle. They slept in shifts, weapons always ready. Half their food went to bribes and protection money. They were dying slowly."
-                    "Thirst-Cursed Camp" -> " No water defined their existence. Wells came up dry. Dew became a resource. Dehydration killed more than radiation ever did. Their lips cracked, their tempers failed, and the camp turned desperate."
-                    "Starving Remnant" -> " Food stores at ${state.vaultSystems.foodStores}% meant they were already hungry in the vault. The surface offered no relief. They ate pests, bark, and anything scavenged before hunger made every choice cruel."
-                    else -> " Every aspect of ${location.name} was hostile to human life. They had chosen poorly."
+                    "Dying Ember" -> "${state.survivors} survivors were all that remained. It was too few for security, too few for genetic resilience, and too few for real rebuilding. They knew they might be watching humanity's final chapter."
+                    "Besieged Outpost" -> "The ${location.nativeHostility.displayName} never let them settle in peace. Every day brought pressure, raids, or demands. They slept in shifts with weapons close at hand, and too much of their food vanished into bribes and defensive losses."
+                    "Thirst-Cursed Camp" -> "Lack of water defined everything. Wells failed. Dew became worth collecting. Dehydration killed faster than radiation. Tempers broke, discipline slipped, and the camp grew desperate."
+                    "Starving Remnant" -> "With food stores already down to ${state.vaultSystems.foodStores}%, they entered the surface hungry. The land offered little relief. They ate pests, bark, and whatever they could scavenge until hunger made every decision cruel."
+                    else -> "Nearly every part of ${location.name} worked against human life."
                 }
-                "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment.$transitLine$specificEnding ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade. $futureEpilogue"
+                composeNarrative(
+                    "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years.",
+                    "$settlementName on ${location.name} was less a settlement than an emergency camp.",
+                    "Their attempt at a $societyType barely held together, weakened by $economy and fractured $politics.",
+                    "They lived in $environment.",
+                    transitLine,
+                    specificEnding,
+                    "${1000 - state.survivors} people died in the vault.",
+                    "Most of those who made it out would not survive another decade.",
+                    futureEpilogue
+                )
             }
 
             else -> {
                 val specificEnding = when (classification) {
-                    "Total Extinction" -> " All 1000 who entered Vault $vaultNumber are dead. The vault door stands open, a monument to failure. Inside are silent bunks. Outside lie the bodies of those who made it only meters into the world."
-                    "Final Gasps" -> " ${state.survivors} survivors remained. They lasted days, maybe weeks. The last survivor, alone and mad, scratched a final warning onto the vault door before the silence took them too."
-                    "Radiation Tomb" -> " Lethal radiation killed them within hours. The vault had been their tomb; ${location.name} became their grave."
-                    "Conquered and Enslaved" -> " The warlord's forces were waiting. The survivors were captured immediately, their technology stolen, their bodies enslaved. They died in chains, and only rumor remained."
-                    else -> " ${location.name} was a death sentence. They should have stayed in the vault."
+                    "Total Extinction" -> "All 1000 who entered Vault $vaultNumber are dead. The open vault door remains behind them as a monument to failure. Inside are silent bunks. Outside lie the bodies of people who made it only a few meters into the world."
+                    "Final Gasps" -> "${state.survivors} survivors remained at the end. They lasted days, perhaps weeks. The last one died alone after leaving a final warning scratched into the vault door."
+                    "Radiation Tomb" -> "Lethal radiation killed them within hours. The vault had been their tomb, and ${location.name} became their grave."
+                    "Conquered and Enslaved" -> "The warlord's forces were already waiting. The survivors were captured almost immediately, their technology taken, and their bodies forced into servitude. They died in chains, and only rumor outlived them."
+                    else -> "${location.name} was effectively a death sentence from the moment they committed to it."
                 }
-                "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word.$transitLine$specificEnding ${1000 - state.survivors} died in the vault. Humanity's light was extinguished. $futureEpilogue"
+                composeNarrative(
+                    "${state.survivors} survivors crawled out of Vault $vaultNumber after ${state.yearsSinceWar} years, already broken before the colony began.",
+                    "What they named $settlementName on ${location.name} was really a graveyard waiting to fill.",
+                    "Any claim to a $societyType collapsed under nonexistent stability, failing supply, and chaotic rule.",
+                    "They tried to live in $environment, but even that word is too generous.",
+                    transitLine,
+                    specificEnding,
+                    "${1000 - state.survivors} people died in the vault.",
+                    "Humanity's light went out there.",
+                    futureEpilogue
+                )
             }
         }
 
@@ -503,7 +549,12 @@ class GameEngine(private val eventRepository: EventRepository) {
                     else ->
                         "their schools, archives, and farms spread stable life across the surrounding region"
                 }
-                "Within $foundationYears years, they had raised permanent walls, clinics, and fields around $settlementName. By Year $futureYear after the war, the first generation born under open sky was reaching adulthood and no longer thought of the vault as home. By Year $maturityYears, $milestone. Historians would later mark the opening of Vault $vaultNumber as the beginning of a civilization that endured for centuries."
+                composeNarrative(
+                    "Within $foundationYears years, they had raised permanent walls, clinics, and fields around $settlementName.",
+                    "By Year $futureYear after the war, the first generation born under open sky was reaching adulthood and no longer thought of the vault as home.",
+                    "By Year $maturityYears, $milestone.",
+                    "Later historians would mark the opening of Vault $vaultNumber as the beginning of a civilization that endured for centuries."
+                )
             }
 
             4 -> {
@@ -513,7 +564,12 @@ class GameEngine(private val eventRepository: EventRepository) {
                     "Oasis of Hope" -> "the settlement grew into a regional refuge, drawing migrants and forging alliances around its water supply"
                     else -> "their camp hardened into a town, then into a recognized city-state with laws, markets, and a shared identity"
                 }
-                "They needed $foundationYears hard years to get past hunger, exposure, and panic, but by Year $foundationYear after the war the settlement was no longer temporary. By Year $civilizationYear, $milestone. The people of the vault did not simply survive; they created a durable society that outlived the bunker generation."
+                composeNarrative(
+                    "They needed $foundationYears hard years to get past hunger, exposure, and panic.",
+                    "By Year $foundationYear after the war, the settlement was no longer temporary.",
+                    "By Year $civilizationYear, $milestone.",
+                    "The people of the vault did not merely survive. They built a durable society that outlived the bunker generation."
+                )
             }
 
             3 -> {
@@ -527,7 +583,10 @@ class GameEngine(private val eventRepository: EventRepository) {
                     else ->
                         "For about $survivalYears years, the colony wavered between recovery and ruin. By Year $endYear after the war, they had not died out, but neither had they truly rebuilt the world. They became one more stubborn survivor culture in the ashes, remembered more for endurance than triumph."
                 }
-                "It took them until Year $foundationYear after the war to build anything that deserved the name settlement. $branch"
+                composeNarrative(
+                    "It took them until Year $foundationYear after the war to build anything that truly deserved the name settlement.",
+                    branch
+                )
             }
 
             2 -> {
@@ -548,7 +607,10 @@ class GameEngine(private val eventRepository: EventRepository) {
                     else ->
                         "They clung to life for roughly $survivalYears years, never secure enough to raise a second stable generation. By Year $endYear after the war, the colony had dwindled into scattered survivors, and the dream of rebuilding died with it."
                 }
-                "They never truly stabilized after leaving the vault. $ending"
+                composeNarrative(
+                    "They never truly stabilized after leaving the vault.",
+                    ending
+                )
             }
 
             else -> {
@@ -564,9 +626,20 @@ class GameEngine(private val eventRepository: EventRepository) {
                 } else {
                     "Year ${state.yearsSinceWar + 1} after the war"
                 }
-                "Their final fate was sealed $timing. By $finalYearText, no free community remained from Vault $vaultNumber. At most, later travelers found a few relics, a half-finished wall, or stories told by strangers about people who had emerged too late into a dead world."
+                composeNarrative(
+                    "Their fate was sealed $timing.",
+                    "By $finalYearText, no free community remained from Vault $vaultNumber.",
+                    "At most, later travelers found a few relics, a half-finished wall, or stories about people who emerged too late into a dead world."
+                )
             }
         }
+    }
+
+    private fun composeNarrative(vararg sections: String): String {
+        return sections
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .joinToString(" ")
     }
 
     private fun buildLocationIntel(
