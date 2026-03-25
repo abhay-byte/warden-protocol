@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Add 20 Apex Threat Encounters
+
+- Status: completed
+- Title: Add 20 hyper-challenging human, AI, and alien encounters with real run-ending potential
+- Goal: Introduce a smaller top-tier encounter pool that is materially more lethal and extreme than the standard events.
+- What changed: Added 20 new apex-threat encounters centered on warlords, cannibal clans, slave columns, rogue administrative AIs, killer drone swarms, alien harvest ships, mimic entities, and other high-lethality threats; brought the total encounter count to exactly 220; and kept these events tuned to allow catastrophic losses or outright run-ending outcomes.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Expand Encounters to 200
 
 - Status: completed

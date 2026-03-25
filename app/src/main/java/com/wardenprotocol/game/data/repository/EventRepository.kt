@@ -8,7 +8,8 @@ class EventRepository {
 
     fun getAllEvents(): List<GameEvent> = vaultEvents + ExpandedEventCatalog.vaultEvents +
         surfaceEvents + ExpandedEventCatalog.surfaceEvents +
-        cosmicEvents + ExpandedEventCatalog.cosmicEvents
+        cosmicEvents + ExpandedEventCatalog.cosmicEvents +
+        ExpandedEventCatalog.apexThreatEvents
 
     // ── VAULT INTERNAL EVENTS ─────────────────────────────────────────────────
 

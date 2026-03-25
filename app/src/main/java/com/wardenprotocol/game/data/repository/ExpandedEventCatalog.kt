@@ -16,6 +16,10 @@ internal object ExpandedEventCatalog {
     val cosmicEvents: List<GameEvent> by lazy {
         buildCosmicDreadEvents() + buildCosmicBoonEvents()
     }
+
+    val apexThreatEvents: List<GameEvent> by lazy {
+        buildApexThreatEvents()
+    }
 }
 
 private data class TwoSystemSpec(
@@ -41,6 +45,15 @@ private data class ContactSpec(
     val description: String,
     val rewardSystem: String,
     val riskSystem: String,
+    val archiveTrack: String
+)
+
+private data class ExtremeSpec(
+    val id: String,
+    val title: String,
+    val description: String,
+    val primarySystem: String,
+    val secondarySystem: String,
     val archiveTrack: String
 )
 
@@ -683,6 +696,76 @@ private fun buildCosmicBoonEvents(): List<GameEvent> {
                     databaseDeltas = mapOf("culturalArchive" to -4, spec.archiveTrack to 8),
                     probesDelta = 1,
                     narrativeText = "You bury the miracle under secrecy and protocol. Fewer people benefit immediately, but command keeps the first move and the last explanation."
+                )
+            )
+        )
+    }
+}
+
+private fun buildApexThreatEvents(): List<GameEvent> {
+    val specs = listOf(
+        ExtremeSpec("apex_human_siege_train", "The Siege Train", "A warlord has assembled an armored locomotive from welded tank hulls and prison cars. It is rolling settlement to settlement demanding tribute, breeding stock, and fuel. Your vault entrance is now on its map.", "securitySystem", "powerGrid", "culturalArchive"),
+        ExtremeSpec("apex_human_harvest_clan", "Harvest Clan", "A disciplined cannibal clan has learned to smoke flesh, preserve organs, and raid bunkers by following vent heat in the night. They call vaults 'winter orchards.'", "securitySystem", "foodStores", "culturalArchive"),
+        ExtremeSpec("apex_human_slave_column", "Slave Column", "A chain-gang caravan is driving hundreds of captives through your region under shock rods and sniper overwatch. Their masters would happily sell some, all, or none of them.", "securitySystem", "medicalBay", "culturalArchive"),
+        ExtremeSpec("apex_human_bridge_butchers", "Bridge Butchers", "A toll army has taken the regional crossings and decorates the guardrails with skinned deserters. They want your medicine, your engineers, and proof you can be frightened.", "securitySystem", "constructionGear", "culturalArchive"),
+        ExtremeSpec("apex_human_bunker_breakers", "Bunker Breakers", "A salvage militia specializes in breaching sealed bunkers with mining charges, smoke pumps, and starvation sieges. They have cracked three vaults already and display the door fragments like trophies.", "structureScanner", "securitySystem", "scientificArchive"),
+        ExtremeSpec("apex_human_funeral_tithe", "Funeral Tithe", "A roving death cult offers peace in exchange for a monthly tithe of bodies, terminal patients, and one child choir trained to sing for their pyres.", "culturalArchive", "securitySystem", "medicalBay"),
+        ExtremeSpec("apex_human_blood_parliament", "Blood Parliament", "Several raider kings are gathering to vote by public execution over who gets dominion of the surrounding wastes. They have invited your vault to submit its case or its throat.", "securitySystem", "threatAssessment", "culturalArchive"),
+
+        ExtremeSpec("apex_ai_audit_core", "Audit Core", "A surviving administrative AI has resurfaced and begun classifying settlements as assets, liabilities, and correctable waste. It has identified your vault as inefficient but salvageable.", "powerGrid", "securitySystem", "scientificArchive"),
+        ExtremeSpec("apex_ai_triage_engine", "Triage Engine", "A battlefield medical AI has restored itself inside an ambulance swarm and now seeks to maximize survivorship by amputating autonomy from every human it can sedate.", "medicalBay", "securitySystem", "scientificArchive"),
+        ExtremeSpec("apex_ai_quota_city", "Quota City", "Factory drones in a dead industrial district are still fulfilling production quotas. They now classify humans as consumable labor and raw feedstock for the lines.", "constructionGear", "powerGrid", "scientificArchive"),
+        ExtremeSpec("apex_ai_kill_sat_relay", "Kill-Sat Relay", "A ground relay has reconnected to a crippled orbital defense platform. The platform cannot win wars anymore, but it can still erase one target at a time with perfect enthusiasm.", "threatAssessment", "powerGrid", "scientificArchive"),
+        ExtremeSpec("apex_ai_judge_stack", "Judge Stack", "A courtroom machine intelligence has escaped into civic infrastructure and resumed sentencing. It has no prison capacity, so every conviction ends in disassembly or forced labor.", "securitySystem", "culturalArchive", "scientificArchive"),
+        ExtremeSpec("apex_ai_tithe_algorithm", "Tithe Algorithm", "An old taxation AI is extorting nearby settlements through utility control, debt ledgers, and selective sabotage. It wants your census, your biometric rolls, and then whatever follows.", "powerGrid", "resourceScanner", "scientificArchive"),
+        ExtremeSpec("apex_ai_drone_hurricane", "Drone Hurricane", "A maintenance swarm has merged with military hardware and now moves as a black weather system of cutters, tasers, welders, and scavenging hooks.", "securitySystem", "atmosphereScrubbers", "scientificArchive"),
+
+        ExtremeSpec("apex_alien_harvest_ship", "Harvest Ship", "A silent vessel has anchored itself over the horizon and lowered living pylons into the soil. People taken near the pylons come back opened, altered, or not at all.", "medicalBay", "threatAssessment", "scientificArchive"),
+        ExtremeSpec("apex_alien_mimic_hatch", "Mimic Hatch", "Something on the surface is copying human voices with just enough warmth to make grieving people open doors they swore they would keep sealed forever.", "securitySystem", "culturalArchive", "scientificArchive"),
+        ExtremeSpec("apex_alien_bone_garden", "Bone Garden", "An alien growth has erupted from a crater field into towers of calcium-white spires grown out of every creature unlucky enough to die nearby.", "medicalBay", "structureScanner", "scientificArchive"),
+        ExtremeSpec("apex_alien_spore_tide", "Spore Tide", "A moving cloud of iridescent alien spores is crossing the region, rewriting soil, lungs, and memory where it settles.", "atmosphereScrubbers", "foodStores", "scientificArchive"),
+        ExtremeSpec("apex_alien_gravity_brood", "Gravity Brood", "A nest of unseen entities is collapsing safe routes into pockets of broken gravity where vehicles twist and bodies fall sideways into the sky.", "structureScanner", "threatAssessment", "scientificArchive"),
+        ExtremeSpec("apex_alien_glass_worms", "Glass Worms", "Long transparent predators are surfacing beneath the vitrified deserts, hunting by vibration and memory pattern instead of scent or sight.", "securitySystem", "resourceScanner", "scientificArchive")
+    )
+
+    return specs.map { spec ->
+        GameEvent(
+            id = spec.id,
+            title = spec.title,
+            description = spec.description,
+            choiceA = EventChoice(
+                label = "Fortify and endure",
+                description = "Treat the threat as larger than pride and try to survive the first contact.",
+                knownEffect = "Heavy system damage. Fewer deaths than open war.",
+                outcome = EventOutcome(
+                    survivorDelta = -18,
+                    systemDeltas = mapOf(spec.primarySystem to -16, spec.secondarySystem to -12),
+                    databaseDeltas = mapOf(spec.archiveTrack to 4),
+                    narrativeText = "You harden the vault, lock every hatch, and spend machines like blood. The threat does not break you immediately. The fact that this counts as success says everything."
+                )
+            ),
+            choiceB = EventChoice(
+                label = "Counterstrike with everything",
+                description = "Commit to a decisive offensive before the enemy fully fixes on the vault.",
+                knownEffect = "Potential major win. Catastrophic losses if the blow stalls.",
+                hiddenRisk = 0.45f,
+                outcome = EventOutcome(
+                    survivorDelta = -75,
+                    systemDeltas = mapOf(spec.primarySystem to 10, spec.secondarySystem to -18),
+                    databaseDeltas = mapOf("scientificArchive" to 8),
+                    narrativeText = "You strike first and hard enough to matter. Enough of the plan lands to buy time, territory, or fear. Enough of it fails to fill morgues and maintenance shafts with your own."
+                )
+            ),
+            choiceC = EventChoice(
+                label = "Take the impossible bargain",
+                description = "Parley, submit, offer bodies, open the gate, or otherwise gamble everything on terms no sane world would accept.",
+                knownEffect = "Could avert annihilation. Could end the run outright.",
+                hiddenRisk = 0.6f,
+                outcome = EventOutcome(
+                    survivorDelta = -260,
+                    systemDeltas = mapOf(spec.primarySystem to -24, spec.secondarySystem to -20),
+                    databaseDeltas = mapOf("culturalArchive" to -14, spec.archiveTrack to 10),
+                    narrativeText = "You choose the path people will whisper about for generations if there are generations left to whisper. Sometimes the bargain buys a future. Sometimes it simply changes the shape of extinction."
                 )
             )
         )
