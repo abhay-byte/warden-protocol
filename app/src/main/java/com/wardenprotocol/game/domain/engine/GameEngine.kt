@@ -198,11 +198,48 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scientific = state.databases.scientificArchive
         
         val (classification, tier) = when {
-            score >= 8000 -> "Golden Age Civilization" to 5
-            score >= 5000 -> "Thriving Society" to 4
-            score >= 2500 -> "Stable Settlement" to 3
-            score >= 1000 -> "Struggling Outpost" to 2
-            else -> "Doomed Colony" to 1
+            score >= 8000 -> {
+                when {
+                    state.survivors > 900 -> "Paradise Reclaimed" to 5
+                    state.databases.culturalArchive > 80 && state.databases.scientificArchive > 80 -> "Renaissance of Humanity" to 5
+                    location.anomaly != null -> "Blessed Settlement" to 5
+                    else -> "Golden Age Civilization" to 5
+                }
+            }
+            score >= 5000 -> {
+                when {
+                    state.survivors > 700 -> "Prosperous Colony" to 4
+                    state.vaultSystems.constructionGear > 70 -> "Industrial Haven" to 4
+                    location.water == WaterAvailability.ABUNDANT -> "Oasis of Hope" to 4
+                    else -> "Thriving Society" to 4
+                }
+            }
+            score >= 2500 -> {
+                when {
+                    state.survivors < 400 -> "Fragile Foothold" to 3
+                    state.yearsSinceWar > 15 -> "Weary Survivors" to 3
+                    location.radiation != RadiationLevel.NONE -> "Irradiated Settlement" to 3
+                    else -> "Stable Settlement" to 3
+                }
+            }
+            score >= 1000 -> {
+                when {
+                    state.survivors < 200 -> "Dying Ember" to 2
+                    location.nativeHostility != Hostility.NONE -> "Besieged Outpost" to 2
+                    location.water == WaterAvailability.NONE -> "Thirst-Cursed Camp" to 2
+                    state.vaultSystems.foodStores < 20 -> "Starving Remnant" to 2
+                    else -> "Struggling Outpost" to 2
+                }
+            }
+            else -> {
+                when {
+                    state.survivors <= 0 -> "Total Extinction" to 1
+                    state.survivors < 50 -> "Final Gasps" to 1
+                    location.radiation == RadiationLevel.LETHAL -> "Radiation Tomb" to 1
+                    location.nativeHostility == Hostility.WARLORD -> "Conquered and Enslaved" to 1
+                    else -> "Doomed Colony" to 1
+                }
+            }
         }
         
         val societyType = when {
@@ -239,52 +276,51 @@ class GameEngine(private val eventRepository: EventRepository) {
         
         val outcomeDetail = when (tier) {
             5 -> {
-                val locationBonus = if (location.radiation == RadiationLevel.NONE && location.water == WaterAvailability.ABUNDANT && location.food == FoodPotential.FERTILE) {
-                    " The location was perfect—clean air, abundant water, fertile soil. Humanity had been given a second chance, and they seized it."
-                } else {
-                    " Despite the challenges of ${location.name}, they overcame every obstacle through ingenuity and determination."
+                val specificEnding = when (classification) {
+                    "Paradise Reclaimed" -> " With over ${state.survivors} survivors, they had the numbers to build a true civilization. Within a generation, ${location.name} transformed from wasteland to wonderland. Schools, hospitals, farms—all the hallmarks of the old world, reborn and improved."
+                    "Renaissance of Humanity" -> " They emerged not just with bodies, but with minds intact. The cultural and scientific archives were nearly complete. Artists painted murals on vault walls. Scientists developed radiation treatments. Philosophers debated the meaning of their survival. Humanity's soul had survived."
+                    "Blessed Settlement" -> " The ${location.anomaly?.displayName} changed everything. What seemed like a curse became their greatest blessing. It provided resources, knowledge, or protection that made survival not just possible, but inevitable."
+                    else -> " The location was perfect—clean air, abundant water, fertile soil. Humanity had been given a second chance, and they seized it."
                 }
-                "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment.$locationBonus"
+                "Against all odds, humanity not only survived but flourished. ${state.survivors} souls emerged from Vault $vaultNumber after ${state.yearsSinceWar} years, carrying the torch of civilization. They founded $settlementName on ${location.name}, a beacon of hope in the wasteland. Their $societyType thrived through $economy, governed by $politics. They lived in $environment.$specificEnding Their descendants would remember this as humanity's second dawn."
             }
             4 -> {
-                val locationImpact = when {
-                    location.radiation in listOf(RadiationLevel.HIGH, RadiationLevel.LETHAL) -> " The high radiation forced them to remain partially underground, limiting expansion."
-                    location.water == WaterAvailability.NONE -> " Water scarcity became their greatest challenge, requiring constant rationing and conflict."
-                    location.nativeHostility != Hostility.NONE -> " Constant battles with ${location.nativeHostility.displayName} drained resources and lives."
-                    else -> " The location posed challenges, but they adapted and persevered."
+                val specificEnding = when (classification) {
+                    "Prosperous Colony" -> " ${state.survivors} survivors was more than enough. They divided into specialized roles—farmers, builders, guards, teachers. Within five years, they had a functioning town with trade routes to other survivor groups."
+                    "Industrial Haven" -> " The construction gear at ${state.vaultSystems.constructionGear}% capacity allowed them to build rapidly. Factories rose from ruins. They manufactured tools, weapons, and eventually luxuries. Other settlements came to trade."
+                    "Oasis of Hope" -> " Abundant water was their salvation. While others fought over drops, they had rivers. They became a destination for desperate wanderers, growing their population and influence."
+                    else -> " Despite the challenges of ${location.name}, they overcame every obstacle through ingenuity and determination."
                 }
-                "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment.$locationImpact Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain."
+                "${state.survivors} survivors emerged from Vault $vaultNumber in Year ${state.yearsSinceWar}. They built $settlementName on ${location.name}, establishing a $societyType sustained by $economy and governed through $politics. They lived in $environment.$specificEnding Of the thousand who entered the vault, ${1000 - state.survivors} never saw the sky again, but their sacrifice was not in vain."
             }
             3 -> {
-                val locationStruggles = when {
-                    location.radiation in listOf(RadiationLevel.HIGH, RadiationLevel.LETHAL) -> " Radiation sickness claimed dozens in the first year. Protective gear was scarce."
-                    location.water == WaterAvailability.NONE -> " Without water, they dug desperately for underground sources. Many died of thirst."
-                    location.food == FoodPotential.BARREN -> " The dead soil yielded nothing. Starvation was a constant companion."
-                    location.shelter == ShelterQuality.NONE -> " Exposed to the elements, they built crude shelters that barely kept out the toxic rain."
-                    location.nativeHostility == Hostility.WARLORD -> " The local warlord's forces attacked within days. They lost half their supplies defending themselves."
+                val specificEnding = when (classification) {
+                    "Fragile Foothold" -> " With only ${state.survivors} survivors, every death was a catastrophe. They couldn't afford to lose anyone. Reproduction became a duty. Children were raised communally. They survived, but barely."
+                    "Weary Survivors" -> " ${state.yearsSinceWar} years underground had broken something in them. They emerged old, tired, and traumatized. The young had never seen the sun. The old couldn't remember it. They built $settlementName, but their hearts remained in the vault."
+                    "Irradiated Settlement" -> " The ${location.radiation.displayName} radiation was inescapable. They wore protective gear constantly. Cancers were common. Mutations appeared in the second generation. They survived, but at what cost?"
                     else -> " The harsh conditions tested them daily."
                 }
-                "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment.$locationStruggles ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above."
+                "${state.survivors} survivors left Vault $vaultNumber after ${state.yearsSinceWar} years underground. $settlementName rose on ${location.name}, a modest $societyType struggling with $economy under $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault, and many more would follow in the harsh world above."
             }
             2 -> {
-                val locationDisaster = when {
-                    location.radiation == RadiationLevel.LETHAL -> " Lethal radiation killed 30% of survivors in the first month. The rest developed cancers that would claim them within years."
-                    location.water == WaterAvailability.NONE && location.food == FoodPotential.BARREN -> " No water. No food. They were dead the moment they opened the vault door. Some tried to return underground, but the vault had sealed."
-                    location.nativeHostility == Hostility.WARLORD -> " The warlord's army surrounded them within hours. They were enslaved, their technology stolen, their hope extinguished."
-                    location.shelter == ShelterQuality.NONE && location.radiation != RadiationLevel.NONE -> " Without shelter and exposed to radiation, they died slowly and painfully. Some begged to return to the vault."
+                val specificEnding = when (classification) {
+                    "Dying Ember" -> " ${state.survivors} survivors. That was all that remained of humanity's hope. Too few to maintain genetic diversity. Too few to defend against threats. Too few to rebuild. They knew they were watching humanity's final chapter."
+                    "Besieged Outpost" -> " The ${location.nativeHostility.displayName} attacked constantly. Every day was a battle. They slept in shifts, weapons always ready. Half their food went to bribes and protection money. They weren't living—they were dying slowly."
+                    "Thirst-Cursed Camp" -> " No water. The defining fact of their existence. They dug wells that came up dry. They collected dew. They rationed urine. Dehydration killed more than radiation ever did. Their tongues were perpetually swollen, their lips cracked and bleeding."
+                    "Starving Remnant" -> " Food stores at ${state.vaultSystems.foodStores}%. They were already starving in the vault. The surface offered no relief. They ate rats, insects, anything. Cannibalism was whispered about but never proven. Starvation made them animals."
                     else -> " Every aspect of ${location.name} was hostile to human life. They had chosen poorly."
                 }
-                "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment.$locationDisaster ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade."
+                "Only ${state.survivors} survivors emerged from Vault $vaultNumber after ${state.yearsSinceWar} desperate years. $settlementName on ${location.name} was less a settlement than a desperate camp. Their $societyType barely functioned, crippled by $economy and fractured $politics. They lived in $environment.$specificEnding ${1000 - state.survivors} died in the vault. Most of the survivors would not see another decade."
             }
             else -> {
-                val locationDeath = when {
-                    location.radiation == RadiationLevel.LETHAL -> " Lethal radiation killed them all within weeks. Their bodies lie where they fell, monuments to a fatal mistake."
-                    location.water == WaterAvailability.NONE -> " They died of thirst within days. The vault had been their tomb; the surface became their grave."
-                    location.nativeHostility == Hostility.WARLORD -> " The warlord's forces massacred them for sport. None survived the first night."
-                    location.food == FoodPotential.BARREN && location.water == WaterAvailability.SCARCE -> " Starvation and dehydration claimed them one by one. The last survivor died alone, surrounded by corpses."
+                val specificEnding = when (classification) {
+                    "Total Extinction" -> " All ${1000} who entered Vault $vaultNumber are dead. The vault door stands open, a monument to failure. Inside, skeletons in their bunks. Outside, bodies that made it only meters before collapsing. Humanity ended not with a bang, but with a whimper."
+                    "Final Gasps" -> " ${state.survivors} survivors. They lasted days, maybe weeks. One by one they fell. The last survivor, alone and mad, scratched a final message on the vault door: 'We should have stayed inside.' Then silence."
+                    "Radiation Tomb" -> " Lethal radiation killed them all within hours. Their bodies lie where they fell, already decomposing in the toxic air. The vault had been their tomb; ${location.name} became their grave. Future archaeologists would find them and wonder why they left safety for certain death."
+                    "Conquered and Enslaved" -> " The warlord's forces were waiting. They had detected the vault years ago. The survivors were captured immediately, their technology stolen, their bodies enslaved. They died in chains, building monuments to their conquerors. A few escaped and spread the warning: never open the vault."
                     else -> " ${location.name} was a death sentence. They should have stayed in the vault."
                 }
-                "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word.$locationDeath ${1000 - state.survivors} died in the vault. The rest followed within months. Humanity's light was extinguished."
+                "${state.survivors} survivors crawled from Vault $vaultNumber after ${state.yearsSinceWar} years, more dead than alive. What they called $settlementName on ${location.name} was a graveyard in waiting. Their $societyType was a cruel joke, their $economy nonexistent, their $politics mere anarchy. They lived in $environment, but 'lived' was too generous a word.$specificEnding ${1000 - state.survivors} died in the vault. Humanity's light was extinguished."
             }
         }
         
