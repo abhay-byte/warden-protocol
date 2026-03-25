@@ -28,31 +28,78 @@ class GameEngine(private val eventRepository: EventRepository) {
         ),
         LocationType.FOREST to listOf(
             "Ash-Grey Pinelands", "Recovering Oak Valley", "Mutant Redwood Grove", "Dead Birch Forest",
-            "Twisted Maple Woods", "Blackened Cedar Stand", "Poisoned Willow Marsh", "Charred Sequoia Basin"
+            "Twisted Maple Woods", "Blackened Cedar Stand", "Poisoned Willow Marsh", "Charred Sequoia Basin",
+            "Spore-Choked Timberline", "Hanging Moss Hollow", "Rotfen Grove", "Pale Fungus Thicket"
         ),
         LocationType.MILITARY_BASE to listOf(
             "Fort Zulu", "Outpost Kilo-7", "Fort Alpha Ruins", "Base Tango-9", "Fort Whiskey",
-            "Outpost Delta", "Fort November", "Base Echo-3", "Fort Sierra", "Outpost Bravo-6"
+            "Outpost Delta", "Fort November", "Base Echo-3", "Fort Sierra", "Outpost Bravo-6",
+            "Missile Silo Raven", "Checkpoint Mordred"
         ),
         LocationType.FARMLAND to listOf(
             "Withered Corn Belt", "Salted Wheat Fields", "Toxic Vineyard", "Barren Pastures",
-            "Irradiated Orchards", "Dead Soybean Plains", "Poisoned Rice Paddies", "Scorched Cropland"
+            "Irradiated Orchards", "Dead Soybean Plains", "Poisoned Rice Paddies", "Scorched Cropland",
+            "Maggot Orchard", "Ash Harvest Flats", "Rotted Cattle Range", "Grey Millet Basin"
         ),
         LocationType.UNDERGROUND_RIVER to listOf(
             "Subterranean Flow", "Hidden Aquifer", "Deep Water Vein", "Buried Stream",
-            "Cavern Springs", "Underground Lake", "Limestone River", "Crystal Waters Below"
+            "Cavern Springs", "Underground Lake", "Limestone River", "Crystal Waters Below",
+            "Blackwater Shaft", "Echo Flood Galleries", "Stalagmite Channel", "Sunless Delta"
         ),
         LocationType.MOUNTAIN_PASS to listOf(
             "Frozen Summit Trail", "Rockslide Pass", "Avalanche Corridor", "High Ridge Path",
-            "Shattered Peak Route", "Windswept Col", "Glacier Pass", "Stone Gate Mountains"
+            "Shattered Peak Route", "Windswept Col", "Glacier Pass", "Stone Gate Mountains",
+            "Bleak Horn Divide", "Bonewind Ascent", "Needle Ridge", "Frostbite Traverse"
         ),
         LocationType.COASTAL_TOWN to listOf(
             "Drowned Harbor", "Tsunami-Swept Bay", "Radioactive Shoreline", "Flooded Pier Town",
-            "Toxic Beach Settlement", "Submerged Port", "Poisoned Fishing Village", "Dead Seaside"
+            "Toxic Beach Settlement", "Submerged Port", "Poisoned Fishing Village", "Dead Seaside",
+            "Barnacle Mile", "Oil-Black Cove", "Rotted Marina", "Saltgrave Inlet"
         ),
         LocationType.RESEARCH_FACILITY to listOf(
             "Blacksite Omega", "Research Station 7", "Laboratory Complex Alpha", "Science Outpost Theta",
-            "Experimental Facility", "Biotech Center Ruins", "Weapons Lab Delta", "Particle Accelerator Site"
+            "Experimental Facility", "Biotech Center Ruins", "Weapons Lab Delta", "Particle Accelerator Site",
+            "Cryolab Epsilon", "Containment Annex 4", "Geneforge Campus", "Telemetry Yard Nine"
+        ),
+        LocationType.RADIOACTIVE_SWAMP to listOf(
+            "Glowmire Basin", "Irradiated Fen", "Neon Bog", "Rotwater Marsh", "Cinder Reed Flats",
+            "Luminous Peat", "Fever Swale", "Sourwater Hollow", "Mire Delta 6", "Blister Marsh",
+            "Yellow Silt Wetland", "Dead Lantern Bog", "Hotmist Fen"
+        ),
+        LocationType.MEGACRATER to listOf(
+            "Impact Cradle", "Saint Helix Crater", "Obsidian Bowl", "Ashfall Caldera", "Broken Horizon Pit",
+            "Red Mile Crater", "Thunder Glass Basin", "Meteor Hollow", "Char Basin Prime", "The Long Scar",
+            "Sulfur Crown", "Shatter Rim", "Gravesmoke Crater"
+        ),
+        LocationType.PLAGUE_ZONE to listOf(
+            "Quarantine Block K", "The Fever District", "Carrion Ward", "Mourning Blocks", "Bleachline Sector",
+            "Triage Ruins", "Bodyburn Square", "Red Mask Borough", "Sickhouse Row", "Isolation Parish",
+            "Pestilent Commons", "Grief Market", "The Coughing Mile"
+        ),
+        LocationType.SCRAP_HEAP to listOf(
+            "Titan Scrap Fields", "The Iron Mound", "Crushed Freight Sea", "Rust Cathedral", "Wrecker's Spine",
+            "Machine Grave", "Tangle Yard", "The Broken Conveyor", "Magnet Hill", "Smelter Bones",
+            "Derelict Stack", "Copper Teeth", "Junkspire"
+        ),
+        LocationType.ABANDONED_SUBWAY to listOf(
+            "Line Zero", "Collapsed Metro Arc", "Tunnel 19", "Ghost Platform", "Station Mercy",
+            "Flooded Transfer", "Black Rail Junction", "Sublevel Delta", "Terminal Ash", "Signal Pit",
+            "Platform Thirteen", "Rat King Interchange", "Last Stop Hollow"
+        ),
+        LocationType.FUNGAL_WASTES to listOf(
+            "Mycelium Flats", "Spore Bloom Expanse", "The Mold Barrens", "Fungal Drift", "Puffball Valley",
+            "Velvet Rot Fields", "Stalk Forest", "Capgrave Plain", "Lichen Storm Reach", "Softbone Hollow",
+            "White Veil Steppe", "Toadstool Shelf", "Dustcap Expanse"
+        ),
+        LocationType.GLASS_DESERT to listOf(
+            "Vitrified Sea", "Mirror Dunes", "Shard Horizon", "Glasswind Expanse", "Sunburn Flats",
+            "Cracked Silica Basin", "Knife Sand Reach", "The Bright Waste", "Fused Tide Plain", "Burnglass Coast",
+            "Heat Mirage Yard", "Scorched Prism Fields", "The Singing Dunes"
+        ),
+        LocationType.CULT_TERRITORY to listOf(
+            "Pilgrim's Ash", "Shrine Belt", "The Chanting Vale", "Icon Graveyard", "Ash Sermon Camp",
+            "Red Banner Reach", "Temple of Static", "Bellfire Steppe", "Sacrament Ditch", "Prophet's Crossing",
+            "The Tithe Roads", "Oracle Stockade", "Martyr's Gate"
         )
     )
 
@@ -513,6 +560,14 @@ class GameEngine(private val eventRepository: EventRepository) {
             LocationType.MOUNTAIN_PASS -> "A steep highland route of exposed ridges, rockfall choke points, and narrow defensible ground."
             LocationType.COASTAL_TOWN -> "A drowned shoreline settlement where salt, flood damage, and broken harbor works define the landscape."
             LocationType.RESEARCH_FACILITY -> "A sealed research compound ringed with service tunnels, labs, and damaged containment systems."
+            LocationType.RADIOACTIVE_SWAMP -> "A glowing wetland of chemical muck, irradiated reeds, and sinkholes that swallow equipment whole."
+            LocationType.MEGACRATER -> "A colossal impact scar of shattered earth, sulfur vents, unstable rims, and strange mineral exposure."
+            LocationType.PLAGUE_ZONE -> "A disease-haunted urban quarantine belt littered with burned checkpoints, triage ruins, and biohazard pits."
+            LocationType.SCRAP_HEAP -> "A metallic wasteland of crushed vehicles, twisted cranes, collapsing heaps, and razor-edged salvage corridors."
+            LocationType.ABANDONED_SUBWAY -> "A buried transit labyrinth of dark platforms, flooded tunnels, collapsed passages, and blind choke points."
+            LocationType.FUNGAL_WASTES -> "A spore-heavy biome where mutated fungal growth blankets the ground, structures, and even the air itself."
+            LocationType.GLASS_DESERT -> "A vitrified wasteland of fused sand, knife-sharp dunes, brutal heat shimmer, and almost no natural cover."
+            LocationType.CULT_TERRITORY -> "A fanatical dominion marked by shrine roads, warning totems, sacrificial compounds, and armed watchfires."
         }
 
         val radiationLine = when (radiation) {
@@ -605,6 +660,14 @@ class GameEngine(private val eventRepository: EventRepository) {
             LocationType.MOUNTAIN_PASS -> TravelTemplate("High ridge ascent", "6 to 9 days over exposed switchbacks", 6, 12, 130)
             LocationType.COASTAL_TOWN -> TravelTemplate("Flooded shoreline corridor", "5 to 7 days around washouts and salt flats", 5, 11, 120)
             LocationType.RESEARCH_FACILITY -> TravelTemplate("Service tunnel convoy route", "4 to 6 days through damaged access roads", 4, 8, 85)
+            LocationType.RADIOACTIVE_SWAMP -> TravelTemplate("Toxic mire crossing", "5 to 8 days through mud, reeds, and sinkwater", 6, 13, 135)
+            LocationType.MEGACRATER -> TravelTemplate("Crater rim descent", "4 to 7 days over ash shelves and broken slopes", 5, 12, 125)
+            LocationType.PLAGUE_ZONE -> TravelTemplate("Quarantine breach corridor", "3 to 5 days through sealed wards and infected streets", 6, 12, 130)
+            LocationType.SCRAP_HEAP -> TravelTemplate("Salvage maze route", "4 to 6 days through stacked wreckage", 4, 10, 100)
+            LocationType.ABANDONED_SUBWAY -> TravelTemplate("Subterranean rail ingress", "3 to 5 days through tunnels and service shafts", 5, 10, 105)
+            LocationType.FUNGAL_WASTES -> TravelTemplate("Spore belt traverse", "4 to 7 days through mold bloom territory", 5, 11, 115)
+            LocationType.GLASS_DESERT -> TravelTemplate("Burnglass crossing", "6 to 8 days across exposed vitrified flats", 7, 14, 145)
+            LocationType.CULT_TERRITORY -> TravelTemplate("Pilgrim road incursion", "4 to 6 days past shrines and checkpoints", 6, 13, 140)
         }
 
         var minLoss = template.minLossPercent
@@ -773,6 +836,14 @@ class GameEngine(private val eventRepository: EventRepository) {
             LocationType.MOUNTAIN_PASS -> listOf("High", "Stone", "Summit", "Ridge")
             LocationType.COASTAL_TOWN -> listOf("Tide", "Harbor", "Breakwater", "Beacon")
             LocationType.RESEARCH_FACILITY -> listOf("Atlas", "Signal", "Archive", "Nova")
+            LocationType.RADIOACTIVE_SWAMP -> listOf("Glow", "Mire", "Reed", "Fen")
+            LocationType.MEGACRATER -> listOf("Rim", "Ash", "Impact", "Crown")
+            LocationType.PLAGUE_ZONE -> listOf("Mercy", "Bleach", "Ward", "Pall")
+            LocationType.SCRAP_HEAP -> listOf("Rust", "Forge", "Scrap", "Iron")
+            LocationType.ABANDONED_SUBWAY -> listOf("Line", "Tunnel", "Signal", "Platform")
+            LocationType.FUNGAL_WASTES -> listOf("Spore", "Cap", "Myco", "Veil")
+            LocationType.GLASS_DESERT -> listOf("Glass", "Prism", "Burn", "Shard")
+            LocationType.CULT_TERRITORY -> listOf("Pilgrim", "Shrine", "Oracle", "Martyr")
         }
         val suffixes = listOf("Dawn", "Light", "Home", "Rest", "Peace", "Tomorrow", "Spring", "Harbor")
         return "${prefixes.random()} ${suffixes.random()}"

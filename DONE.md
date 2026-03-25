@@ -4,6 +4,14 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-25 - Expand Surface World to 200 Locations
+
+- Status: completed
+- Title: Add more weird, apocalyptic, disgusting, and dangerous locations and raise the total to 200
+- Goal: Expand the location generator so the surface world has far more variety and many harsher biome categories.
+- What changed: Increased the named location pool from 70 to exactly 200; expanded the existing eight biome lists; added eight new biome types (`RADIOACTIVE_SWAMP`, `MEGACRATER`, `PLAGUE_ZONE`, `SCRAP_HEAP`, `ABANDONED_SUBWAY`, `FUNGAL_WASTES`, `GLASS_DESERT`, and `CULT_TERRITORY`); and wired each new type into world descriptions, travel profiles, and settlement naming.
+- Verification: `.\gradlew.bat assembleDebug` succeeded and the debug APK was installed and launched on device `192.168.137.30:39355` via `adb`.
+
 ### 2026-03-25 - Compact Command Tray and More Reading Space
 
 - Status: completed
