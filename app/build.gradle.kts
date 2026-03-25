@@ -5,12 +5,14 @@ plugins {
 
 android {
     namespace = "com.wardenprotocol.game"
-    compileSdk = 35
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.wardenprotocol.game"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -45,6 +47,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation(platform("androidx.compose:compose-bom:2024.01.00"))
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")

@@ -13,17 +13,21 @@ sealed class GameAction {
     object ContinueSearching : GameAction()
     object OpenVault : GameAction()
     object DeployProbe : GameAction()
+    object ShowLeaderboard : GameAction()
+    object ShowRunHistory : GameAction()
+    object GoToMainMenu : GameAction()
     data class SelectEventChoice(val choice: EventChoice) : GameAction()
     object DismissEventOutcome : GameAction()
 }
 
 sealed class UiState {
     object MainMenu : UiState()
+    object Leaderboard : UiState()
+    object RunHistory : UiState()
     data class SurfaceScanning(val location: SurfaceLocation, val probeRevealed: Boolean = false) : UiState()
     data class RandomEvent(val event: GameEvent) : UiState()
     data class EventOutcome(val narrative: String) : UiState()
     data class GameOutcome(val outcome: ColonyOutcome, val isNewHighScore: Boolean) : UiState()
-    object GameOver : UiState()
 }
 
 class GameViewModel(
@@ -39,6 +43,12 @@ class GameViewModel(
     
     val highScore: StateFlow<Int> = highScoreRepository.highScore
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
+    val leaderboard: StateFlow<List<RunRecord>> = highScoreRepository.leaderboard
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val runHistory: StateFlow<List<RunRecord>> = highScoreRepository.runHistory
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     
     fun handleAction(action: GameAction) {
         when (action) {
@@ -46,6 +56,9 @@ class GameViewModel(
             is GameAction.ContinueSearching -> continueSearching()
             is GameAction.OpenVault -> openVault()
             is GameAction.DeployProbe -> deployProbe()
+            is GameAction.ShowLeaderboard -> _uiState.value = UiState.Leaderboard
+            is GameAction.ShowRunHistory -> _uiState.value = UiState.RunHistory
+            is GameAction.GoToMainMenu -> _uiState.value = UiState.MainMenu
             is GameAction.SelectEventChoice -> selectEventChoice(action.choice)
             is GameAction.DismissEventOutcome -> dismissEventOutcome()
         }
@@ -64,8 +77,8 @@ class GameViewModel(
         state = state.copy(surfaceLocationsScanned = state.surfaceLocationsScanned + 1)
         
         if (state.survivors <= 0) {
-            _gameState.value = state.copy(phase = GamePhase.GAME_OVER)
-            _uiState.value = UiState.GameOver
+            val outcome = createGameOverOutcome(state)
+            finishGame(state.copy(phase = GamePhase.GAME_OVER), outcome)
             return
         }
         
@@ -119,16 +132,8 @@ class GameViewModel(
         state = state.copy(survivors = (state.survivors - immediateDeaths).coerceAtLeast(0))
         _gameState.value = state
         
-        val score = gameEngine.scoreOutcome(state, location)
-        val outcome = gameEngine.generateOutcomeNarrative(state, location, score)
-        
-        viewModelScope.launch {
-            highScoreRepository.saveHighScore(score)
-        }
-        
-        val isNewHighScore = score > highScore.value
-        _gameState.value = state.copy(phase = GamePhase.OPEN_VAULT)
-        _uiState.value = UiState.GameOutcome(outcome, isNewHighScore)
+        val outcome = gameEngine.generateOutcomeNarrative(state, location, gameEngine.scoreOutcome(state, location))
+        finishGame(state.copy(phase = GamePhase.OPEN_VAULT), outcome)
     }
     
     private fun deployProbe() {
@@ -195,5 +200,45 @@ class GameViewModel(
             phase = GamePhase.SURFACE_SCAN
         )
         _uiState.value = UiState.SurfaceScanning(location)
+    }
+
+    private fun finishGame(state: GameState, outcome: ColonyOutcome) {
+        val isNewHighScore = outcome.score > highScore.value
+        _gameState.value = state
+        viewModelScope.launch {
+            highScoreRepository.saveHighScore(outcome.score)
+            highScoreRepository.saveRun(outcome)
+        }
+        _uiState.value = UiState.GameOutcome(outcome, isNewHighScore)
+    }
+
+    private fun createGameOverOutcome(state: GameState): ColonyOutcome {
+        val locationName = state.currentLocation?.name ?: "Unknown Surface"
+        return ColonyOutcome(
+            score = 0,
+            classification = "Total Extinction",
+            narrative = "The last survivors died before the vault could open. The bunker endured, but the species did not. The command deck became a tomb lit only by failing systems.",
+            settlementName = "Vault Memorial",
+            detailedStats = OutcomeStats(
+                survivors = 0,
+                yearsSinceWar = state.yearsSinceWar,
+                deaths = 1000,
+                locationName = locationName,
+                radiation = state.currentLocation?.radiation?.displayName ?: "Unknown",
+                water = state.currentLocation?.water?.displayName ?: "Unknown",
+                food = state.currentLocation?.food?.displayName ?: "Unknown",
+                shelter = state.currentLocation?.shelter?.displayName ?: "Unknown",
+                resources = state.currentLocation?.resources?.displayName ?: "Unknown",
+                threats = state.currentLocation?.nativeHostility?.displayName ?: "Unknown",
+                powerGrid = state.vaultSystems.powerGrid,
+                foodStores = state.vaultSystems.foodStores,
+                medicalBay = state.vaultSystems.medicalBay,
+                securitySystem = state.vaultSystems.securitySystem,
+                constructionGear = state.vaultSystems.constructionGear,
+                atmosphereScrubbers = state.vaultSystems.atmosphereScrubbers,
+                culturalArchive = state.databases.culturalArchive,
+                scientificArchive = state.databases.scientificArchive
+            )
+        )
     }
 }

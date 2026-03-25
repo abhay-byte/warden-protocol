@@ -6,10 +6,11 @@ import androidx.compose.runtime.Composable
 
 private val DarkColorScheme = darkColorScheme(
     primary = VaultGreen,
-    secondary = AccentGreen,
+    secondary = SignalCyan,
     tertiary = WarningAmber,
     background = BackgroundBlack,
     surface = SurfaceBlack,
+    surfaceVariant = SurfaceElevated,
     error = DangerRed,
     onPrimary = BackgroundBlack,
     onSecondary = BackgroundBlack,
