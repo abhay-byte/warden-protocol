@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - App Logo Home Hero, Stronger Ending Animation, And Source Audio Pack Commit
+
+- Status: completed
+- Title: Replace the Warden Core placeholder with the app logo and commit the active loader and audio source changes
+- Goal: Put the real app logo in the center of the home-page Warden Core card, make the ending wait page feel visibly animated, and commit the music and SFX source packs already being used by the project while keeping secrets out of Git.
+- What changed:
+    - Replaced the old shield placeholder inside `MainMenuScreen.kt` with the launcher foreground art so the home hero now shows the app logo while preserving the existing pulse and hardware-indicator styling.
+    - Upgraded `EndingProcessingScreen.kt` with a much stronger animated loader, including a rotating core ring, orbiting signal node, and bouncing status dots so the wait state no longer reads as static.
+    - Added the requested source audio packs under `assets/99_SFX_Button_Clicks_&_Beeps_by_jalastram_AAC_WAV_MP3/`, `assets/Alexander Ehlers - Free Music Pack/`, and `assets/music/` to Git so the committed repo now includes the music and button-sound source material already in use.
+    - Kept `local.properties` out of the commit path; `.gitignore` already excludes it.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `d09630e`
+
 ### 2026-03-30 - Unified Hub Music Track
 
 - Status: completed
