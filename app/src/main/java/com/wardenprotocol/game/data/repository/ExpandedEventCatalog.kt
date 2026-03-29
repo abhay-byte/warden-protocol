@@ -95,6 +95,42 @@ private fun archiveLabel(key: String): String = when (key) {
     else -> key
 }
 
+private fun eventAreaLabel(key: String): String =
+    if (key.endsWith("Archive")) archiveLabel(key) else systemLabel(key)
+
+private fun expandVaultSystemCrisisDescription(spec: TwoSystemSpec): String =
+    "${spec.description} If it spreads, command will be forced to choose how much ${systemLabel(spec.primarySystem)} can be sacrificed to keep ${systemLabel(spec.secondarySystem)} from collapsing with it."
+
+private fun expandVaultTabooDescription(spec: ArchiveSpec): String =
+    "${spec.description} The immediate gains point toward ${systemLabel(spec.primarySystem)}, but the real cost will land in ${eventAreaLabel(spec.secondarySystem)} and whatever memory the vault preserves in the ${archiveLabel(spec.archiveTrack)}."
+
+private fun expandVaultWindfallDescription(spec: ArchiveSpec): String =
+    "${spec.description} Handled well, the find could strengthen ${eventAreaLabel(spec.primarySystem)}, support ${eventAreaLabel(spec.secondarySystem)}, and leave lasting value in the ${archiveLabel(spec.archiveTrack)}."
+
+private fun expandVaultDoomDescription(spec: TwoSystemSpec): String =
+    "${spec.description} The failure threatens ${systemLabel(spec.primarySystem)} first, ${systemLabel(spec.secondarySystem)} second, and there may not be enough time or people to save both cleanly."
+
+private fun expandSurfaceHazardDescription(spec: TwoSystemSpec): String =
+    "${spec.description} Any move through it risks both ${systemLabel(spec.primarySystem)} and ${systemLabel(spec.secondarySystem)}, and a bad read could turn reconnaissance into attrition."
+
+private fun expandSurfaceWindfallDescription(spec: ArchiveSpec): String =
+    "${spec.description} If recovered carefully, the site could reinforce ${eventAreaLabel(spec.primarySystem)}, support ${eventAreaLabel(spec.secondarySystem)}, and add hard value to the ${archiveLabel(spec.archiveTrack)}."
+
+private fun expandSurfaceContactDescription(spec: ContactSpec): String =
+    "${spec.description} How command handles the encounter could improve ${eventAreaLabel(spec.rewardSystem)}, compromise ${eventAreaLabel(spec.riskSystem)}, and change what gets recorded in the ${archiveLabel(spec.archiveTrack)}."
+
+private fun expandSurfaceCatastropheDescription(spec: TwoSystemSpec): String =
+    "${spec.description} Engaging instead of withdrawing will likely decide the fate of ${systemLabel(spec.primarySystem)} and ${systemLabel(spec.secondarySystem)} at the same time."
+
+private fun expandCosmicDreadDescription(spec: ArchiveSpec): String =
+    "${spec.description} Whatever is happening presses hardest on ${eventAreaLabel(spec.primarySystem)} and ${eventAreaLabel(spec.secondarySystem)}, while the ${archiveLabel(spec.archiveTrack)} may be the only place to make sense of it."
+
+private fun expandCosmicBoonDescription(spec: ArchiveSpec): String =
+    "${spec.description} If the phenomenon is genuine and survivable, it could strengthen ${eventAreaLabel(spec.primarySystem)}, aid ${eventAreaLabel(spec.secondarySystem)}, and deepen the ${archiveLabel(spec.archiveTrack)}."
+
+private fun expandApexThreatDescription(spec: ExtremeSpec): String =
+    "${spec.description} Any response will be measured in losses to ${eventAreaLabel(spec.primarySystem)}, ${eventAreaLabel(spec.secondarySystem)}, and the ${archiveLabel(spec.archiveTrack)} rather than in anything resembling a clean win."
+
 private fun buildVaultSystemCrises(): List<GameEvent> {
     val specs = listOf(
         TwoSystemSpec("vault_exp_bone_dust_filters", "Bone Dust Filters", "The air scrubbers are choking on a fine white powder drifting up from the cremation chute. Nobody signed off on that much ash. Nobody wants to say where it really came from.", "atmosphereScrubbers", "constructionGear"),
@@ -118,7 +154,7 @@ private fun buildVaultSystemCrises(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandVaultSystemCrisisDescription(spec),
             choiceA = EventChoice(
                 label = "Seal it and study it",
                 description = "Lock the problem behind steel and buy time for analysis.",
@@ -177,7 +213,7 @@ private fun buildVaultTabooEvents(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandVaultTabooDescription(spec),
             choiceA = EventChoice(
                 label = "Authorize it quietly",
                 description = "Keep the practice hidden and harvest the immediate benefit.",
@@ -239,7 +275,7 @@ private fun buildVaultWindfalls(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandVaultWindfallDescription(spec),
             choiceA = EventChoice(
                 label = "Crack it open now",
                 description = "Exploit the find immediately while everyone can still feel lucky.",
@@ -303,7 +339,7 @@ private fun buildVaultDoomEvents(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandVaultDoomDescription(spec),
             choiceA = EventChoice(
                 label = "Hard containment",
                 description = "Lock down the failing area and save what can be saved elsewhere.",
@@ -362,7 +398,7 @@ private fun buildSurfaceHazards(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandSurfaceHazardDescription(spec),
             choiceA = EventChoice(
                 label = "Pull back and map it",
                 description = "Choose patience over heroics and chart the threat first.",
@@ -423,7 +459,7 @@ private fun buildSurfaceWindfalls(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandSurfaceWindfallDescription(spec),
             choiceA = EventChoice(
                 label = "Recover everything",
                 description = "Commit a serious operation and strip the site hard.",
@@ -486,7 +522,7 @@ private fun buildSurfaceContacts(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandSurfaceContactDescription(spec),
             choiceA = EventChoice(
                 label = "Trade carefully",
                 description = "Deal with them on terms you can survive and document later.",
@@ -548,7 +584,7 @@ private fun buildSurfaceCatastrophes(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandSurfaceCatastropheDescription(spec),
             choiceA = EventChoice(
                 label = "Retreat underground",
                 description = "Preserve the vault and let the surface burn itself out.",
@@ -613,7 +649,7 @@ private fun buildCosmicDreadEvents(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandCosmicDreadDescription(spec),
             choiceA = EventChoice(
                 label = "Shield the vault",
                 description = "Treat the phenomenon as hostile and harden systems against it.",
@@ -680,7 +716,7 @@ private fun buildCosmicBoonEvents(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandCosmicBoonDescription(spec),
             choiceA = EventChoice(
                 label = "Accept the gift",
                 description = "Use the miracle before the universe remembers to retract it.",
@@ -748,7 +784,7 @@ private fun buildApexThreatEvents(): List<GameEvent> {
         GameEvent(
             id = spec.id,
             title = spec.title,
-            description = spec.description,
+            description = expandApexThreatDescription(spec),
             choiceA = EventChoice(
                 label = "Fortify and endure",
                 description = "Treat the threat as larger than pride and try to survive the first contact.",

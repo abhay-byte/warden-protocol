@@ -5,47 +5,16 @@ import com.wardenprotocol.game.data.model.EventOutcome
 import com.wardenprotocol.game.data.model.GameEvent
 
 internal fun GameEvent.withExpandedBriefing(): GameEvent {
-    val choices = listOfNotNull(choiceA, choiceB, choiceC)
     return copy(
-        description = buildExpandedEventDescription(choices),
+        description = buildExpandedEventDescription(),
         choiceA = choiceA.withExpandedBriefing(),
         choiceB = choiceB.withExpandedBriefing(),
         choiceC = choiceC?.withExpandedBriefing()
     )
 }
 
-private fun GameEvent.buildExpandedEventDescription(choices: List<EventChoice>): String {
-    val hiddenRiskCount = choices.count { it.hiddenRisk > 0f }
-    val categorySummary = when {
-        id.startsWith("vault_") -> "This is an internal vault incident. The decision is mostly about what the bunker can afford to lose: people, system integrity, or moral ground."
-        id.startsWith("surface_") -> "This is a surface-facing incident. The choice is usually a trade between contact, salvage, environmental danger, and immediate casualties."
-        id.startsWith("cosmic_") -> "This is an anomalous event. Practical gains often come tied to archive damage, psychological strain, or consequences the vault cannot model cleanly."
-        id.startsWith("apex_human_") -> "This is a top-tier human threat. Even a good answer is damage control, not a clean victory."
-        id.startsWith("apex_ai_") -> "This is a top-tier machine threat. The safest protocol usually still costs infrastructure, secrecy, or lives."
-        id.startsWith("apex_alien_") -> "This is a top-tier nonhuman threat. Command should assume incomplete understanding and plan for brutal long-term fallout."
-        else -> "This incident presents a direct operational tradeoff inside a collapsing survival system."
-    }
-    val protocolSummary = buildString {
-        append("Command has ")
-        append(choices.size)
-        append(if (choices.size == 1) " response protocol" else " response protocols")
-        append(" available.")
-        append(" ")
-        append(
-            when {
-                hiddenRiskCount <= 0 -> "Current modeling shows no explicit hidden fallout beyond the listed tradeoffs."
-                hiddenRiskCount == 1 -> "One protocol carries uncertain fallout beyond the visible tradeoff."
-                else -> "$hiddenRiskCount protocols carry uncertain fallout beyond the visible tradeoffs."
-            }
-        )
-    }
-    return buildString {
-        append(description.trim())
-        append("\n\n")
-        append(categorySummary)
-        append(" ")
-        append(protocolSummary)
-    }
+private fun GameEvent.buildExpandedEventDescription(): String {
+    return description.trim()
 }
 
 private fun EventChoice.withExpandedBriefing(): EventChoice = copy(
@@ -55,18 +24,18 @@ private fun EventChoice.withExpandedBriefing(): EventChoice = copy(
 private fun EventChoice.buildExpandedChoiceDescription(): String {
     val effectSummary = renderOutcomeSummary(outcome)
     val riskSummary = when {
-        hiddenRisk >= 0.45f -> "Uncertainty is severe. The visible cost is probably not the full cost."
-        hiddenRisk >= 0.25f -> "Uncertainty is meaningful. Secondary fallout is plausible even if the immediate exchange looks acceptable."
-        hiddenRisk > 0f -> "Uncertainty is low but real. There is still room for the situation to degrade after commitment."
+        hiddenRisk >= 0.45f -> "Hidden fallout risk is severe."
+        hiddenRisk >= 0.25f -> "Hidden fallout is meaningfully possible."
+        hiddenRisk > 0f -> "Hidden fallout is possible."
         else -> "No additional hidden complication is currently projected."
     }
     return buildString {
         append(description.trim())
         append(" ")
-        append("Command expectation: ")
+        append("Visible tradeoff: ")
         append(knownEffect.trim().trimEnd('.'))
         append(". ")
-        append("Projected operational impact: ")
+        append("Forecast: ")
         append(effectSummary)
         append(" ")
         append(riskSummary)
