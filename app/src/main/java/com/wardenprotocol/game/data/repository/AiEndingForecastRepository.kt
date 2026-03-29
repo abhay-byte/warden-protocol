@@ -30,10 +30,10 @@ class AiEndingForecastRepository {
         val firstAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 1024,
+            maxTokens = 16_384,
             compactPrompt = false,
             connectTimeoutMs = 8_000,
-            readTimeoutMs = 32_000
+            readTimeoutMs = 40_000
         )
         if (firstAttempt is AiEndingForecastResult.Success) {
             return@withContext firstAttempt
@@ -42,10 +42,10 @@ class AiEndingForecastRepository {
         val secondAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 1024,
+            maxTokens = 16_384,
             compactPrompt = true,
             connectTimeoutMs = 6_000,
-            readTimeoutMs = 16_000
+            readTimeoutMs = 14_000
         )
         return@withContext when (secondAttempt) {
             is AiEndingForecastResult.Success -> secondAttempt
@@ -68,10 +68,17 @@ class AiEndingForecastRepository {
     ): AiEndingForecastResult {
         val requestBody = JSONObject().apply {
             put("model", BuildConfig.NVIDIA_NIM_MODEL)
-            put("temperature", 0.2)
-            put("top_p", 0.7)
+            put("temperature", 1.0)
+            put("top_p", 1.0)
             put("max_tokens", maxTokens)
-            put("stream", false)
+            put("reasoning_budget", maxTokens)
+            put(
+                "chat_template_kwargs",
+                JSONObject().apply {
+                    put("enable_thinking", true)
+                }
+            )
+            put("stream", true)
             put(
                 "messages",
                 JSONArray().apply {
@@ -107,23 +114,25 @@ class AiEndingForecastRepository {
 
             val responseCode = connection.responseCode
             val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
-            val responseText = stream?.use { input ->
-                BufferedReader(InputStreamReader(input)).readText()
-            }.orEmpty()
+            val responseText = if (responseCode in 200..299) {
+                stream?.use(::readStreamedAssistantContent).orEmpty()
+            } else {
+                stream?.use { input ->
+                    BufferedReader(InputStreamReader(input)).readText()
+                }.orEmpty()
+            }
 
             if (responseCode !in 200..299) {
                 val message = responseText.takeIf { it.isNotBlank() } ?: "HTTP $responseCode"
                 return@runCatching AiEndingForecastResult.Fallback("Forecast engine failed: $message")
             }
 
-            val content = JSONObject(responseText)
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .optString("content")
+            if (responseText.isBlank()) {
+                return@runCatching AiEndingForecastResult.Fallback("Forecast engine returned no usable content.")
+            }
 
             val report = parseAiReport(
-                rawContent = content,
+                rawContent = responseText,
                 baseOutcome = baseOutcome
             )
 
@@ -139,6 +148,33 @@ class AiEndingForecastRepository {
                 reason = "Forecast engine unavailable: ${error.message ?: "unknown error"}"
             )
         }
+    }
+
+    private fun readStreamedAssistantContent(input: java.io.InputStream): String {
+        val content = StringBuilder()
+        BufferedReader(InputStreamReader(input)).useLines { lines ->
+            lines.forEach { line ->
+                val trimmed = line.trim()
+                if (!trimmed.startsWith("data:")) return@forEach
+                val payload = trimmed.removePrefix("data:").trim()
+                if (payload.isBlank() || payload == "[DONE]") return@forEach
+
+                val root = runCatching { JSONObject(payload) }.getOrNull() ?: return@forEach
+                val choices = root.optJSONArray("choices") ?: return@forEach
+                if (choices.length() == 0) return@forEach
+
+                val choice = choices.optJSONObject(0) ?: return@forEach
+                val delta = choice.optJSONObject("delta")
+                val chunkText = when {
+                    delta != null -> delta.optString("content")
+                    else -> choice.optJSONObject("message")?.optString("content").orEmpty()
+                }
+                if (chunkText.isNotBlank()) {
+                    content.append(chunkText)
+                }
+            }
+        }
+        return content.toString()
     }
 
     private fun parseAiReport(rawContent: String, baseOutcome: ColonyOutcome): AiEndingReport {

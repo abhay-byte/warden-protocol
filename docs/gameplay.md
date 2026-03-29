@@ -78,7 +78,14 @@ Events present 2 or 3 choices. Each choice can modify:
 
 Some options carry hidden risk rolls, so a good-looking choice can still land badly.
 
-A single `Search` can trigger more than one event before the next site appears. The first event is guaranteed, then each additional event becomes 20% less likely than the previous follow-up roll, so long event chains remain possible but get progressively rarer.
+A single `Search` can trigger more than one event before the next site appears. The first event is guaranteed, then follow-up events use a steep decay curve:
+
+- 2nd event: 40%
+- 3rd event: 12%
+- 4th event: 3.6%
+- 5th event: 1.08%
+
+So long event chains remain possible, but by the 5th event they are close to zero.
 
 ## Settlement Resolution
 

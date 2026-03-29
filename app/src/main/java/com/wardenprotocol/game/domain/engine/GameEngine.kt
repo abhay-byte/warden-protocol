@@ -6,6 +6,11 @@ import kotlin.random.Random
 
 class GameEngine(private val eventRepository: EventRepository) {
 
+    private companion object {
+        private const val FOLLOW_UP_EVENT_BASE_CHANCE = 0.4f
+        private const val FOLLOW_UP_EVENT_DECAY = 0.3f
+    }
+
     private data class LocationIntel(
         val shortDescription: String,
         val longDescription: String,
@@ -180,10 +185,10 @@ class GameEngine(private val eventRepository: EventRepository) {
 
     fun generateEventChain(): List<GameEvent> {
         val events = mutableListOf(generateEvent())
-        var nextEventChance = 0.8f
+        var nextEventChance = FOLLOW_UP_EVENT_BASE_CHANCE
         while (Random.nextFloat() < nextEventChance) {
             events += generateEvent()
-            nextEventChance *= 0.8f
+            nextEventChance *= FOLLOW_UP_EVENT_DECAY
         }
         return events
     }

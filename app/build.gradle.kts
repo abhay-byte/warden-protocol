@@ -47,7 +47,7 @@ android {
         buildConfigField(
             "String",
             "NVIDIA_NIM_MODEL",
-            "meta/llama-3.3-70b-instruct".asBuildConfigString()
+            "nvidia/nemotron-3-nano-30b-a3b".asBuildConfigString()
         )
     }
 
