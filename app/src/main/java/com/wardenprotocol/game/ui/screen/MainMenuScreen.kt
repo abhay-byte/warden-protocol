@@ -42,7 +42,9 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -69,9 +71,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.dp
 import com.wardenprotocol.game.data.model.RunRecord
 import com.wardenprotocol.game.ui.component.WardenBackdrop
+import com.wardenprotocol.game.ui.component.WardenBottomNav
+import com.wardenprotocol.game.ui.component.WardenTab
+import com.wardenprotocol.game.ui.component.WardenTopBar
 import com.wardenprotocol.game.ui.component.animatedEntranceModifier
 import kotlin.math.roundToInt
 
@@ -96,6 +100,7 @@ fun MainMenuScreen(
     onNewGame: () -> Unit,
     onOpenLeaderboard: () -> Unit,
     onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val successfulRuns = leaderboardPreview.count { it.score > 0 }.coerceAtLeast(if (highScore > 0) 1 else 0)
@@ -123,84 +128,37 @@ fun MainMenuScreen(
 
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val isWide = maxWidth >= 900.dp
-                Column(modifier = Modifier.fillMaxSize()) {
-                    HomeTopBar()
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        if (isWide) {
-                            DesktopHomeContent(
-                                highScore = highScore,
-                                successfulRuns = successfulRuns,
-                                casualtyRate = casualtyRate,
-                                runCount = runCount,
-                                leaderboardPreview = leaderboardPreview,
-                                lastRun = lastRun,
-                                onNewGame = onNewGame,
-                                onOpenLeaderboard = onOpenLeaderboard,
-                                onOpenHistory = onOpenHistory
-                            )
-                        } else {
-                            MobileHomeContent(
-                                highScore = highScore,
-                                successfulRuns = successfulRuns,
-                                casualtyRate = casualtyRate,
-                                runCount = runCount,
-                                leaderboardPreview = leaderboardPreview,
-                                lastRun = lastRun,
-                                onNewGame = onNewGame,
-                                onOpenLeaderboard = onOpenLeaderboard,
-                                onOpenHistory = onOpenHistory
-                            )
-                        }
+                if (isWide) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        WardenTopBar()
+                        DesktopHomeContent(
+                            highScore = highScore,
+                            successfulRuns = successfulRuns,
+                            casualtyRate = casualtyRate,
+                            runCount = runCount,
+                            leaderboardPreview = leaderboardPreview,
+                            lastRun = lastRun,
+                            onNewGame = onNewGame,
+                            onOpenLeaderboard = onOpenLeaderboard,
+                            onOpenHistory = onOpenHistory
+                        )
                     }
-                    if (!isWide) {
-                        MobileCommandBar()
-                    }
+                } else {
+                    MobileHomeContent(
+                        highScore = highScore,
+                        successfulRuns = successfulRuns,
+                        casualtyRate = casualtyRate,
+                        runCount = runCount,
+                        leaderboardPreview = leaderboardPreview,
+                        lastRun = lastRun,
+                        onNewGame = onNewGame,
+                        onOpenLeaderboard = onOpenLeaderboard,
+                        onOpenHistory = onOpenHistory,
+                        onOpenSettings = onOpenSettings
+                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun HomeTopBar() {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(HomeBackground)
-                .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Terminal,
-                contentDescription = null,
-                tint = HomeAmber,
-                modifier = Modifier.size(24.dp)
-            )
-            Text(
-                text = "WARDEN_PROTOCOL_V1.0.4",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                color = HomeAmber,
-                letterSpacing = (-0.5).sp
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Filled.Tune,
-            contentDescription = null,
-            tint = HomeAmber,
-            modifier = Modifier.size(24.dp)
-        )
     }
 }
 
@@ -276,40 +234,60 @@ private fun MobileHomeContent(
     lastRun: RunRecord?,
     onNewGame: () -> Unit,
     onOpenLeaderboard: () -> Unit,
-    onOpenHistory: () -> Unit
+    onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
-    val navPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 84.dp + navPadding),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        HomeHeroPanel(
-            runCount = runCount,
-            lastRun = lastRun,
-            topRun = leaderboardPreview.firstOrNull()
-        )
-        StartMissionButton(onClick = onNewGame)
-        ArchiveStatsPanel(
-            highScore = highScore,
-            successfulRuns = successfulRuns,
-            casualtyRate = casualtyRate
-        )
-        SideCommandButton(
-            title = "Run History",
-            icon = Icons.Filled.History,
-            onClick = onOpenHistory
-        )
-        SideCommandButton(
-            title = "Global Leaderboard",
-            icon = Icons.Filled.EmojiEvents,
-            onClick = onOpenLeaderboard
-        )
-        DiagnosticsPanel()
-        BroadcastInterceptPanel()
-        TacticalOverlayPanel()
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        topBar = { WardenTopBar() },
+        bottomBar = {
+            WardenBottomNav(
+                activeTab = WardenTab.COMMAND,
+                showSurface = false,
+                onTabClick = { tab ->
+                    when(tab) {
+                        WardenTab.ARCHIVE -> onOpenHistory()
+                        WardenTab.SYSTEM -> onOpenSettings()
+                        else -> {}
+                    }
+                }
+            )
+        }
+    ) { padding: PaddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues = padding)
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp)
+        ) {
+            HomeHeroPanel(
+                runCount = runCount,
+                lastRun = lastRun,
+                topRun = leaderboardPreview.firstOrNull()
+            )
+            StartMissionButton(onClick = onNewGame)
+            ArchiveStatsPanel(
+                highScore = highScore,
+                successfulRuns = successfulRuns,
+                casualtyRate = casualtyRate
+            )
+            SideCommandButton(
+                title = "Run History",
+                icon = Icons.Filled.History,
+                onClick = onOpenHistory
+            )
+            SideCommandButton(
+                title = "Global Leaderboard",
+                icon = Icons.Filled.EmojiEvents,
+                onClick = onOpenLeaderboard
+            )
+            DiagnosticsPanel()
+            BroadcastInterceptPanel()
+            TacticalOverlayPanel()
+        }
     }
 }
 

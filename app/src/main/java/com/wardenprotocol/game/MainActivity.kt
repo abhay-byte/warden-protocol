@@ -104,6 +104,8 @@ fun GameApp(viewModel: GameViewModel) {
     val highScore by viewModel.highScore.collectAsState()
     val leaderboard by viewModel.leaderboard.collectAsState()
     val runHistory by viewModel.runHistory.collectAsState()
+    val musicEnabled by viewModel.musicEnabled.collectAsState()
+    val sfxEnabled by viewModel.sfxEnabled.collectAsState()
     val context = LocalContext.current
     var showQuitDialog by remember { mutableStateOf(false) }
 
@@ -146,7 +148,20 @@ fun GameApp(viewModel: GameViewModel) {
                         lastRun = runHistory.firstOrNull(),
                         onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
                         onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) }
+                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
+                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) }
+                    )
+                }
+
+                is UiState.Settings -> {
+                    SettingsScreen(
+                        musicEnabled = musicEnabled,
+                        sfxEnabled = sfxEnabled,
+                        onToggleMusic = { viewModel.handleAction(GameAction.ToggleMusic) },
+                        onToggleSfx = { viewModel.handleAction(GameAction.ToggleSfx) },
+                        onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
+                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
+                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) }
                     )
                 }
 
@@ -154,7 +169,9 @@ fun GameApp(viewModel: GameViewModel) {
                     LeaderboardScreen(
                         entries = leaderboard,
                         onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
-                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) }
+                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
+                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
+                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) }
                     )
                 }
 
@@ -162,7 +179,9 @@ fun GameApp(viewModel: GameViewModel) {
                     HistoryScreen(
                         entries = runHistory,
                         onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
-                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) }
+                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
+                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
+                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) }
                     )
                 }
 
@@ -219,6 +238,7 @@ private fun screenKey(state: UiState): String = when (state) {
     UiState.MainMenu -> "menu"
     UiState.Leaderboard -> "leaderboard"
     UiState.RunHistory -> "history"
+    UiState.Settings -> "settings"
     is UiState.SurfaceScanning -> "surface"
     is UiState.RandomEvent -> "event"
     is UiState.EventOutcome -> "event_outcome"
@@ -229,6 +249,7 @@ private fun screenRank(state: UiState): Int = when (state) {
     UiState.MainMenu -> 0
     UiState.Leaderboard -> 1
     UiState.RunHistory -> 1
+    UiState.Settings -> 1
     is UiState.SurfaceScanning -> 2
     is UiState.RandomEvent -> 3
     is UiState.EventOutcome -> 4

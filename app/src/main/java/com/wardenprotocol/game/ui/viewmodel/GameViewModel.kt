@@ -16,15 +16,19 @@ sealed class GameAction {
     object DeployProbe : GameAction()
     object ShowLeaderboard : GameAction()
     object ShowRunHistory : GameAction()
+    object ShowSettings : GameAction()
     object GoToMainMenu : GameAction()
     data class SelectEventChoice(val choice: EventChoice) : GameAction()
     object DismissEventOutcome : GameAction()
+    object ToggleMusic : GameAction()
+    object ToggleSfx : GameAction()
 }
 
 sealed class UiState {
     object MainMenu : UiState()
     object Leaderboard : UiState()
     object RunHistory : UiState()
+    object Settings : UiState()
     data class SurfaceScanning(val location: SurfaceLocation, val probeRevealed: Boolean = false) : UiState()
     data class RandomEvent(val event: GameEvent) : UiState()
     data class EventOutcome(val narrative: String) : UiState()
@@ -59,11 +63,20 @@ class GameViewModel(
             is GameAction.DeployProbe -> deployProbe()
             is GameAction.ShowLeaderboard -> _uiState.value = UiState.Leaderboard
             is GameAction.ShowRunHistory -> _uiState.value = UiState.RunHistory
+            is GameAction.ShowSettings -> _uiState.value = UiState.Settings
             is GameAction.GoToMainMenu -> _uiState.value = UiState.MainMenu
             is GameAction.SelectEventChoice -> selectEventChoice(action.choice)
             is GameAction.DismissEventOutcome -> dismissEventOutcome()
+            is GameAction.ToggleMusic -> _musicEnabled.value = !_musicEnabled.value
+            is GameAction.ToggleSfx -> _sfxEnabled.value = !_sfxEnabled.value
         }
     }
+
+    private val _musicEnabled = MutableStateFlow(true)
+    val musicEnabled: StateFlow<Boolean> = _musicEnabled.asStateFlow()
+
+    private val _sfxEnabled = MutableStateFlow(true)
+    val sfxEnabled: StateFlow<Boolean> = _sfxEnabled.asStateFlow()
     
     private fun startNewGame() {
         _gameState.value = GameState()

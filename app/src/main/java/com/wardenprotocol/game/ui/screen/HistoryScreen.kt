@@ -1,99 +1,243 @@
 package com.wardenprotocol.game.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SettingsApplications
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.PaddingValues
 import com.wardenprotocol.game.data.model.RunRecord
-import com.wardenprotocol.game.ui.component.ActionButton
-import com.wardenprotocol.game.ui.component.CommandPanel
-import com.wardenprotocol.game.ui.component.RunArchiveCard
-import com.wardenprotocol.game.ui.component.StatusBadge
-import com.wardenprotocol.game.ui.component.WardenBackdrop
-import com.wardenprotocol.game.ui.theme.SignalCyan
+import com.wardenprotocol.game.ui.component.*
 import com.wardenprotocol.game.ui.theme.TextSecondary
 import com.wardenprotocol.game.ui.theme.VaultGreen
+import com.wardenprotocol.game.ui.theme.WarningAmber
 
 @Composable
 fun HistoryScreen(
     entries: List<RunRecord>,
     onBack: () -> Unit,
     onNewGame: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenLeaderboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    WardenBackdrop(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            CommandPanel(
-                title = "Run Archive",
-                subtitle = "Chronological record of previous colonies",
-                icon = Icons.Filled.History,
-                accent = SignalCyan
-            ) {
-                StatusBadge(
-                    icon = Icons.Filled.History,
-                    label = "Archived Runs",
-                    value = entries.size.toString(),
-                    accent = SignalCyan
-                )
-            }
-
-            ActionButton(
-                title = "Return to Main Menu",
-                subtitle = "Go back to the bunker command deck.",
-                icon = Icons.AutoMirrored.Filled.ArrowBack,
-                accent = SignalCyan,
-                onClick = onBack
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color(0xFF121414),
+        topBar = { WardenTopBar(title = "ARCHIVE_LOGS_v1.0.4") },
+        bottomBar = {
+            WardenBottomNav(
+                activeTab = WardenTab.ARCHIVE,
+                showSurface = false,
+                onTabClick = { tab ->
+                    when(tab) {
+                        WardenTab.COMMAND -> onBack()
+                        WardenTab.SYSTEM -> onOpenSettings()
+                        else -> {}
+                    }
+                }
             )
-
-            ActionButton(
-                title = "Start New Mission",
-                subtitle = "Jump straight from the archive into a new run.",
-                icon = Icons.Filled.PlayArrow,
-                accent = VaultGreen,
-                onClick = onNewGame
-            )
-
-            CommandPanel(
-                title = "Recent Outcomes",
-                subtitle = "Latest runs first with archived site records",
-                icon = Icons.Filled.AccessTime,
-                accent = SignalCyan
+        }
+    ) { padding: PaddingValues ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues = padding)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
             ) {
-                if (entries.isEmpty()) {
-                    Text(
-                        text = "No run history has been recorded yet.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextSecondary
-                    )
-                } else {
-                    entries.forEachIndexed { index, entry ->
-                        RunArchiveCard(entry = entry)
-                        if (index != entries.lastIndex) {
-                            Spacer(modifier = Modifier.height(10.dp))
+                // Header Telemetry Block
+                ArchiveHeaderTelemetry(totalRuns = entries.size)
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // History List
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (entries.isEmpty()) {
+                        Text(
+                            text = "NO ARCHIVED RECORDS DETECTED IN STORAGE BUFFER.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = WarningAmber.copy(alpha = 0.6f),
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    } else {
+                        entries.forEach { entry ->
+                            RunArchiveCard(entry = entry)
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Terminal Decor Footer
+                TerminalDecorFooter()
+            }
+
+            // Floating Start New Mission FAB
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 24.dp)
+            ) {
+                StartMissionFAB(onClick = onNewGame)
             }
         }
+    }
+}
+
+@Composable
+private fun ArchiveHeaderTelemetry(totalRuns: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1A1C1C))
+            .drawBehind {
+                drawRect(
+                    color = WarningAmber,
+                    size = this.size.copy(width = 4.dp.toPx())
+                )
+            }
+            .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Column {
+            Text(
+                "DATA RECOVERY STATUS",
+                style = MaterialTheme.typography.labelSmall,
+                color = WarningAmber,
+                fontSize = 10.sp,
+                letterSpacing = 2.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                "ARCHIVE LOGS",
+                style = MaterialTheme.typography.headlineLarge,
+                color = WarningAmber,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-1).sp
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Box(
+                modifier = Modifier
+                    .background(WarningAmber.copy(alpha = 0.1f))
+                    .border(1.dp, WarningAmber.copy(alpha = 0.3f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    "AUTH: WARDEN_IDENT",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = WarningAmber,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "RECORDS: $totalRuns",
+                style = MaterialTheme.typography.labelSmall,
+                color = TextSecondary,
+                fontSize = 10.sp,
+                letterSpacing = 1.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun TerminalDecorFooter() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF0D0F0F))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        val lines = listOf(
+            "> INITIALIZING ARCHIVE RETRIEVAL...",
+            "> CRC CHECK: OK",
+            "> LOADING SECTOR_MAP_DELTA",
+            "> END OF LOGS REACHED"
+        )
+        lines.forEach { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.labelSmall,
+                color = WarningAmber.copy(alpha = 0.4f),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun StartMissionFAB(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .background(WarningAmber)
+            .drawBehind {
+                drawRect(
+                    color = Color(0xFF6A4700),
+                    topLeft = Offset(0f, this.size.height - 4.dp.toPx()),
+                    size = this.size.copy(height = 4.dp.toPx())
+                )
+            }
+            .clickable { onClick() }
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.PlayArrow,
+            contentDescription = null,
+            tint = Color(0xFF121414),
+            modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text = "START NEW MISSION",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color(0xFF121414),
+            fontWeight = FontWeight.Black,
+            letterSpacing = (-0.5).sp
+        )
     }
 }
