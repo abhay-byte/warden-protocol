@@ -112,12 +112,10 @@ class GameViewModel(
             return
         }
         
-        val event = gameEngine.generateEvent(state)
-        val updatedEventCounts = state.eventOccurrenceCounts.toMutableMap().apply {
-            this[event.id] = (this[event.id] ?: 0) + 1
-        }
+        val events = gameEngine.generateEventChain()
+        val event = events.first()
         _gameState.value = state.copy(
-            eventOccurrenceCounts = updatedEventCounts,
+            pendingEvents = events.drop(1),
             currentEvent = event,
             phase = GamePhase.RANDOM_EVENT
         )
@@ -246,8 +244,21 @@ class GameViewModel(
     }
     
     private fun dismissEventOutcome() {
+        val pendingEvents = _gameState.value.pendingEvents
+        if (pendingEvents.isNotEmpty()) {
+            val nextEvent = pendingEvents.first()
+            _gameState.value = _gameState.value.copy(
+                pendingEvents = pendingEvents.drop(1),
+                currentEvent = nextEvent,
+                phase = GamePhase.RANDOM_EVENT
+            )
+            _uiState.value = UiState.RandomEvent(nextEvent)
+            return
+        }
+
         val location = gameEngine.generateSurfaceLocation()
         _gameState.value = _gameState.value.copy(
+            pendingEvents = emptyList(),
             currentLocation = location,
             phase = GamePhase.SURFACE_SCAN
         )

@@ -30,7 +30,7 @@ class AiEndingForecastRepository {
         val firstAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 800,
+            maxTokens = 1024,
             compactPrompt = false,
             connectTimeoutMs = 8_000,
             readTimeoutMs = 32_000
@@ -42,7 +42,7 @@ class AiEndingForecastRepository {
         val secondAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 520,
+            maxTokens = 1024,
             compactPrompt = true,
             connectTimeoutMs = 6_000,
             readTimeoutMs = 16_000

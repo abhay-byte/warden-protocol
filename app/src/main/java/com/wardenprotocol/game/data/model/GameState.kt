@@ -7,9 +7,9 @@ data class GameState(
     val surfaceProbes: Int = 3,
     val vaultSystems: VaultSystems = VaultSystems(),
     val databases: Databases = Databases(),
-    val eventOccurrenceCounts: Map<String, Int> = emptyMap(),
     val phase: GamePhase = GamePhase.SURFACE_SCAN,
     val currentLocation: SurfaceLocation? = null,
+    val pendingEvents: List<GameEvent> = emptyList(),
     val currentEvent: GameEvent? = null,
     val lastEventOutcome: String? = null
 )

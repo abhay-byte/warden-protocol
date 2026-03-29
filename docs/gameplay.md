@@ -78,7 +78,7 @@ Events present 2 or 3 choices. Each choice can modify:
 
 Some options carry hidden risk rolls, so a good-looking choice can still land badly.
 
-Between scans, previously seen events can repeat. Each time a specific event has already occurred in the current run, its chance to be selected again is reduced by 20%, so repeats remain possible but get progressively less likely.
+A single `Search` can trigger more than one event before the next site appears. The first event is guaranteed, then each additional event becomes 20% less likely than the previous follow-up roll, so long event chains remain possible but get progressively rarer.
 
 ## Settlement Resolution
 
