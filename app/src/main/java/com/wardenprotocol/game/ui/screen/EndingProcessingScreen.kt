@@ -39,10 +39,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wardenprotocol.game.data.model.ColonyOutcome
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
 
 private val ProcessingBackground = Color(0xFF121414)
 private val ProcessingPrimary = Color(0xFFFFD597)
@@ -95,6 +99,24 @@ fun EndingProcessingScreen(
             repeatMode = RepeatMode.Reverse
         ),
         label = "ticker_drift"
+    )
+    val coreRotation = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "core_rotation"
+    )
+    val coreOrbit = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "core_orbit"
     )
 
     Box(
@@ -155,6 +177,12 @@ fun EndingProcessingScreen(
                         color = ProcessingMuted
                     )
                 }
+
+                ProcessingCoreLoader(
+                    rotation = coreRotation.value,
+                    pulse = pulse.value,
+                    orbit = coreOrbit.value
+                )
 
                 ProcessingSignalSweep(
                     sweep = sweep.value,
@@ -453,6 +481,106 @@ private fun ProcessingSignalSweep(
                 color = ProcessingCyan,
                 letterSpacing = 1.4.sp
             )
+        }
+    }
+}
+
+@Composable
+private fun ProcessingCoreLoader(
+    rotation: Float,
+    pulse: Float,
+    orbit: Float
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ProcessingSurfaceLow.copy(alpha = 0.92f))
+            .padding(vertical = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Box(
+            modifier = Modifier.size(120.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val center = Offset(size.width / 2f, size.height / 2f)
+                val radiusOuter = size.minDimension * 0.42f
+                val radiusInner = size.minDimension * 0.26f
+                val angleRadians = (rotation / 180f) * PI.toFloat()
+                val orbitRadius = size.minDimension * (0.30f + (orbit * 0.05f))
+                val orbitCenter = Offset(
+                    x = center.x + (cos(angleRadians) * orbitRadius),
+                    y = center.y + (sin(angleRadians) * orbitRadius)
+                )
+
+                drawCircle(
+                    color = ProcessingPrimary.copy(alpha = 0.16f),
+                    radius = radiusOuter,
+                    center = center,
+                    style = Stroke(width = 3.dp.toPx())
+                )
+                drawArc(
+                    brush = Brush.sweepGradient(
+                        colors = listOf(
+                            ProcessingSecondary.copy(alpha = 0.05f),
+                            ProcessingSecondary.copy(alpha = 0.85f),
+                            ProcessingCyan.copy(alpha = 0.95f),
+                            ProcessingPrimary.copy(alpha = 0.08f)
+                        ),
+                        center = center
+                    ),
+                    startAngle = rotation,
+                    sweepAngle = 110f,
+                    useCenter = false,
+                    topLeft = Offset(center.x - radiusOuter, center.y - radiusOuter),
+                    size = Size(radiusOuter * 2f, radiusOuter * 2f),
+                    style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+                )
+                drawCircle(
+                    color = ProcessingSecondary.copy(alpha = 0.22f + (pulse * 0.18f)),
+                    radius = radiusInner,
+                    center = center
+                )
+                drawCircle(
+                    color = ProcessingPrimary.copy(alpha = 0.8f),
+                    radius = size.minDimension * 0.08f,
+                    center = center
+                )
+                drawCircle(
+                    color = ProcessingCyan.copy(alpha = 0.92f),
+                    radius = 6.dp.toPx(),
+                    center = orbitCenter
+                )
+            }
+        }
+
+        Text(
+            text = "FORECAST ENGINE ACTIVE",
+            style = MaterialTheme.typography.labelLarge,
+            color = ProcessingSecondary,
+            letterSpacing = 2.sp
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(3) { index ->
+                val dotAlpha = ((pulse + (index * 0.18f)).coerceAtMost(1f))
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .graphicsLayer {
+                            translationY = if (((rotation / 30).toInt() + index) % 3 == 0) -8f else 0f
+                        }
+                        .alpha(0.45f + (dotAlpha * 0.45f))
+                        .background(
+                            if (index == 1) ProcessingPrimary else ProcessingCyan,
+                            RoundedCornerShape(99.dp)
+                        )
+                )
+            }
         }
     }
 }

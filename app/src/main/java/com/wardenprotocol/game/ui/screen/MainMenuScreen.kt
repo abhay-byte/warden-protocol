@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +37,6 @@ import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
@@ -58,6 +58,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -65,12 +66,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wardenprotocol.game.R
 import com.wardenprotocol.game.data.model.RunRecord
 import com.wardenprotocol.game.ui.component.WardenBackdrop
 import com.wardenprotocol.game.ui.component.WardenBottomNav
@@ -538,18 +541,12 @@ private fun WardenCoreDisplay() {
                 .border(1.dp, HomeAmber.copy(alpha = 0.2f)), // border-primary/20
             contentAlignment = Alignment.Center
         ) {
-            // Main icon (Security)
-            Icon(
-                imageVector = Icons.Filled.Security,
-                contentDescription = null,
-                tint = HomeAmber,
+            Image(
+                painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                contentDescription = "Warden Protocol app logo",
                 modifier = Modifier
-                    .size(72.dp)
-                    .graphicsLayer {
-                        shadowElevation = 8.dp.toPx()
-                        ambientShadowColor = HomeAmberStrong
-                        spotShadowColor = HomeAmberStrong
-                    }
+                    .size(82.dp)
+                    .shadow(10.dp, CircleShape, ambientColor = HomeAmberStrong, spotColor = HomeAmberStrong)
             )
         }
         
