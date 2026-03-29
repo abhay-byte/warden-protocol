@@ -6,10 +6,12 @@ import com.wardenprotocol.game.data.model.GameEvent
 
 class EventRepository {
 
-    fun getAllEvents(): List<GameEvent> = vaultEvents + ExpandedEventCatalog.vaultEvents +
-        surfaceEvents + ExpandedEventCatalog.surfaceEvents +
-        cosmicEvents + ExpandedEventCatalog.cosmicEvents +
-        ExpandedEventCatalog.apexThreatEvents
+    fun getAllEvents(): List<GameEvent> = (
+        vaultEvents + ExpandedEventCatalog.vaultEvents +
+            surfaceEvents + ExpandedEventCatalog.surfaceEvents +
+            cosmicEvents + ExpandedEventCatalog.cosmicEvents +
+            ExpandedEventCatalog.apexThreatEvents
+        ).map(GameEvent::withExpandedBriefing)
 
     // ── VAULT INTERNAL EVENTS ─────────────────────────────────────────────────
 
