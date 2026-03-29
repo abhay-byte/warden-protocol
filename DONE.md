@@ -4,6 +4,15 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Extract And Map Event Hero Art
+
+- Status: completed
+- Title: Extract stitched event art into clean assets and map it to the live event screen
+- Goal: Normalize the generated event images from `assets/stitch_main_menu(1).zip`, route live events into 18 shared event image buckets, and replace the event screen placeholder artwork with local game-driven hero art.
+- What changed: Extracted the selected event hero images into `assets/event_hero_sources/`, copied normalized `event_<key>.png` files into `app/src/main/res/drawable-nodpi/`, added `EventImageMapping.kt` to resolve live `GameEvent` values by apex prefix, expanded catalog grouping, and keyword routing, exposed expanded event ID sets needed for that mapping, and updated `EventScreen.kt` so the event page now renders local drawable-backed art instead of the remote placeholder image. The supplied archive did not include a distinct `vault_catastrophe` image, so `event_vault_catastrophe.png` currently uses the selected `vault_power_infrastructure` variant as a documented fallback.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `7e95a7c`
+
 ### 2026-03-29 - Extract And Map Surface Location Hero Art
 
 - Status: completed
