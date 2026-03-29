@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Expanded Static Event Briefings
+
+- Status: completed
+- Title: Make scan-triggered event data and choices much easier to understand
+- Goal: Expand the static event descriptions and option explanations so players can understand what each event and response means without changing logic, balance, or outcomes.
+- What changed:
+    - Added a central event-briefing formatter that enriches every generated event with a clearer operational summary based on its category, available protocol count, and hidden-risk count.
+    - Expanded every choice description with the authored expectation plus a plain-language summary of the exact survivor, system, archive, and probe changes already contained in the outcome payload.
+    - Kept the underlying event IDs, hidden-risk values, outcome maps, and post-choice results unchanged, so this is strictly a readability pass on the static event data.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `ef85f91`
+
 ### 2026-03-30 - Animated Ending Wait Screen And Archived Outcome Reopen
 
 - Status: completed
