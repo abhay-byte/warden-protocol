@@ -4,6 +4,32 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Archive Run Cards With Location Art
+
+- Status: completed
+- Title: Show per-run location images and richer result details in archive history
+- Goal: Update saved run metadata and archive UI so previous runs display location-specific imagery plus score, survivors, duration, outcome state, and narrative summary.
+- What changed:
+    - Extended archived run data so saved entries keep location type, archive grade label, and outcome label alongside the existing run summary fields.
+    - Updated the archive and leaderboard cards to render saved location art and the richer run breakdown shown in the new history layout.
+    - Added legacy location-type inference from stored location names so older run-history entries can still resolve a likely image even if the original type was not persisted.
+    - Reflected the archive-card behavior in `docs/ux.md` and `docs/architecture.md`.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `c652c70`
+
+### 2026-03-29 - Warden HUD Unification & Height Bug Resolution
+
+- Status: completed
+- Title: Standardized Top Bars and fixed command tray height scaling.
+- Goal: Achieve universal Top Bar parity across all mission screens, redesign the Vault Status console, and resolve the 'Towering Tray' layout regression.
+- What changed:
+    - Standardized Top Bar iconography (Terminal/Tune) and typography (titleMedium/Black) across all 7 mission-critical screens.
+    - Redesigned the Vault Status card in `GameScreen.kt` with a 3-column technical layout and live simulated metrics (Health, Radiation mSv, Food Days).
+    - Restored the fixed height constraint (112.dp + bottomPadding) to the command tray in `GameScreen.kt`, fixing the vertical stretching bug.
+    - Synchronized archival headers for "History" and "Leaderboard" with the core Warden Protocol branding.
+- Verification: `./gradlew assembleDebug` succeeded. App installed and verified via `adb`. Pushed to `master`.
+- Commit: `91d2fad`
+
 ### 2026-03-29 - Outcome Screen (Mission Complete) Redesign
 
 - Status: completed
