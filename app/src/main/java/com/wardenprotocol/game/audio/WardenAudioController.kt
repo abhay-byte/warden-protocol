@@ -5,6 +5,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
 import com.wardenprotocol.game.R
+import kotlin.random.Random
 
 enum class MusicScene {
     COMMAND,
@@ -35,12 +36,12 @@ class WardenAudioController(context: Context) {
         .build()
 
     private val soundIds = mutableMapOf<UiSound, Int>()
-    private val sceneIndices = mutableMapOf<MusicScene, Int>()
     private var musicPlayer: MediaPlayer? = null
     private var musicEnabled = true
     private var sfxEnabled = true
     private var currentScene: MusicScene? = null
     private var currentTrackRes: Int? = null
+    private val lastTrackByScene = mutableMapOf<MusicScene, Int>()
 
     private val playlists = mapOf(
         MusicScene.COMMAND to listOf(
@@ -87,7 +88,7 @@ class WardenAudioController(context: Context) {
             stopMusic()
             return
         }
-        startSceneMusic(forceAdvance = false)
+        startSceneMusic(forceDifferentTrack = false)
     }
 
     fun setSfxEnabled(enabled: Boolean) {
@@ -97,7 +98,7 @@ class WardenAudioController(context: Context) {
     fun setScene(scene: MusicScene) {
         if (currentScene == scene) return
         currentScene = scene
-        startSceneMusic(forceAdvance = true)
+        startSceneMusic(forceDifferentTrack = true)
     }
 
     fun play(sound: UiSound, force: Boolean = false) {
@@ -117,24 +118,29 @@ class WardenAudioController(context: Context) {
 
     fun onResume() {
         if (musicEnabled) {
-            musicPlayer?.start() ?: startSceneMusic(forceAdvance = false)
+            musicPlayer?.start() ?: startSceneMusic(forceDifferentTrack = false)
         }
     }
 
-    private fun startSceneMusic(forceAdvance: Boolean) {
+    private fun startSceneMusic(forceDifferentTrack: Boolean) {
         if (!musicEnabled) return
         val scene = currentScene ?: return
         val playlist = playlists[scene].orEmpty()
         if (playlist.isEmpty()) return
 
-        val nextTrack = nextTrackFor(scene, playlist, forceAdvance)
+        val nextTrack = nextTrackFor(scene, playlist, forceDifferentTrack)
         if (currentTrackRes == nextTrack && musicPlayer?.isPlaying == true) return
 
         stopMusic()
         currentTrackRes = nextTrack
+        lastTrackByScene[scene] = nextTrack
         musicPlayer = MediaPlayer.create(appContext, nextTrack)?.apply {
-            isLooping = true
+            isLooping = false
             setVolume(0.32f, 0.32f)
+            setOnCompletionListener {
+                currentTrackRes = null
+                startSceneMusic(forceDifferentTrack = true)
+            }
             start()
         }
     }
@@ -142,18 +148,19 @@ class WardenAudioController(context: Context) {
     private fun nextTrackFor(
         scene: MusicScene,
         playlist: List<Int>,
-        forceAdvance: Boolean
+        forceDifferentTrack: Boolean
     ): Int {
-        val currentIndex = sceneIndices[scene] ?: 0
-        val resolvedIndex = if (forceAdvance) {
-            val advanced = (currentIndex + 1) % playlist.size
-            sceneIndices[scene] = advanced
-            advanced
-        } else {
-            sceneIndices[scene] = currentIndex % playlist.size
-            currentIndex % playlist.size
+        val lastTrack = lastTrackByScene[scene]
+        if (playlist.size == 1) return playlist.first()
+        if (!forceDifferentTrack && currentTrackRes != null) {
+            return currentTrackRes ?: playlist.first()
         }
-        return playlist[resolvedIndex]
+        val candidates = if (forceDifferentTrack && lastTrack != null) {
+            playlist.filterNot { it == lastTrack }
+        } else {
+            playlist
+        }
+        return candidates.random(Random(System.nanoTime()))
     }
 
     private fun stopMusic() {

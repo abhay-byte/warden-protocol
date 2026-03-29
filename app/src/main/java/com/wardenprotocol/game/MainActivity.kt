@@ -213,15 +213,19 @@ fun GameApp(viewModel: GameViewModel) {
                         sfxEnabled = sfxEnabled,
                         onToggleMusic = {
                             val enabling = !musicEnabled
-                            if (!enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            audioController.setMusicEnabled(enabling)
                             viewModel.handleAction(GameAction.ToggleMusic)
-                            if (enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            if (sfxEnabled) {
+                                audioController.play(UiSound.TOGGLE, force = true)
+                            }
                         },
                         onToggleSfx = {
                             val enabling = !sfxEnabled
-                            if (!enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            audioController.setSfxEnabled(enabling)
                             viewModel.handleAction(GameAction.ToggleSfx)
-                            if (enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            if (enabling) {
+                                audioController.play(UiSound.TOGGLE, force = true)
+                            }
                         },
                         onBack = {
                             audioController.play(UiSound.NAV)

@@ -11,6 +11,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -85,6 +87,15 @@ fun EndingProcessingScreen(
         label = "progress"
     )
     val phase = ((progress.value * 12).toInt() % 4)
+    val tickerDrift = transition.animateFloat(
+        initialValue = -18f,
+        targetValue = 18f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "ticker_drift"
+    )
 
     Box(
         modifier = modifier
@@ -264,6 +275,12 @@ fun EndingProcessingScreen(
                             color = ProcessingMuted
                         )
                     }
+
+                    ProcessingWaitTicker(
+                        message = "We'll get back to you. Just wait.",
+                        drift = tickerDrift.value,
+                        pulse = pulse.value
+                    )
                 }
 
                 Column(
@@ -498,6 +515,30 @@ private fun ProcessingProgressRail(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProcessingWaitTicker(
+    message: String,
+    drift: Float,
+    pulse: Float
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ProcessingSurfaceLow.copy(alpha = 0.88f))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = message.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = ProcessingCyan.copy(alpha = 0.7f + (pulse * 0.2f)),
+            letterSpacing = 1.6.sp,
+            modifier = Modifier.graphicsLayer {
+                translationX = drift
+            }
+        )
     }
 }
 

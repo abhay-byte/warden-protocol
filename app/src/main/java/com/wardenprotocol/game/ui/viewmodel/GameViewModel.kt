@@ -264,7 +264,7 @@ class GameViewModel(
         )
 
         viewModelScope.launch {
-            val forecastResult = withTimeoutOrNull(28_000) {
+            val forecastResult = withTimeoutOrNull(60_000) {
                 aiEndingForecastRepository.enhanceOutcome(outcome)
             } ?: AiEndingForecastResult.Fallback(
                 reason = "Forecast engine timed out. Using deterministic ending log."
