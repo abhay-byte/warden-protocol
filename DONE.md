@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Audio Toggle Fix And Longer Ending Wait
+
+- Status: completed
+- Title: Fix SFX-off behavior, randomize music playback, and extend the ending wait timeout
+- Goal: Make the SFX setting fully silence button clicks when disabled, make music selection less predictable, raise the ending forecast fallback window to 60 seconds, and add a clearer moving reassurance message on the wait page.
+- What changed:
+    - Fixed the settings toggle path so turning SFX off immediately disables button sounds instead of forcing one more toggle click through.
+    - Updated the scene music controller to choose non-repeating random tracks within each scene playlist instead of stepping through them in a fixed order.
+    - Increased the ending forecast timeout in `GameViewModel.kt` from 28 seconds to 60 seconds before falling back to the deterministic result.
+    - Added a moving wait-line message to `EndingProcessingScreen.kt` so the player gets a clearer animated “we’ll get back to you, just wait” cue during long result generation.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `b5fb939`
+
 ### 2026-03-30 - Richer Static Event Briefings
 
 - Status: completed
