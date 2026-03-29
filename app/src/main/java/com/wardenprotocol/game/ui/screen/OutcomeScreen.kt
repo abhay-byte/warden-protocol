@@ -38,7 +38,6 @@ import com.wardenprotocol.game.data.model.ColonyOutcome
 import com.wardenprotocol.game.data.model.OutcomeStats
 import com.wardenprotocol.game.ui.component.locationArtworkRes
 import com.wardenprotocol.game.ui.theme.*
-import com.wardenprotocol.game.ui.viewmodel.EndingForecastState
 
 // Theme Colors consistent with Brutalist bunker interface
 private val Primary = Color(0xFFFFD597)
@@ -57,7 +56,6 @@ private val TextSecondary = Color(0xFFD7C4AC)
 fun OutcomeScreen(
     outcome: ColonyOutcome,
     isNewHighScore: Boolean,
-    analysisState: EndingForecastState,
     onPlayAgain: () -> Unit,
     onShowLeaderboard: () -> Unit,
     onShowHistory: () -> Unit,
@@ -98,13 +96,11 @@ fun OutcomeScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // Main Layout for larger screens could be row, but sticking to linear for mobile
-                OutcomeHeroSection(outcome, isNewHighScore, analysisState)
-
-                ForecastStatusPanel(analysisState, outcome.aiReport)
+                OutcomeHeroSection(outcome, isNewHighScore)
 
                 PostSettlementChronicles(
                     narrative = outcome.aiReport?.detailedNarrative ?: outcome.narrative,
-                    analysisState = analysisState
+                    hasExtendedForecast = outcome.aiReport != null
                 )
 
                 outcome.aiReport?.let { report ->
@@ -114,15 +110,12 @@ fun OutcomeScreen(
 
                 RunBreakdownSection(
                     score = outcome.score,
-                    stats = outcome.detailedStats,
-                    aiReport = outcome.aiReport,
-                    analysisState = analysisState
+                    stats = outcome.detailedStats
                 )
 
                 VaultStatusSection(outcome.detailedStats)
 
                 GlobalActionSection(
-                    analysisState = analysisState,
                     onRestart = onPlayAgain,
                     onLeaderboard = onShowLeaderboard,
                     onHistory = onShowHistory,
@@ -172,8 +165,7 @@ private fun TacticalMissionHeader() {
 @Composable
 private fun OutcomeHeroSection(
     outcome: ColonyOutcome,
-    isNewHighScore: Boolean,
-    analysisState: EndingForecastState
+    isNewHighScore: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -241,24 +233,6 @@ private fun OutcomeHeroSection(
                     )
                 }
 
-                outcome.aiReport?.let { report ->
-                    Row(
-                        modifier = Modifier
-                            .border(1.dp, SignalBlue.copy(alpha = 0.3f))
-                            .background(SignalBlue.copy(alpha = 0.08f))
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            if (report.scoreDelta >= 0) "AI +${report.scoreDelta}" else "AI ${report.scoreDelta}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = SignalBlue,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
                 if (isNewHighScore) {
                     Box(
                         modifier = Modifier
@@ -294,11 +268,7 @@ private fun OutcomeHeroSection(
                 )
                 Box(modifier = Modifier.height(1.dp).weight(1f).background(Primary.copy(alpha = 0.2f)))
                 Text(
-                    when (analysisState) {
-                        EndingForecastState.Loading -> "Forecast: pending"
-                        is EndingForecastState.Ready -> "Forecast: ${analysisState.provider}"
-                        is EndingForecastState.Fallback -> "Forecast: fallback"
-                    },
+                    outcome.detailedStats?.locationName?.uppercase() ?: "SETTLEMENT RECORD",
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary,
                     fontSize = 10.sp
@@ -309,48 +279,9 @@ private fun OutcomeHeroSection(
 }
 
 @Composable
-private fun ForecastStatusPanel(
-    analysisState: EndingForecastState,
-    aiReport: AiEndingReport?
-) {
-    val title = when (analysisState) {
-        EndingForecastState.Loading -> "ENDING FORECAST ENGINE"
-        is EndingForecastState.Ready -> "AI FORECAST LOCKED"
-        is EndingForecastState.Fallback -> "DETERMINISTIC FALLBACK"
-    }
-    val description = when (analysisState) {
-        EndingForecastState.Loading -> "Pulling a structured long-range settlement forecast from live run telemetry. The current deterministic ending remains visible until the response lands or times out."
-        is EndingForecastState.Ready -> aiReport?.civilizationVerdict ?: "The AI forecast completed without a verdict summary."
-        is EndingForecastState.Fallback -> analysisState.reason
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(SurfaceContainerHighest.copy(alpha = 0.72f))
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (analysisState is EndingForecastState.Fallback) Primary else SignalBlue,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.6.sp
-        )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
-            lineHeight = 22.sp
-        )
-    }
-}
-
-@Composable
 private fun PostSettlementChronicles(
     narrative: String,
-    analysisState: EndingForecastState
+    hasExtendedForecast: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -371,7 +302,7 @@ private fun PostSettlementChronicles(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(Icons.Filled.HistoryEdu, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
             Text(
-                if (analysisState is EndingForecastState.Ready) "AI SETTLEMENT FORECAST" else "POST-SETTLEMENT CHRONICLES",
+                if (hasExtendedForecast) "LONG-RANGE CHRONICLE" else "POST-SETTLEMENT CHRONICLES",
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
                 fontWeight = FontWeight.Bold
@@ -397,7 +328,7 @@ private fun ForecastTimelineSection(report: AiEndingReport) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "LONG-RANGE TIMELINE",
+            text = "10 / 50 / 100 YEAR OUTLOOK",
             style = MaterialTheme.typography.titleMedium,
             color = SignalBlue,
             fontWeight = FontWeight.Bold
@@ -447,7 +378,7 @@ private fun ForecastDriversSection(report: AiEndingReport) {
         )
         OutcomeListPanel(
             modifier = Modifier.weight(1f),
-            title = "SURVIVAL DRIVERS",
+            title = "WHAT KEPT THEM ALIVE",
             accent = Secondary,
             entries = report.survivalDrivers.ifEmpty { listOf("No explicit survival drivers returned.") }
         )
@@ -488,9 +419,7 @@ private fun OutcomeListPanel(
 @Composable
 private fun RunBreakdownSection(
     score: Int,
-    stats: OutcomeStats?,
-    aiReport: AiEndingReport?,
-    analysisState: EndingForecastState
+    stats: OutcomeStats?
 ) {
     Column(
         modifier = Modifier
@@ -509,6 +438,7 @@ private fun RunBreakdownSection(
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            BreakdownRow("Final Score", score.toString(), Primary)
             BreakdownRow("Travel Route", stats?.travelRoute ?: "Unavailable", Primary)
             BreakdownRow("Travel Time", stats?.travelTime ?: "Unavailable", Secondary)
             BreakdownRow("Travel Risk", stats?.travelRisk ?: "Unknown", dangerTone(stats?.travelRisk), compact = true)
@@ -516,45 +446,6 @@ private fun RunBreakdownSection(
             BreakdownRow("Surface Conditions", buildConditionLine(stats), SignalBlue)
             BreakdownRow("Vault Systems", buildVaultLine(stats), PrimaryContainer)
         }
-
-        ScoreReviewCard(score = score, aiReport = aiReport, analysisState = analysisState)
-    }
-}
-
-@Composable
-private fun ScoreReviewCard(
-    score: Int,
-    aiReport: AiEndingReport?,
-    analysisState: EndingForecastState
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(SurfaceContainerHighest)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text("SCORE REVIEW", style = MaterialTheme.typography.labelSmall, color = TextSecondary, letterSpacing = 1.sp)
-        Text(
-            text = if (aiReport != null) {
-                "Final score $score after AI delta ${if (aiReport.scoreDelta >= 0) "+" else ""}${aiReport.scoreDelta}"
-            } else {
-                "Final score $score with deterministic scoring."
-            },
-            style = MaterialTheme.typography.titleMedium,
-            color = if (aiReport != null) SignalBlue else Primary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = when {
-                aiReport != null -> aiReport.scoreReason
-                analysisState is EndingForecastState.Loading -> "Waiting for the forecast engine. The current deterministic ending remains on screen unless the response arrives in time."
-                analysisState is EndingForecastState.Fallback -> analysisState.reason
-                else -> "Deterministic scoring held as the final result."
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextPrimary
-        )
     }
 }
 
@@ -640,17 +531,14 @@ private fun MetricBar(label: String, value: Int, color: Color) {
 
 @Composable
 private fun GlobalActionSection(
-    analysisState: EndingForecastState,
     onRestart: () -> Unit,
     onLeaderboard: () -> Unit,
     onHistory: () -> Unit,
     onMenu: () -> Unit
 ) {
-    val actionsEnabled = analysisState !is EndingForecastState.Loading
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Button(
             onClick = onRestart,
-            enabled = actionsEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp)
@@ -673,7 +561,6 @@ private fun GlobalActionSection(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(
                 onClick = onLeaderboard,
-                enabled = actionsEnabled,
                 modifier = Modifier.weight(1f).height(56.dp)
                     .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
@@ -683,7 +570,6 @@ private fun GlobalActionSection(
             }
             OutlinedButton(
                 onClick = onHistory,
-                enabled = actionsEnabled,
                 modifier = Modifier.weight(1f).height(56.dp)
                     .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
@@ -695,7 +581,6 @@ private fun GlobalActionSection(
 
         OutlinedButton(
             onClick = onMenu,
-            enabled = actionsEnabled,
             modifier = Modifier.fillMaxWidth().height(56.dp)
                 .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
             shape = RoundedCornerShape(0.dp),

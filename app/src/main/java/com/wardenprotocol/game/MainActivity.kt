@@ -215,15 +215,18 @@ fun GameApp(viewModel: GameViewModel) {
                 }
 
                 is UiState.GameOutcome -> {
-                    OutcomeScreen(
-                        outcome = state.outcome,
-                        isNewHighScore = state.isNewHighScore,
-                        analysisState = state.analysisState,
-                        onPlayAgain = { viewModel.handleAction(GameAction.StartNewGame) },
-                        onShowLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                        onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
-                        onGoToMainMenu = { viewModel.handleAction(GameAction.GoToMainMenu) }
-                    )
+                    if (state.analysisState is com.wardenprotocol.game.ui.viewmodel.EndingForecastState.Loading) {
+                        EndingProcessingScreen(outcome = state.outcome)
+                    } else {
+                        OutcomeScreen(
+                            outcome = state.outcome,
+                            isNewHighScore = state.isNewHighScore,
+                            onPlayAgain = { viewModel.handleAction(GameAction.StartNewGame) },
+                            onShowLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
+                            onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
+                            onGoToMainMenu = { viewModel.handleAction(GameAction.GoToMainMenu) }
+                        )
+                    }
                 }
             }
         }

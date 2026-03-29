@@ -12,7 +12,14 @@ data class RunRecord(
     val summary: String,
     val locationTypeName: String = "",
     val outcomeLabel: String = "",
-    val gradeLabel: String = ""
+    val gradeLabel: String = "",
+    val fullNarrative: String = "",
+    val forecastVerdict: String = "",
+    val timelinePayload: String = "",
+    val failureCausesPayload: String = "",
+    val survivalDriversPayload: String = "",
+    val baseScore: Int = 0,
+    val scoreDelta: Int = 0
 )
 
 fun RunRecord.locationTypeOrNull(): LocationType? =

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wardenprotocol.game.data.model.ColonyOutcome
 import com.wardenprotocol.game.data.model.RunRecord
+import com.wardenprotocol.game.data.model.AiTimelineEntry
 import com.wardenprotocol.game.data.model.buildArchiveGradeLabel
 import com.wardenprotocol.game.data.model.buildArchiveOutcomeLabel
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +49,7 @@ class HighScoreRepository(private val context: Context) {
         context.dataStore.edit { preferences ->
             val existing = decodeRunHistory(preferences[RUN_HISTORY_KEY]).toMutableList()
             val stats = outcome.detailedStats
+            val report = outcome.aiReport
             val record = RunRecord(
                 id = System.currentTimeMillis(),
                 score = outcome.score,
@@ -67,7 +69,14 @@ class HighScoreRepository(private val context: Context) {
                 gradeLabel = buildArchiveGradeLabel(
                     score = outcome.score,
                     classification = outcome.classification
-                )
+                ),
+                fullNarrative = outcome.narrative,
+                forecastVerdict = report?.civilizationVerdict.orEmpty(),
+                timelinePayload = encodeTimeline(report?.timeline.orEmpty()),
+                failureCausesPayload = encodeStringList(report?.failureCauses.orEmpty()),
+                survivalDriversPayload = encodeStringList(report?.survivalDrivers.orEmpty()),
+                baseScore = report?.let { outcome.score - it.scoreDelta } ?: outcome.score,
+                scoreDelta = report?.scoreDelta ?: 0
             )
             existing.add(0, record)
             preferences[RUN_HISTORY_KEY] = encodeRunHistory(existing.take(25))
@@ -94,7 +103,14 @@ class HighScoreRepository(private val context: Context) {
                             summary = item.optString("summary"),
                             locationTypeName = item.optString("locationTypeName"),
                             outcomeLabel = item.optString("outcomeLabel"),
-                            gradeLabel = item.optString("gradeLabel")
+                            gradeLabel = item.optString("gradeLabel"),
+                            fullNarrative = item.optString("fullNarrative"),
+                            forecastVerdict = item.optString("forecastVerdict"),
+                            timelinePayload = item.optString("timelinePayload"),
+                            failureCausesPayload = item.optString("failureCausesPayload"),
+                            survivalDriversPayload = item.optString("survivalDriversPayload"),
+                            baseScore = item.optInt("baseScore"),
+                            scoreDelta = item.optInt("scoreDelta")
                         )
                     )
                 }
@@ -119,6 +135,35 @@ class HighScoreRepository(private val context: Context) {
                     put("locationTypeName", entry.locationTypeName)
                     put("outcomeLabel", entry.outcomeLabel)
                     put("gradeLabel", entry.gradeLabel)
+                    put("fullNarrative", entry.fullNarrative)
+                    put("forecastVerdict", entry.forecastVerdict)
+                    put("timelinePayload", entry.timelinePayload)
+                    put("failureCausesPayload", entry.failureCausesPayload)
+                    put("survivalDriversPayload", entry.survivalDriversPayload)
+                    put("baseScore", entry.baseScore)
+                    put("scoreDelta", entry.scoreDelta)
+                }
+            )
+        }
+        return array.toString()
+    }
+
+    private fun encodeStringList(values: List<String>): String {
+        val array = JSONArray()
+        values.forEach(array::put)
+        return array.toString()
+    }
+
+    private fun encodeTimeline(entries: List<AiTimelineEntry>): String {
+        val array = JSONArray()
+        entries.forEach { entry ->
+            array.put(
+                JSONObject().apply {
+                    put("marker", entry.marker)
+                    put("title", entry.title)
+                    put("status", entry.status)
+                    put("population_estimate", entry.populationEstimate)
+                    put("narrative", entry.narrative)
                 }
             )
         }
