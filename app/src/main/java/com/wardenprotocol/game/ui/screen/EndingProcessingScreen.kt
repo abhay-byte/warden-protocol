@@ -1,11 +1,6 @@
 package com.wardenprotocol.game.ui.screen
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -20,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Schedule
@@ -29,6 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -57,67 +57,48 @@ private val ProcessingSurfaceLow = Color(0xFF0D0F0F)
 private val ProcessingText = Color(0xFFE2E2E2)
 private val ProcessingMuted = Color(0xFFD7C4AC)
 
+private data class ProcessingAnimationFrame(
+    val pulse: Float = 0.7f,
+    val sweep: Float = 0f,
+    val progress: Float = 0.14f,
+    val tickerDrift: Float = 0f,
+    val coreRotation: Float = 0f,
+    val coreOrbit: Float = 0f
+) {
+    companion object {
+        fun fromElapsedMs(elapsedMs: Float): ProcessingAnimationFrame {
+            val pulseCycle = ((elapsedMs % 1200f) / 1200f)
+            val pulseWave = if (pulseCycle < 0.5f) pulseCycle * 2f else (1f - pulseCycle) * 2f
+            val orbitCycle = ((elapsedMs % 900f) / 900f)
+            val orbitWave = if (orbitCycle < 0.5f) orbitCycle * 2f else (1f - orbitCycle) * 2f
+            val driftCycle = ((elapsedMs % 1800f) / 1800f)
+            val driftWave = if (driftCycle < 0.5f) driftCycle * 2f else (1f - driftCycle) * 2f
+            return ProcessingAnimationFrame(
+                pulse = 0.35f + (pulseWave * 0.65f),
+                sweep = -0.25f + (((elapsedMs % 2200f) / 2200f) * 1.5f),
+                progress = 0.14f + (((elapsedMs % 2600f) / 2600f) * 0.82f),
+                tickerDrift = -18f + (driftWave * 36f),
+                coreRotation = ((elapsedMs % 1400f) / 1400f) * 360f,
+                coreOrbit = orbitWave
+            )
+        }
+    }
+}
+
 @Composable
 fun EndingProcessingScreen(
     outcome: ColonyOutcome,
     modifier: Modifier = Modifier
 ) {
-    val transition = rememberInfiniteTransition(label = "ending_processing")
-    val pulse = transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-    val sweep = transition.animateFloat(
-        initialValue = -0.25f,
-        targetValue = 1.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "sweep"
-    )
-    val progress = transition.animateFloat(
-        initialValue = 0.14f,
-        targetValue = 0.96f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2600, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "progress"
-    )
-    val phase = ((progress.value * 12).toInt() % 4)
-    val tickerDrift = transition.animateFloat(
-        initialValue = -18f,
-        targetValue = 18f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "ticker_drift"
-    )
-    val coreRotation = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "core_rotation"
-    )
-    val coreOrbit = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "core_orbit"
-    )
+    val animation by produceState(initialValue = ProcessingAnimationFrame()) {
+        val startNanos = withFrameNanos { it }
+        while (true) {
+            val frameNanos = withFrameNanos { it }
+            val elapsedMs = (frameNanos - startNanos) / 1_000_000f
+            value = ProcessingAnimationFrame.fromElapsedMs(elapsedMs)
+        }
+    }
+    val phase = ((animation.progress * 12).toInt() % 4)
 
     Box(
         modifier = modifier
@@ -142,6 +123,7 @@ fun EndingProcessingScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp, vertical = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -179,14 +161,14 @@ fun EndingProcessingScreen(
                 }
 
                 ProcessingCoreLoader(
-                    rotation = coreRotation.value,
-                    pulse = pulse.value,
-                    orbit = coreOrbit.value
+                    rotation = animation.coreRotation,
+                    pulse = animation.pulse,
+                    orbit = animation.coreOrbit
                 )
 
                 ProcessingSignalSweep(
-                    sweep = sweep.value,
-                    pulse = pulse.value,
+                    sweep = animation.sweep,
+                    pulse = animation.pulse,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(68.dp)
@@ -248,9 +230,9 @@ fun EndingProcessingScreen(
                     )
 
                     ProcessingProgressRail(
-                        progress = progress.value,
-                        sweep = sweep.value,
-                        pulse = pulse.value
+                        progress = animation.progress,
+                        sweep = animation.sweep,
+                        pulse = animation.pulse
                     )
 
                     repeat(4) { index ->
@@ -263,14 +245,14 @@ fun EndingProcessingScreen(
                         )
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(max(0.32f, widthFraction * (0.45f + (progress.value * 0.55f))))
+                                .fillMaxWidth(max(0.32f, widthFraction * (0.45f + (animation.progress * 0.55f))))
                                 .height(14.dp)
                                 .alpha(barAlpha.value)
                                 .background(
                                     brush = Brush.horizontalGradient(
                                         colors = if (active) {
                                             listOf(
-                                                ProcessingSecondary.copy(alpha = 0.45f + (pulse.value * 0.22f)),
+                                                ProcessingSecondary.copy(alpha = 0.45f + (animation.pulse * 0.22f)),
                                                 ProcessingPrimary.copy(alpha = 0.78f),
                                                 ProcessingCyan.copy(alpha = 0.62f)
                                             )
@@ -294,7 +276,7 @@ fun EndingProcessingScreen(
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
-                                .alpha(pulse.value)
+                                .alpha(animation.pulse)
                                 .background(ProcessingSecondary, RoundedCornerShape(99.dp))
                         )
                         Text(
@@ -306,8 +288,8 @@ fun EndingProcessingScreen(
 
                     ProcessingWaitTicker(
                         message = "We'll get back to you. Just wait.",
-                        drift = tickerDrift.value,
-                        pulse = pulse.value
+                        drift = animation.tickerDrift,
+                        pulse = animation.pulse
                     )
                 }
 
