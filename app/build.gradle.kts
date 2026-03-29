@@ -12,6 +12,13 @@ val localProperties = Properties().apply {
     }
 }
 
+val releaseSigningProperties = Properties().apply {
+    val file = file("${System.getProperty("user.home")}/repos/keys/wardenprotocol-release.properties")
+    if (file.exists()) {
+        file.inputStream().use(::load)
+    }
+}
+
 fun String.asBuildConfigString(): String =
     "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
@@ -44,9 +51,21 @@ android {
         )
     }
 
+    signingConfigs {
+        if (releaseSigningProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = file(requireNotNull(releaseSigningProperties.getProperty("storeFile")))
+                storePassword = requireNotNull(releaseSigningProperties.getProperty("storePassword"))
+                keyAlias = requireNotNull(releaseSigningProperties.getProperty("keyAlias"))
+                keyPassword = requireNotNull(releaseSigningProperties.getProperty("keyPassword"))
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
