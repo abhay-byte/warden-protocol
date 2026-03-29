@@ -8,8 +8,7 @@ import com.wardenprotocol.game.R
 import kotlin.random.Random
 
 enum class MusicScene {
-    COMMAND,
-    ARCHIVE,
+    HUB,
     SURFACE,
     EVENT,
     OUTCOME
@@ -44,16 +43,8 @@ class WardenAudioController(context: Context) {
     private val lastTrackByScene = mutableMapOf<MusicScene, Int>()
 
     private val playlists = mapOf(
-        MusicScene.COMMAND to listOf(
-            R.raw.music_coordinates_of_tomorrow,
-            R.raw.ae_flags,
-            R.raw.ae_great_mission,
-            R.raw.music_last_handwritten_page
-        ),
-        MusicScene.ARCHIVE to listOf(
-            R.raw.music_last_handwritten_page,
-            R.raw.music_breathing_cold_air,
-            R.raw.ae_spacetime
+        MusicScene.HUB to listOf(
+            R.raw.music_coordinates_of_tomorrow
         ),
         MusicScene.SURFACE to listOf(
             R.raw.music_twelve_levels_down,

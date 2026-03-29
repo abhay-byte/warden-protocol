@@ -379,10 +379,10 @@ fun GameApp(viewModel: GameViewModel) {
 }
 
 private fun musicSceneFor(state: UiState): MusicScene = when (state) {
-    UiState.MainMenu -> MusicScene.COMMAND
-    UiState.Settings -> MusicScene.COMMAND
-    UiState.Leaderboard -> MusicScene.ARCHIVE
-    UiState.RunHistory -> MusicScene.ARCHIVE
+    UiState.MainMenu -> MusicScene.HUB
+    UiState.Settings -> MusicScene.HUB
+    UiState.Leaderboard -> MusicScene.HUB
+    UiState.RunHistory -> MusicScene.HUB
     is UiState.SurfaceScanning -> MusicScene.SURFACE
     is UiState.RandomEvent -> MusicScene.EVENT
     is UiState.EventOutcome -> MusicScene.EVENT
