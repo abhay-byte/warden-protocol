@@ -4,18 +4,21 @@ This file tracks the current task in progress.
 
 ## Active Task
 
-- Status: idle
-- Title:
-- Requested by:
-- Requested at:
-- Goal:
+- Status: in progress
+- Title: Event UI Refinement & Interaction Fix
+- Requested by: user
+- Requested at: 2026-03-29T20:49:06+05:30
+- Goal: Fix Event Screen background mismatch, unresponsive choices, and redesign Outcome Screen with Brutalist theme.
 - Notes:
-- Verification status:
+    - Standardized backgrounds and scanlines with GameScreen.
+    - Fixed click interception by moving flicker overlay.
+    - Complete Redesign of EventOutcomeScreen.
+- Verification status: pending (Build & Run requested)
 - Planned checks:
-  - Build with Gradle
-  - Run on device with `adb`
-  - Commit changes
-  - Push to `origin`
+  - [ ] Build with Gradle
+  - [ ] Run on device with `adb`
+  - [ ] Commit changes
+  - [ ] Push to `origin`
 
 ## How We Use This
 
