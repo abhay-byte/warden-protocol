@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Unified Hub Music Track
+
+- Status: completed
+- Title: Keep the same music across home, archive, and settings pages
+- Goal: Prevent the background music from changing while moving between the main menu, archive screens, and settings by routing them through one stable shared hub track.
+- What changed:
+    - Replaced the separate menu/archive scene split with a single shared hub music scene in `WardenAudioController.kt`.
+    - Updated `MainActivity.kt` so the main menu, leaderboard, run history, and settings pages all map to that same hub scene.
+    - Kept gameplay, event, and outcome pages on their own scenes, so only the hub navigation flow stays musically stable.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `ff88c26`
+
 ### 2026-03-30 - Audio Toggle Fix And Longer Ending Wait
 
 - Status: completed
