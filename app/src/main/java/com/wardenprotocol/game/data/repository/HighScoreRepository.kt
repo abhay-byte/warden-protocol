@@ -12,6 +12,7 @@ import com.wardenprotocol.game.data.model.RunRecord
 import com.wardenprotocol.game.data.model.AiTimelineEntry
 import com.wardenprotocol.game.data.model.buildArchiveGradeLabel
 import com.wardenprotocol.game.data.model.buildArchiveOutcomeLabel
+import com.wardenprotocol.game.data.model.OutcomeStats
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
@@ -76,7 +77,10 @@ class HighScoreRepository(private val context: Context) {
                 failureCausesPayload = encodeStringList(report?.failureCauses.orEmpty()),
                 survivalDriversPayload = encodeStringList(report?.survivalDrivers.orEmpty()),
                 baseScore = report?.let { outcome.score - it.scoreDelta } ?: outcome.score,
-                scoreDelta = report?.scoreDelta ?: 0
+                scoreDelta = report?.scoreDelta ?: 0,
+                scoreReason = report?.scoreReason.orEmpty(),
+                reportHeadline = report?.headline.orEmpty(),
+                outcomeStatsPayload = encodeOutcomeStats(stats)
             )
             existing.add(0, record)
             preferences[RUN_HISTORY_KEY] = encodeRunHistory(existing.take(25))
@@ -110,7 +114,10 @@ class HighScoreRepository(private val context: Context) {
                             failureCausesPayload = item.optString("failureCausesPayload"),
                             survivalDriversPayload = item.optString("survivalDriversPayload"),
                             baseScore = item.optInt("baseScore"),
-                            scoreDelta = item.optInt("scoreDelta")
+                            scoreDelta = item.optInt("scoreDelta"),
+                            scoreReason = item.optString("scoreReason"),
+                            reportHeadline = item.optString("reportHeadline"),
+                            outcomeStatsPayload = item.optString("outcomeStatsPayload")
                         )
                     )
                 }
@@ -142,10 +149,42 @@ class HighScoreRepository(private val context: Context) {
                     put("survivalDriversPayload", entry.survivalDriversPayload)
                     put("baseScore", entry.baseScore)
                     put("scoreDelta", entry.scoreDelta)
+                    put("scoreReason", entry.scoreReason)
+                    put("reportHeadline", entry.reportHeadline)
+                    put("outcomeStatsPayload", entry.outcomeStatsPayload)
                 }
             )
         }
         return array.toString()
+    }
+
+    private fun encodeOutcomeStats(stats: OutcomeStats?): String {
+        if (stats == null) return ""
+        return JSONObject().apply {
+            put("survivors", stats.survivors)
+            put("yearsSinceWar", stats.yearsSinceWar)
+            put("deaths", stats.deaths)
+            put("locationName", stats.locationName)
+            put("locationTypeName", stats.locationTypeName)
+            put("travelRoute", stats.travelRoute)
+            put("travelTime", stats.travelTime)
+            put("travelRisk", stats.travelRisk)
+            put("travelDeaths", stats.travelDeaths)
+            put("radiation", stats.radiation)
+            put("water", stats.water)
+            put("food", stats.food)
+            put("shelter", stats.shelter)
+            put("resources", stats.resources)
+            put("threats", stats.threats)
+            put("powerGrid", stats.powerGrid)
+            put("foodStores", stats.foodStores)
+            put("medicalBay", stats.medicalBay)
+            put("securitySystem", stats.securitySystem)
+            put("constructionGear", stats.constructionGear)
+            put("atmosphereScrubbers", stats.atmosphereScrubbers)
+            put("culturalArchive", stats.culturalArchive)
+            put("scientificArchive", stats.scientificArchive)
+        }.toString()
     }
 
     private fun encodeStringList(values: List<String>): String {

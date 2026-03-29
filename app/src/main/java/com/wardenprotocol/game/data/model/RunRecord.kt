@@ -1,5 +1,8 @@
 package com.wardenprotocol.game.data.model
 
+import org.json.JSONArray
+import org.json.JSONObject
+
 data class RunRecord(
     val id: Long,
     val score: Int,
@@ -19,7 +22,10 @@ data class RunRecord(
     val failureCausesPayload: String = "",
     val survivalDriversPayload: String = "",
     val baseScore: Int = 0,
-    val scoreDelta: Int = 0
+    val scoreDelta: Int = 0,
+    val scoreReason: String = "",
+    val reportHeadline: String = "",
+    val outcomeStatsPayload: String = ""
 )
 
 fun RunRecord.locationTypeOrNull(): LocationType? =
@@ -33,6 +39,19 @@ fun RunRecord.resolvedOutcomeLabel(): String =
 
 fun RunRecord.resolvedGradeLabel(): String =
     gradeLabel.ifBlank { buildArchiveGradeLabel(score = score, classification = classification) }
+
+fun RunRecord.toColonyOutcome(): ColonyOutcome {
+    val stats = decodeOutcomeStats()
+    val report = decodeAiEndingReport()
+    return ColonyOutcome(
+        score = score,
+        classification = classification,
+        narrative = fullNarrative.ifBlank { summary },
+        settlementName = settlementName,
+        detailedStats = stats,
+        aiReport = report
+    )
+}
 
 fun buildArchiveGradeLabel(score: Int, classification: String): String {
     val grade = when {
@@ -108,3 +127,122 @@ private fun inferLocationTypeFromLocationName(locationName: String): LocationTyp
 
 private fun String.containsAny(vararg needles: String): Boolean =
     needles.any { needle -> contains(needle) }
+
+private fun RunRecord.decodeAiEndingReport(): AiEndingReport? {
+    val timeline = decodeTimelinePayload(timelinePayload)
+    val failureCauses = decodeStringListPayload(failureCausesPayload)
+    val survivalDrivers = decodeStringListPayload(survivalDriversPayload)
+    val hasStructuredForecast = timeline.isNotEmpty() ||
+        failureCauses.isNotEmpty() ||
+        survivalDrivers.isNotEmpty() ||
+        forecastVerdict.isNotBlank() ||
+        reportHeadline.isNotBlank() ||
+        scoreReason.isNotBlank() ||
+        scoreDelta != 0
+
+    if (!hasStructuredForecast) return null
+
+    return AiEndingReport(
+        scoreDelta = scoreDelta,
+        adjustedScore = score,
+        scoreReason = scoreReason.ifBlank { "Long-range projection unavailable in archive replay." },
+        headline = reportHeadline.ifBlank { forecastVerdict.ifBlank { classification } },
+        civilizationVerdict = forecastVerdict.ifBlank { classification },
+        failureCauses = failureCauses,
+        survivalDrivers = survivalDrivers,
+        timeline = timeline,
+        detailedNarrative = fullNarrative.ifBlank { summary }
+    )
+}
+
+private fun RunRecord.decodeOutcomeStats(): OutcomeStats? {
+    if (outcomeStatsPayload.isBlank()) return buildFallbackOutcomeStats()
+    return runCatching {
+        val item = JSONObject(outcomeStatsPayload)
+        OutcomeStats(
+            survivors = item.optInt("survivors", survivors),
+            yearsSinceWar = item.optInt("yearsSinceWar", yearsSinceWar),
+            deaths = item.optInt("deaths"),
+            locationName = item.optString("locationName", locationName),
+            locationTypeName = item.optString("locationTypeName", locationTypeName),
+            travelRoute = item.optString("travelRoute", "Unavailable"),
+            travelTime = item.optString("travelTime", "Unavailable"),
+            travelRisk = item.optString("travelRisk", "Unknown"),
+            travelDeaths = item.optInt("travelDeaths"),
+            radiation = item.optString("radiation", "Unknown"),
+            water = item.optString("water", "Unknown"),
+            food = item.optString("food", "Unknown"),
+            shelter = item.optString("shelter", "Unknown"),
+            resources = item.optString("resources", "Unknown"),
+            threats = item.optString("threats", "Unknown"),
+            powerGrid = item.optInt("powerGrid"),
+            foodStores = item.optInt("foodStores"),
+            medicalBay = item.optInt("medicalBay"),
+            securitySystem = item.optInt("securitySystem"),
+            constructionGear = item.optInt("constructionGear"),
+            atmosphereScrubbers = item.optInt("atmosphereScrubbers"),
+            culturalArchive = item.optInt("culturalArchive"),
+            scientificArchive = item.optInt("scientificArchive")
+        )
+    }.getOrElse { buildFallbackOutcomeStats() }
+}
+
+private fun RunRecord.buildFallbackOutcomeStats(): OutcomeStats =
+    OutcomeStats(
+        survivors = survivors,
+        yearsSinceWar = yearsSinceWar,
+        deaths = 0,
+        locationName = locationName,
+        locationTypeName = locationTypeName,
+        travelRoute = "Unavailable",
+        travelTime = "Unavailable",
+        travelRisk = "Unknown",
+        travelDeaths = 0,
+        radiation = "Unknown",
+        water = "Unknown",
+        food = "Unknown",
+        shelter = "Unknown",
+        resources = "Unknown",
+        threats = "Unknown",
+        powerGrid = 0,
+        foodStores = 0,
+        medicalBay = 0,
+        securitySystem = 0,
+        constructionGear = 0,
+        atmosphereScrubbers = 0,
+        culturalArchive = 0,
+        scientificArchive = 0
+    )
+
+private fun decodeStringListPayload(raw: String): List<String> {
+    if (raw.isBlank()) return emptyList()
+    return runCatching {
+        val array = JSONArray(raw)
+        buildList(array.length()) {
+            for (index in 0 until array.length()) {
+                add(array.optString(index))
+            }
+        }.filter { it.isNotBlank() }
+    }.getOrDefault(emptyList())
+}
+
+private fun decodeTimelinePayload(raw: String): List<AiTimelineEntry> {
+    if (raw.isBlank()) return emptyList()
+    return runCatching {
+        val array = JSONArray(raw)
+        buildList(array.length()) {
+            for (index in 0 until array.length()) {
+                val item = array.getJSONObject(index)
+                add(
+                    AiTimelineEntry(
+                        marker = item.optString("marker"),
+                        title = item.optString("title"),
+                        status = item.optString("status"),
+                        populationEstimate = item.optString("population_estimate"),
+                        narrative = item.optString("narrative")
+                    )
+                )
+            }
+        }
+    }.getOrDefault(emptyList())
+}

@@ -53,6 +53,7 @@ fun HistoryScreen(
     onNewGame: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenLeaderboard: () -> Unit,
+    onOpenRun: (RunRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -97,7 +98,10 @@ fun HistoryScreen(
                         )
                     } else {
                         entries.forEach { entry ->
-                            RunArchiveCard(entry = entry)
+                            RunArchiveCard(
+                                entry = entry,
+                                onClick = { onOpenRun(entry) }
+                            )
                         }
                     }
                 }

@@ -53,6 +53,7 @@ fun LeaderboardScreen(
     onNewGame: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenHistory: () -> Unit,
+    onOpenRun: (RunRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -97,7 +98,11 @@ fun LeaderboardScreen(
                         )
                     } else {
                         entries.forEachIndexed { index, entry ->
-                            CompactRunArchiveRow(rank = index + 1, entry = entry)
+                            CompactRunArchiveRow(
+                                rank = index + 1,
+                                entry = entry,
+                                onClick = { onOpenRun(entry) }
+                            )
                         }
                     }
                 }

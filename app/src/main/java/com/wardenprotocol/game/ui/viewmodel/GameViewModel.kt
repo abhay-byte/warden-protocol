@@ -21,6 +21,7 @@ sealed class GameAction {
     object ShowRunHistory : GameAction()
     object ShowSettings : GameAction()
     object GoToMainMenu : GameAction()
+    data class OpenArchivedOutcome(val entry: RunRecord) : GameAction()
     data class SelectEventChoice(val choice: EventChoice) : GameAction()
     object DismissEventOutcome : GameAction()
     object ToggleMusic : GameAction()
@@ -79,6 +80,7 @@ class GameViewModel(
             is GameAction.ShowRunHistory -> _uiState.value = UiState.RunHistory
             is GameAction.ShowSettings -> _uiState.value = UiState.Settings
             is GameAction.GoToMainMenu -> _uiState.value = UiState.MainMenu
+            is GameAction.OpenArchivedOutcome -> openArchivedOutcome(action.entry)
             is GameAction.SelectEventChoice -> selectEventChoice(action.choice)
             is GameAction.DismissEventOutcome -> dismissEventOutcome()
             is GameAction.ToggleMusic -> _musicEnabled.value = !_musicEnabled.value
@@ -243,6 +245,14 @@ class GameViewModel(
             phase = GamePhase.SURFACE_SCAN
         )
         _uiState.value = UiState.SurfaceScanning(location)
+    }
+
+    private fun openArchivedOutcome(entry: RunRecord) {
+        _uiState.value = UiState.GameOutcome(
+            outcome = entry.toColonyOutcome(),
+            isNewHighScore = false,
+            analysisState = EndingForecastState.Fallback("Archived outcome loaded.")
+        )
     }
 
     private fun finishGame(state: GameState, outcome: ColonyOutcome) {

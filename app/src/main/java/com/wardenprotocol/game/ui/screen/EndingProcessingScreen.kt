@@ -3,9 +3,11 @@ package com.wardenprotocol.game.ui.screen
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,9 +36,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wardenprotocol.game.data.model.ColonyOutcome
+import kotlin.math.max
 
 private val ProcessingBackground = Color(0xFF121414)
 private val ProcessingPrimary = Color(0xFFFFD597)
@@ -62,6 +66,25 @@ fun EndingProcessingScreen(
         ),
         label = "pulse"
     )
+    val sweep = transition.animateFloat(
+        initialValue = -0.25f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "sweep"
+    )
+    val progress = transition.animateFloat(
+        initialValue = 0.14f,
+        targetValue = 0.96f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2600, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "progress"
+    )
+    val phase = ((progress.value * 12).toInt() % 4)
 
     Box(
         modifier = modifier
@@ -122,6 +145,14 @@ fun EndingProcessingScreen(
                     )
                 }
 
+                ProcessingSignalSweep(
+                    sweep = sweep.value,
+                    pulse = pulse.value,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(68.dp)
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -177,14 +208,43 @@ fun EndingProcessingScreen(
                         color = ProcessingPrimary
                     )
 
+                    ProcessingProgressRail(
+                        progress = progress.value,
+                        sweep = sweep.value,
+                        pulse = pulse.value
+                    )
+
                     repeat(4) { index ->
                         val widthFraction = listOf(1f, 0.84f, 0.92f, 0.76f)[index]
+                        val active = index <= phase
+                        val barAlpha = animateFloatAsState(
+                            targetValue = if (active) 1f else 0.34f,
+                            animationSpec = tween(durationMillis = 320),
+                            label = "processing_bar_$index"
+                        )
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(widthFraction)
+                                .fillMaxWidth(max(0.32f, widthFraction * (0.45f + (progress.value * 0.55f))))
                                 .height(14.dp)
-                                .alpha(pulse.value)
-                                .background(ProcessingPrimary.copy(alpha = 0.18f), RoundedCornerShape(4.dp))
+                                .alpha(barAlpha.value)
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = if (active) {
+                                            listOf(
+                                                ProcessingSecondary.copy(alpha = 0.45f + (pulse.value * 0.22f)),
+                                                ProcessingPrimary.copy(alpha = 0.78f),
+                                                ProcessingCyan.copy(alpha = 0.62f)
+                                            )
+                                        } else {
+                                            listOf(
+                                                ProcessingPrimary.copy(alpha = 0.10f),
+                                                ProcessingSurfaceHigh,
+                                                ProcessingSurfaceLow
+                                            )
+                                        }
+                                    ),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
                         )
                     }
 
@@ -199,7 +259,7 @@ fun EndingProcessingScreen(
                                 .background(ProcessingSecondary, RoundedCornerShape(99.dp))
                         )
                         Text(
-                            text = "Do not close the report. The final colony record will appear automatically.",
+                            text = processingStatusText(phase),
                             style = MaterialTheme.typography.bodyMedium,
                             color = ProcessingMuted
                         )
@@ -307,6 +367,145 @@ private fun ProcessingMiniCard(
             maxLines = 2
         )
     }
+}
+
+@Composable
+private fun ProcessingSignalSweep(
+    sweep: Float,
+    pulse: Float,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(ProcessingSurfaceLow)
+            .drawBehind {
+                drawLine(
+                    color = ProcessingPrimary.copy(alpha = 0.18f),
+                    start = Offset(0f, size.height - 1.dp.toPx()),
+                    end = Offset(size.width, size.height - 1.dp.toPx()),
+                    strokeWidth = 2.dp.toPx()
+                )
+            }
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerY = size.height / 2f
+            val beamX = (size.width * sweep).coerceIn(0f, size.width)
+            val glowWidth = 42.dp.toPx()
+
+            drawLine(
+                color = ProcessingMuted.copy(alpha = 0.22f),
+                start = Offset(0f, centerY),
+                end = Offset(size.width, centerY),
+                strokeWidth = 2.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            drawRect(
+                color = ProcessingCyan.copy(alpha = 0.08f + (pulse * 0.07f)),
+                topLeft = Offset((beamX - glowWidth).coerceAtLeast(0f), 0f),
+                size = Size((glowWidth * 2f).coerceAtMost(size.width), size.height)
+            )
+            drawLine(
+                color = ProcessingSecondary.copy(alpha = 0.72f + (pulse * 0.2f)),
+                start = Offset(beamX, 0f),
+                end = Offset(beamX, size.height),
+                strokeWidth = 3.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            drawCircle(
+                color = ProcessingPrimary.copy(alpha = 0.65f + (pulse * 0.25f)),
+                radius = 5.dp.toPx(),
+                center = Offset(beamX, centerY)
+            )
+        }
+
+        Row(
+            modifier = Modifier.align(Alignment.TopStart),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "LIVE SIGNAL SWEEP",
+                style = MaterialTheme.typography.labelSmall,
+                color = ProcessingSecondary,
+                letterSpacing = 1.6.sp
+            )
+            Text(
+                text = "ACTIVE",
+                style = MaterialTheme.typography.labelSmall,
+                color = ProcessingCyan,
+                letterSpacing = 1.4.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProcessingProgressRail(
+    progress: Float,
+    sweep: Float,
+    pulse: Float
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "SYNTHESIS PROGRESS",
+                style = MaterialTheme.typography.labelSmall,
+                color = ProcessingMuted,
+                letterSpacing = 1.5.sp
+            )
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.labelSmall,
+                color = ProcessingPrimary,
+                letterSpacing = 1.2.sp
+            )
+        }
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(18.dp)
+        ) {
+            val progressWidth = size.width * progress
+            val sweepX = (size.width * sweep).coerceIn(0f, size.width)
+
+            drawRect(
+                color = ProcessingSurfaceLow,
+                size = size
+            )
+            drawRect(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        ProcessingSecondary.copy(alpha = 0.45f + (pulse * 0.1f)),
+                        ProcessingPrimary.copy(alpha = 0.82f),
+                        ProcessingCyan.copy(alpha = 0.6f)
+                    )
+                ),
+                size = Size(progressWidth, size.height)
+            )
+            if (progressWidth > 0f) {
+                drawLine(
+                    color = ProcessingText.copy(alpha = 0.75f),
+                    start = Offset(sweepX.coerceIn(0f, progressWidth), 0f),
+                    end = Offset(sweepX.coerceIn(0f, progressWidth), size.height),
+                    strokeWidth = 3.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
+        }
+    }
+}
+
+private fun processingStatusText(phase: Int): String = when (phase) {
+    0 -> "Indexing survivor records and casualty ledgers."
+    1 -> "Projecting decade markers across the settlement lifespan."
+    2 -> "Reconciling travel losses against long-term viability."
+    else -> "Final colony chronicle will appear automatically."
 }
 
 @Composable

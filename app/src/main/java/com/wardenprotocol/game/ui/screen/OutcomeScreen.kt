@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wardenprotocol.game.R
@@ -470,9 +469,7 @@ private fun BreakdownRow(label: String, value: String, accent: Color, compact: B
             text = value,
             style = if (compact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
             color = accent,
-            fontWeight = FontWeight.Black,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            fontWeight = FontWeight.Black
         )
     }
 }

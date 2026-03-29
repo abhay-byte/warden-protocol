@@ -61,12 +61,14 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun RunArchiveCard(
     entry: RunRecord,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(Color(0xFF1E2020))
+            .clickable(onClick = onClick)
             .drawBehind {
                 drawRect(
                     color = VaultGreen.copy(alpha = 0.45f),
@@ -295,12 +297,14 @@ private fun Modifier.tacticalGrid(alpha: Float): Modifier = this.drawBehind {
 fun CompactRunArchiveRow(
     rank: Int? = null,
     entry: RunRecord,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .background(Color(0xFF1E2020))
+            .clickable(onClick = onClick)
             .drawBehind {
                 drawRect(
                     color = WarningAmber.copy(alpha = 0.45f),

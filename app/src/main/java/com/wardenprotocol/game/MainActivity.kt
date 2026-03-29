@@ -173,7 +173,8 @@ fun GameApp(viewModel: GameViewModel) {
                         onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
                         onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
                         onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
-                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) }
+                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
+                        onOpenRun = { entry -> viewModel.handleAction(GameAction.OpenArchivedOutcome(entry)) }
                     )
                 }
 
@@ -183,7 +184,8 @@ fun GameApp(viewModel: GameViewModel) {
                         onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
                         onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
                         onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
-                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) }
+                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
+                        onOpenRun = { entry -> viewModel.handleAction(GameAction.OpenArchivedOutcome(entry)) }
                     )
                 }
 
