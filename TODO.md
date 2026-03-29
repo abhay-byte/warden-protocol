@@ -10,6 +10,7 @@ This file tracks the current task in progress.
 - Requested at:
 - Goal:
 - Notes:
+  - 
 - Verification status:
 - Planned checks:
   - [ ] Build with Gradle

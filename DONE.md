@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Animated Ending Wait Screen And Archived Outcome Reopen
+
+- Status: completed
+- Title: Add visible ending-processing animation, fix result text wrapping, and reopen archived run reports
+- Goal: Make the ending wait page feel actively in progress, stop long result telemetry from truncating, and let saved history and leaderboard entries open their full archived outcome details.
+- What changed:
+    - Upgraded `EndingProcessingScreen.kt` with visible scan-sweep and progress-rail motion while keeping the same bunker-console styling as the rest of the app.
+    - Removed the line clamp from the long result telemetry rows so surface and vault breakdown text wraps fully on the outcome page.
+    - Added archived-outcome reopening from both history and leaderboard cards, plus run-data reconstruction so saved runs can restore their detailed outcome report instead of only showing a summary card.
+    - Extended locally stored run data with encoded outcome stats and additional forecast fields so future archive entries preserve the full result payload more faithfully.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `f455edf`
+
 ### 2026-03-29 - Themed Ending Wait Screen And Full Local Result Persistence
 
 - Status: completed
