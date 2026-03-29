@@ -20,6 +20,22 @@ internal object ExpandedEventCatalog {
     val apexThreatEvents: List<GameEvent> by lazy {
         buildApexThreatEvents()
     }
+
+    val vaultWindfallIds: Set<String> by lazy {
+        buildVaultWindfalls().mapTo(linkedSetOf()) { it.id }
+    }
+
+    val vaultDoomIds: Set<String> by lazy {
+        buildVaultDoomEvents().mapTo(linkedSetOf()) { it.id }
+    }
+
+    val surfaceWindfallIds: Set<String> by lazy {
+        buildSurfaceWindfalls().mapTo(linkedSetOf()) { it.id }
+    }
+
+    val surfaceCatastropheIds: Set<String> by lazy {
+        buildSurfaceCatastrophes().mapTo(linkedSetOf()) { it.id }
+    }
 }
 
 private data class TwoSystemSpec(

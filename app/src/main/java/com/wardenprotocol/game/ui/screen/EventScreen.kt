@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,9 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.wardenprotocol.game.data.model.EventChoice
 import com.wardenprotocol.game.data.model.GameEvent
 
@@ -117,7 +118,7 @@ fun EventScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
                     // Left Side: Threat Visualizer & Telemetry
                     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                        ThreatVisualizer()
+                        ThreatVisualizer(event)
                         TelemetryAnalysis(event.id)
                     }
 
@@ -210,7 +211,9 @@ private fun StatusBreadcrumb(eventId: String) {
 }
 
 @Composable
-private fun ThreatVisualizer() {
+private fun ThreatVisualizer(event: GameEvent) {
+    val imageKey = event.resolveEventImageKey()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,24 +240,25 @@ private fun ThreatVisualizer() {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                "B_MOTHER_001",
+                imageKey.displayLabel.uppercase(),
                 modifier = Modifier
                     .background(SurfaceContainerHighest)
                     .padding(horizontal = 8.dp, vertical = 2.dp),
                 color = Primary,
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
         // Tactical Image
-        AsyncImage(
-            model = "https://lh3.googleusercontent.com/aida-public/AB6AXuBbNBTiFRHCK0WIchY4hZJ2GOKT3WAffrwf07fDnHcqmT4b4x14oC262ZTjJS23h8V5w83iS-eiwHbVXrLfXivj3cpQ6zuU-CYGkc9apa5NLRMLHCFim9OtYZ00ezQfMS-oKQBbBXIki74rlUlUAYnxzKedYsCn1S5HO2871Bvrl4wnmMPat_SRzi7Az8t5eV4q--PmUZfGB5BqbswWIdXi8mrDcRY5A7Rg_HsVJ_k5QMnB6Lhr2crMzSJgySN_s6eMtrWhx2TZ_ffD",
+        Image(
+            painter = painterResource(id = imageKey.drawableRes),
             contentDescription = "Threat Visual",
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
                     alpha = 0.8f
-                    // Grayscale + Contrast blend would need custom filter, but alpha/tint helps
                 },
             contentScale = ContentScale.Crop
         )
@@ -385,7 +389,7 @@ private fun ApexThreatHeader(title: String, description: String) {
 private fun ProtocolResponseSection(event: GameEvent, onChoiceSelected: (EventChoice) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(Icons.Filled.List, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
             Text(
                 "SELECT_PROTOCOL_RESPONSE",
                 style = MaterialTheme.typography.labelSmall,
