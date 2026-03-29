@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.wardenprotocol.game.data.repository.EventRepository
+import com.wardenprotocol.game.data.repository.AiEndingForecastRepository
 import com.wardenprotocol.game.data.repository.HighScoreRepository
 import com.wardenprotocol.game.domain.engine.GameEngine
 import com.wardenprotocol.game.ui.component.ActionButton
@@ -82,7 +83,8 @@ class MainActivity : ComponentActivity() {
         val eventRepository = EventRepository()
         val gameEngine = GameEngine(eventRepository)
         val highScoreRepository = HighScoreRepository(applicationContext)
-        viewModel = GameViewModel(gameEngine, highScoreRepository)
+        val aiEndingForecastRepository = AiEndingForecastRepository()
+        viewModel = GameViewModel(gameEngine, highScoreRepository, aiEndingForecastRepository)
         
         setContent {
             WardenProtocolTheme {
@@ -216,6 +218,7 @@ fun GameApp(viewModel: GameViewModel) {
                     OutcomeScreen(
                         outcome = state.outcome,
                         isNewHighScore = state.isNewHighScore,
+                        analysisState = state.analysisState,
                         onPlayAgain = { viewModel.handleAction(GameAction.StartNewGame) },
                         onShowLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
                         onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },

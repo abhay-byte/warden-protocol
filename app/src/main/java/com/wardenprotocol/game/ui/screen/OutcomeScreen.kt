@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -31,9 +32,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wardenprotocol.game.R
+import com.wardenprotocol.game.data.model.AiEndingReport
+import com.wardenprotocol.game.data.model.LocationType
 import com.wardenprotocol.game.data.model.ColonyOutcome
 import com.wardenprotocol.game.data.model.OutcomeStats
+import com.wardenprotocol.game.ui.component.locationArtworkRes
 import com.wardenprotocol.game.ui.theme.*
+import com.wardenprotocol.game.ui.viewmodel.EndingForecastState
 
 // Theme Colors consistent with Brutalist bunker interface
 private val Primary = Color(0xFFFFD597)
@@ -41,6 +46,7 @@ private val PrimaryContainer = Color(0xFFFFB000)
 private val WarningAmber = Color(0xFFFFB000)
 private val Secondary = Color(0xFF9EFF8B)
 private val DangerRed = Color(0xFF93000A)
+private val SignalBlue = Color(0xFF88E1FF)
 private val SurfaceContainerHigh = Color(0xFF282A2A)
 private val SurfaceContainerHighest = Color(0xFF333535)
 private val SurfaceContainerLowest = Color(0xFF0D0F0F)
@@ -51,6 +57,7 @@ private val TextSecondary = Color(0xFFD7C4AC)
 fun OutcomeScreen(
     outcome: ColonyOutcome,
     isNewHighScore: Boolean,
+    analysisState: EndingForecastState,
     onPlayAgain: () -> Unit,
     onShowLeaderboard: () -> Unit,
     onShowHistory: () -> Unit,
@@ -91,17 +98,34 @@ fun OutcomeScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // Main Layout for larger screens could be row, but sticking to linear for mobile
-                OutcomeHeroSection(outcome, isNewHighScore)
+                OutcomeHeroSection(outcome, isNewHighScore, analysisState)
 
-                PostSettlementChronicles(outcome.narrative)
+                ForecastStatusPanel(analysisState, outcome.aiReport)
 
-                RunBreakdownSection(outcome.detailedStats)
+                PostSettlementChronicles(
+                    narrative = outcome.aiReport?.detailedNarrative ?: outcome.narrative,
+                    analysisState = analysisState
+                )
+
+                outcome.aiReport?.let { report ->
+                    ForecastTimelineSection(report)
+                    ForecastDriversSection(report)
+                }
+
+                RunBreakdownSection(
+                    score = outcome.score,
+                    stats = outcome.detailedStats,
+                    aiReport = outcome.aiReport,
+                    analysisState = analysisState
+                )
 
                 VaultStatusSection(outcome.detailedStats)
 
                 GlobalActionSection(
+                    analysisState = analysisState,
                     onRestart = onPlayAgain,
-                    onArchive = onShowLeaderboard,
+                    onLeaderboard = onShowLeaderboard,
+                    onHistory = onShowHistory,
                     onMenu = onGoToMainMenu
                 )
 
@@ -146,7 +170,11 @@ private fun TacticalMissionHeader() {
 }
 
 @Composable
-private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) {
+private fun OutcomeHeroSection(
+    outcome: ColonyOutcome,
+    isNewHighScore: Boolean,
+    analysisState: EndingForecastState
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,12 +186,12 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
     ) {
         // Hero Image Backdrop (Grayscale/Dimmed)
         Image(
-            painter = painterResource(id = R.drawable.loc_military_base),
+            painter = painterResource(id = resolveOutcomeLocationArt(outcome.detailedStats)),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
             colorFilter = ColorFilter.colorMatrix(
-                androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(0f) }
+                ColorMatrix().apply { setToSaturation(0f) }
             ),
             alpha = 0.2f
         )
@@ -213,6 +241,24 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
                     )
                 }
 
+                outcome.aiReport?.let { report ->
+                    Row(
+                        modifier = Modifier
+                            .border(1.dp, SignalBlue.copy(alpha = 0.3f))
+                            .background(SignalBlue.copy(alpha = 0.08f))
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            if (report.scoreDelta >= 0) "AI +${report.scoreDelta}" else "AI ${report.scoreDelta}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = SignalBlue,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
                 if (isNewHighScore) {
                     Box(
                         modifier = Modifier
@@ -248,7 +294,11 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
                 )
                 Box(modifier = Modifier.height(1.dp).weight(1f).background(Primary.copy(alpha = 0.2f)))
                 Text(
-                    "ID: 0x8FA2-GAMMA",
+                    when (analysisState) {
+                        EndingForecastState.Loading -> "Forecast: pending"
+                        is EndingForecastState.Ready -> "Forecast: ${analysisState.provider}"
+                        is EndingForecastState.Fallback -> "Forecast: fallback"
+                    },
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary,
                     fontSize = 10.sp
@@ -259,7 +309,49 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
 }
 
 @Composable
-private fun PostSettlementChronicles(narrative: String) {
+private fun ForecastStatusPanel(
+    analysisState: EndingForecastState,
+    aiReport: AiEndingReport?
+) {
+    val title = when (analysisState) {
+        EndingForecastState.Loading -> "ENDING FORECAST ENGINE"
+        is EndingForecastState.Ready -> "AI FORECAST LOCKED"
+        is EndingForecastState.Fallback -> "DETERMINISTIC FALLBACK"
+    }
+    val description = when (analysisState) {
+        EndingForecastState.Loading -> "Pulling a structured long-range settlement forecast from live run telemetry. The current deterministic ending remains visible until the response lands or times out."
+        is EndingForecastState.Ready -> aiReport?.civilizationVerdict ?: "The AI forecast completed without a verdict summary."
+        is EndingForecastState.Fallback -> analysisState.reason
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceContainerHighest.copy(alpha = 0.72f))
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (analysisState is EndingForecastState.Fallback) Primary else SignalBlue,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.6.sp
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary,
+            lineHeight = 22.sp
+        )
+    }
+}
+
+@Composable
+private fun PostSettlementChronicles(
+    narrative: String,
+    analysisState: EndingForecastState
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -279,7 +371,7 @@ private fun PostSettlementChronicles(narrative: String) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(Icons.Filled.HistoryEdu, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
             Text(
-                "POST-SETTLEMENT CHRONICLES",
+                if (analysisState is EndingForecastState.Ready) "AI SETTLEMENT FORECAST" else "POST-SETTLEMENT CHRONICLES",
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
                 fontWeight = FontWeight.Bold
@@ -296,7 +388,110 @@ private fun PostSettlementChronicles(narrative: String) {
 }
 
 @Composable
-private fun RunBreakdownSection(stats: OutcomeStats?) {
+private fun ForecastTimelineSection(report: AiEndingReport) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceContainerHigh)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "LONG-RANGE TIMELINE",
+            style = MaterialTheme.typography.titleMedium,
+            color = SignalBlue,
+            fontWeight = FontWeight.Bold
+        )
+        report.timeline.forEach { entry ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(SurfaceContainerLowest)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "${entry.marker}  |  ${entry.title.uppercase()}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Primary,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    text = "${entry.status}  |  ${entry.populationEstimate}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = SignalBlue
+                )
+                Text(
+                    text = entry.narrative,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextPrimary,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ForecastDriversSection(report: AiEndingReport) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutcomeListPanel(
+            modifier = Modifier.weight(1f),
+            title = "FAILURE CAUSES",
+            accent = DangerRed,
+            entries = report.failureCauses.ifEmpty { listOf("No explicit failure causes returned.") }
+        )
+        OutcomeListPanel(
+            modifier = Modifier.weight(1f),
+            title = "SURVIVAL DRIVERS",
+            accent = Secondary,
+            entries = report.survivalDrivers.ifEmpty { listOf("No explicit survival drivers returned.") }
+        )
+    }
+}
+
+@Composable
+private fun OutcomeListPanel(
+    title: String,
+    accent: Color,
+    entries: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(SurfaceContainerHigh)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = accent,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+        entries.take(4).forEach { line ->
+            Text(
+                text = "• $line",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextPrimary,
+                lineHeight = 22.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun RunBreakdownSection(
+    score: Int,
+    stats: OutcomeStats?,
+    aiReport: AiEndingReport?,
+    analysisState: EndingForecastState
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -314,27 +509,57 @@ private fun RunBreakdownSection(stats: OutcomeStats?) {
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            BreakdownRow("Total Travel", "${4200} KM", Primary)
-            BreakdownRow("Site Potential", "88%", Secondary)
-            BreakdownRow("Final Survivors", stats?.survivors?.toString() ?: "0", PrimaryContainer)
+            BreakdownRow("Travel Route", stats?.travelRoute ?: "Unavailable", Primary)
+            BreakdownRow("Travel Time", stats?.travelTime ?: "Unavailable", Secondary)
+            BreakdownRow("Travel Risk", stats?.travelRisk ?: "Unknown", dangerTone(stats?.travelRisk), compact = true)
+            BreakdownRow("Travel Deaths", stats?.travelDeaths?.toString() ?: "0", DangerRed, compact = true)
+            BreakdownRow("Surface Conditions", buildConditionLine(stats), SignalBlue)
+            BreakdownRow("Vault Systems", buildVaultLine(stats), PrimaryContainer)
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(SurfaceContainerHighest)
-                .padding(12.dp)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Telemetry Precision", style = MaterialTheme.typography.labelSmall, color = TextPrimary)
-                Text("99.8%", style = MaterialTheme.typography.titleSmall, color = Secondary, fontWeight = FontWeight.Bold)
-            }
-        }
+        ScoreReviewCard(score = score, aiReport = aiReport, analysisState = analysisState)
     }
 }
 
 @Composable
-private fun BreakdownRow(label: String, value: String, accent: Color) {
+private fun ScoreReviewCard(
+    score: Int,
+    aiReport: AiEndingReport?,
+    analysisState: EndingForecastState
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceContainerHighest)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("SCORE REVIEW", style = MaterialTheme.typography.labelSmall, color = TextSecondary, letterSpacing = 1.sp)
+        Text(
+            text = if (aiReport != null) {
+                "Final score $score after AI delta ${if (aiReport.scoreDelta >= 0) "+" else ""}${aiReport.scoreDelta}"
+            } else {
+                "Final score $score with deterministic scoring."
+            },
+            style = MaterialTheme.typography.titleMedium,
+            color = if (aiReport != null) SignalBlue else Primary,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = when {
+                aiReport != null -> aiReport.scoreReason
+                analysisState is EndingForecastState.Loading -> "Waiting for the forecast engine. The current deterministic ending remains on screen unless the response arrives in time."
+                analysisState is EndingForecastState.Fallback -> analysisState.reason
+                else -> "Deterministic scoring held as the final result."
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextPrimary
+        )
+    }
+}
+
+@Composable
+private fun BreakdownRow(label: String, value: String, accent: Color, compact: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -350,7 +575,14 @@ private fun BreakdownRow(label: String, value: String, accent: Color) {
             .padding(16.dp)
     ) {
         Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = TextSecondary)
-        Text(value, style = MaterialTheme.typography.headlineLarge, color = accent, fontWeight = FontWeight.Black)
+        Text(
+            text = value,
+            style = if (compact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
+            color = accent,
+            fontWeight = FontWeight.Black,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -407,10 +639,18 @@ private fun MetricBar(label: String, value: Int, color: Color) {
 }
 
 @Composable
-private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, onMenu: () -> Unit) {
+private fun GlobalActionSection(
+    analysisState: EndingForecastState,
+    onRestart: () -> Unit,
+    onLeaderboard: () -> Unit,
+    onHistory: () -> Unit,
+    onMenu: () -> Unit
+) {
+    val actionsEnabled = analysisState !is EndingForecastState.Loading
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Button(
             onClick = onRestart,
+            enabled = actionsEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp)
@@ -432,25 +672,77 @@ private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, on
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(
-                onClick = onArchive,
+                onClick = onLeaderboard,
+                enabled = actionsEnabled,
                 modifier = Modifier.weight(1f).height(56.dp)
                     .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
-                Text("ARCHIVE RESULTS", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+                Text("LEADERBOARD", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
             }
             OutlinedButton(
-                onClick = onMenu,
+                onClick = onHistory,
+                enabled = actionsEnabled,
                 modifier = Modifier.weight(1f).height(56.dp)
                     .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
-                Text("MAIN MENU", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+                Text("RUN HISTORY", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
             }
         }
+
+        OutlinedButton(
+            onClick = onMenu,
+            enabled = actionsEnabled,
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+                .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
+            shape = RoundedCornerShape(0.dp),
+            border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
+        ) {
+            Text("MAIN MENU", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+        }
     }
+}
+
+private fun resolveOutcomeLocationArt(stats: OutcomeStats?): Int {
+    val type = stats?.locationTypeName
+        ?.takeIf { it.isNotBlank() }
+        ?.let { raw -> runCatching { enumValueOf<LocationType>(raw) }.getOrNull() }
+    return locationArtworkRes(type)
+}
+
+private fun buildConditionLine(stats: OutcomeStats?): String {
+    if (stats == null) return "No surface telemetry available."
+    return listOf(
+        "Rad ${stats.radiation}",
+        "Water ${stats.water}",
+        "Food ${stats.food}",
+        "Shelter ${stats.shelter}",
+        "Resources ${stats.resources}",
+        "Threats ${stats.threats}"
+    ).joinToString(" | ")
+}
+
+private fun buildVaultLine(stats: OutcomeStats?): String {
+    if (stats == null) return "No vault telemetry available."
+    return listOf(
+        "Power ${stats.powerGrid}%",
+        "Food ${stats.foodStores}%",
+        "Medical ${stats.medicalBay}%",
+        "Security ${stats.securitySystem}%",
+        "Construction ${stats.constructionGear}%",
+        "Archives ${((stats.culturalArchive + stats.scientificArchive) / 2)}%"
+    ).joinToString(" | ")
+}
+
+private fun dangerTone(risk: String?): Color = when (risk?.lowercase()) {
+    "low" -> Secondary
+    "moderate" -> Primary
+    "high" -> DangerRed.copy(alpha = 0.75f)
+    "extreme" -> DangerRed
+    else -> TextPrimary
 }
 
 private fun borderStroke(width: androidx.compose.ui.unit.Dp, color: Color) = androidx.compose.foundation.BorderStroke(width, color)

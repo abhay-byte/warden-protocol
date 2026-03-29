@@ -5,7 +5,28 @@ data class ColonyOutcome(
     val classification: String,
     val narrative: String,
     val settlementName: String,
-    val detailedStats: OutcomeStats? = null
+    val detailedStats: OutcomeStats? = null,
+    val aiReport: AiEndingReport? = null
+)
+
+data class AiEndingReport(
+    val scoreDelta: Int,
+    val adjustedScore: Int,
+    val scoreReason: String,
+    val headline: String,
+    val civilizationVerdict: String,
+    val failureCauses: List<String>,
+    val survivalDrivers: List<String>,
+    val timeline: List<AiTimelineEntry>,
+    val detailedNarrative: String
+)
+
+data class AiTimelineEntry(
+    val marker: String,
+    val title: String,
+    val status: String,
+    val populationEstimate: String,
+    val narrative: String
 )
 
 data class OutcomeStats(

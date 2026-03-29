@@ -1,7 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun String.asBuildConfigString(): String =
+    "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
     namespace = "com.wardenprotocol.game"
@@ -15,6 +27,21 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        buildConfigField(
+            "String",
+            "NVIDIA_NIM_API_KEY",
+            (localProperties.getProperty("NVIDIA_NIM_API_KEY") ?: "").asBuildConfigString()
+        )
+        buildConfigField(
+            "String",
+            "NVIDIA_NIM_BASE_URL",
+            "https://integrate.api.nvidia.com/v1".asBuildConfigString()
+        )
+        buildConfigField(
+            "String",
+            "NVIDIA_NIM_MODEL",
+            "meta/llama-3.3-70b-instruct".asBuildConfigString()
+        )
     }
 
     buildTypes {
@@ -35,6 +62,7 @@ android {
     
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     
     composeOptions {

@@ -25,6 +25,7 @@ Owns content and persistence:
 
 - `EventRepository`: base event set plus the expanded catalog
 - `ExpandedEventCatalog`: larger generated event pools and apex-threat content
+- `AiEndingForecastRepository`: NVIDIA NIM-backed structured ending forecast generation with timeout-safe fallback
 - `HighScoreRepository`: DataStore-backed high score and run history storage
 
 ### `domain/engine`
@@ -67,7 +68,8 @@ The core runtime path is:
 2. `GameApp` collects `gameState`, `uiState`, `highScore`, `leaderboard`, and `runHistory`.
 3. Screen-level callbacks dispatch `GameAction`.
 4. `GameViewModel` calls into `GameEngine` for deterministic game mutations and generated content.
-5. Finished runs are written to DataStore and then reflected back into leaderboard/history flows.
+5. On run completion, the deterministic ending is optionally enhanced by the AI ending forecast pipeline.
+6. The final resolved result is written to DataStore and then reflected back into leaderboard/history flows.
 
 ## Persistence
 

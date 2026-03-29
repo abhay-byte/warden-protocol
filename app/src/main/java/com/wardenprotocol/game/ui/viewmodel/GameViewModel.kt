@@ -3,10 +3,13 @@ package com.wardenprotocol.game.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wardenprotocol.game.data.model.*
+import com.wardenprotocol.game.data.repository.AiEndingForecastRepository
+import com.wardenprotocol.game.data.repository.AiEndingForecastResult
 import com.wardenprotocol.game.data.repository.HighScoreRepository
 import com.wardenprotocol.game.domain.engine.GameEngine
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.random.Random
 
 sealed class GameAction {
@@ -32,12 +35,23 @@ sealed class UiState {
     data class SurfaceScanning(val location: SurfaceLocation, val probeRevealed: Boolean = false) : UiState()
     data class RandomEvent(val event: GameEvent) : UiState()
     data class EventOutcome(val narrative: String) : UiState()
-    data class GameOutcome(val outcome: ColonyOutcome, val isNewHighScore: Boolean) : UiState()
+    data class GameOutcome(
+        val outcome: ColonyOutcome,
+        val isNewHighScore: Boolean,
+        val analysisState: EndingForecastState = EndingForecastState.Fallback("Deterministic ending active.")
+    ) : UiState()
+}
+
+sealed class EndingForecastState {
+    data object Loading : EndingForecastState()
+    data class Ready(val provider: String) : EndingForecastState()
+    data class Fallback(val reason: String) : EndingForecastState()
 }
 
 class GameViewModel(
     private val gameEngine: GameEngine,
-    private val highScoreRepository: HighScoreRepository
+    private val highScoreRepository: HighScoreRepository,
+    private val aiEndingForecastRepository: AiEndingForecastRepository
 ) : ViewModel() {
     
     private val _gameState = MutableStateFlow(GameState())
@@ -232,13 +246,40 @@ class GameViewModel(
     }
 
     private fun finishGame(state: GameState, outcome: ColonyOutcome) {
-        val isNewHighScore = outcome.score > highScore.value
         _gameState.value = state
+        _uiState.value = UiState.GameOutcome(
+            outcome = outcome,
+            isNewHighScore = outcome.score > highScore.value,
+            analysisState = EndingForecastState.Loading
+        )
+
         viewModelScope.launch {
-            highScoreRepository.saveHighScore(outcome.score)
-            highScoreRepository.saveRun(outcome)
+            val forecastResult = withTimeoutOrNull(6_500) {
+                aiEndingForecastRepository.enhanceOutcome(outcome)
+            } ?: AiEndingForecastResult.Fallback(
+                reason = "Forecast engine timed out. Using deterministic ending log."
+            )
+
+            val finalOutcome = when (forecastResult) {
+                is AiEndingForecastResult.Success -> forecastResult.outcome
+                is AiEndingForecastResult.Fallback -> outcome
+            }
+            val finalIsNewHighScore = finalOutcome.score > highScore.value
+
+            highScoreRepository.saveHighScore(finalOutcome.score)
+            highScoreRepository.saveRun(finalOutcome)
+
+            val finalAnalysisState = when (forecastResult) {
+                is AiEndingForecastResult.Success -> EndingForecastState.Ready("NVIDIA NIM")
+                is AiEndingForecastResult.Fallback -> EndingForecastState.Fallback(forecastResult.reason)
+            }
+
+            _uiState.value = UiState.GameOutcome(
+                outcome = finalOutcome,
+                isNewHighScore = finalIsNewHighScore,
+                analysisState = finalAnalysisState
+            )
         }
-        _uiState.value = UiState.GameOutcome(outcome, isNewHighScore)
     }
 
     private fun createGameOverOutcome(state: GameState): ColonyOutcome {

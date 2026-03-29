@@ -68,7 +68,9 @@ Current content:
 - Animated outcome hero
 - Settlement classification and settlement name
 - New-high-score indicator
-- Full ending narrative
+- Deterministic ending narrative with AI forecast upgrade when available
+- Structured 10 / 50 / 100 year and terminal verdict timeline
+- AI score review with fallback to the deterministic score on timeout/failure
 - Run breakdown with travel and site stats
 - Expandable vault diagnostics
 - Actions to replay, open leaderboard, or open run history
