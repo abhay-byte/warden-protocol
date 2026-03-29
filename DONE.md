@@ -4,6 +4,30 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Richer Static Event Briefings
+
+- Status: completed
+- Title: Move event detail into the real static event sources and remove repetitive generated filler
+- Goal: Make scan-triggered event descriptions feel richer and more specific by using the actual event source data instead of appending repetitive generic context at runtime.
+- What changed:
+    - Removed the repeated generic event-level boilerplate that had been appended to every generated event description at runtime.
+    - Expanded the static event builder templates in `ExpandedEventCatalog.kt` so each generated vault, surface, cosmic, and apex incident now includes a second sentence tied to its real systems and archive stakes.
+    - Kept the dynamic choice-detail expansion, but simplified its wording so it reads more like an operational summary and less like repeated template narration.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `242176d`
+
+### 2026-03-30 - Music, Button SFX, And Event Risk Badge Removal
+
+- Status: completed
+- Title: Add live music and sound effects with settings control, and remove event choice risk badges
+- Goal: Bring the provided music and button SFX assets into the app, connect them to the existing settings toggles, and remove the visible probability/risk tags from event choice cards.
+- What changed:
+    - Added a new `WardenAudioController` that drives scene-based music playback and distinct button sounds for primary, secondary, navigation, toggle, and danger actions.
+    - Copied the supplied music and button SFX files into `app/src/main/res/raw/` and wired playback through `MainActivity.kt` so the app reacts to the existing settings toggles in real time.
+    - Removed the separate risk/probability badge and survivor-risk line from event choice cards so the choice UI is cleaner and relies on the descriptive body text instead.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `4e10dbe`
+
 ### 2026-03-30 - Event Choice Card Wrapping Fix
 
 - Status: completed
