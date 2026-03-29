@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.GridView
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.SettingsInputComponent
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -155,131 +159,112 @@ private fun SurfaceHeaderRow(gameState: GameState, location: SurfaceLocation) {
         modifier = Modifier
             .fillMaxWidth()
             .background(BackgroundColor)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Filled.Terminal, contentDescription = null, tint = Primary)
+            Icon(
+                imageVector = Icons.Filled.Terminal,
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(24.dp)
+            )
             Column {
                 Text(
-                    "WARDEN_PROTOCOL_v1.0.4",
-                    style = MaterialTheme.typography.titleLarge,
+                    "WARDEN_PROTOCOL_V1.0.4",
+                    style = MaterialTheme.typography.titleMedium,
                     color = Primary,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = (-1).sp
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
                 )
                 Text(
                     "${location.type.displayName()} / YEAR ${gameState.yearsSinceWar}",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextPrimary.copy(alpha = 0.55f)
+                    color = TextPrimary.copy(alpha = 0.55f),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
 
-        Row(
-            modifier = Modifier
-                .background(SurfaceContainerHigh, RoundedCornerShape(999.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Filled.Shield, contentDescription = null, tint = severityColor(location))
-            Text(
-                openingRiskLabel(location),
-                style = MaterialTheme.typography.labelMedium,
-                color = severityColor(location),
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Icon(
+            imageVector = Icons.Filled.Tune,
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 
 @Composable
 private fun VaultStatusPanel(gameState: GameState) {
     val coreAverage = listOf(
-        gameState.vaultSystems.powerGrid,
-        gameState.vaultSystems.foodStores,
-        gameState.vaultSystems.medicalBay,
-        gameState.vaultSystems.securitySystem,
-        gameState.vaultSystems.constructionGear,
-        gameState.vaultSystems.atmosphereScrubbers
-    ).average().toFloat()
+                gameState.vaultSystems.powerGrid,
+                gameState.vaultSystems.foodStores,
+                gameState.vaultSystems.medicalBay,
+                gameState.vaultSystems.securitySystem,
+                gameState.vaultSystems.constructionGear,
+                gameState.vaultSystems.atmosphereScrubbers
+            ).average().toFloat()
 
-    val archiveAverage = listOf(
-        gameState.databases.culturalArchive,
-        gameState.databases.scientificArchive
-    ).average().roundToInt()
-
-    val criticalCount = listOf(
-        gameState.vaultSystems.powerGrid,
-        gameState.vaultSystems.foodStores,
-        gameState.vaultSystems.medicalBay,
-        gameState.vaultSystems.securitySystem,
-        gameState.vaultSystems.constructionGear,
-        gameState.vaultSystems.atmosphereScrubbers,
-        gameState.vaultSystems.radiationScanner,
-        gameState.vaultSystems.waterScanner,
-        gameState.vaultSystems.agriculturalScanner,
-        gameState.vaultSystems.structureScanner,
-        gameState.vaultSystems.resourceScanner,
-        gameState.vaultSystems.threatAssessment,
-        gameState.databases.culturalArchive,
-        gameState.databases.scientificArchive
-    ).count { it <= 15 }
+    val radiationMsv = (0.01f + (100 - gameState.vaultSystems.radiationScanner) * 0.04f)
+    val foodDays = (gameState.vaultSystems.foodStores * 4.2f).toInt()
 
     TacticalPanel(
         modifier = Modifier.padding(horizontal = 16.dp),
-        accent = Secondary
+        accent = Primary
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    GlowingDot(Secondary)
-                    Text(
-                        "VAULT 01 STATUS",
-                        color = Primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    StatusItem("CORE", "${coreAverage.roundToInt()}%", healthColor(coreAverage.roundToInt()))
-                    StatusItem("ARCHIVE", "$archiveAverage%", healthColor(archiveAverage))
-                    StatusItem("CRITICAL", criticalCount.toString(), if (criticalCount == 0) Secondary else Error)
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(SurfaceContainerHighest)
-            ) {
+                // Status Indicator
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(coreAverage / 100f)
-                        .fillMaxSize()
-                        .background(Primary)
+                        .size(14.dp)
+                        .background(Secondary)
+                        .graphicsLayer { shadowElevation = 8.dp.toPx(); ambientShadowColor = Secondary; spotShadowColor = Secondary }
+                )
+                Text(
+                    "VAULT 01 STATUS",
+                    color = Primary,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
                 )
             }
 
-            Text(
-                text = vaultStatusLine(coreAverage.roundToInt(), criticalCount),
-                color = TextPrimary.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.bodySmall
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatusItem("HEALTH", "${String.format("%.1f", coreAverage)}%", Secondary)
+                StatusItem("RADIATION", "${String.format("%.2f", radiationMsv)} mSv", Error.copy(alpha = 0.8f))
+                StatusItem("FOOD RESERVES", "$foodDays DAYS", Primary)
+            }
+
+            // Progress Section
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .background(SurfaceContainerHighest)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(coreAverage / 100f)
+                            .fillMaxSize()
+                            .background(Primary)
+                    )
+                }
+            }
         }
     }
 }
@@ -540,7 +525,12 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation, probeRevealed: Boo
                 )
         )
 
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .tacticalGrid(alpha = 0.12f),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -854,124 +844,139 @@ private fun SurfaceBottomCommandTray(
     onProbe: () -> Unit,
     onOpenVault: () -> Unit
 ) {
+    val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val totalTrayHeight = 112.dp + bottomPadding
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(96.dp)
+            .height(totalTrayHeight)
             .background(BackgroundColor)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .tacticalGrid(alpha = 0.12f)
+            .padding(horizontal = 16.dp)
+            .padding(top = 12.dp, bottom = 12.dp + bottomPadding),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        CommandTile(
+        CrtCommandButton(
             title = "SEARCH",
-            subtitle = "Advance year",
             icon = Icons.Filled.GridView,
             tone = Primary,
             onClick = onSearch,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.width(90.dp)
         )
 
-        CommandTile(
-            title = if (probeRevealed) "PROBE USED" else "PROBE",
-            subtitle = if (probeRevealed) "Deep scan captured" else "Reveal anomaly",
+        CrtCommandButton(
+            title = "PROBE",
             icon = Icons.Filled.Radar,
             tone = Secondary,
             enabled = probesAvailable && !probeRevealed,
             onClick = onProbe,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.width(90.dp)
         )
 
-        OpenVaultTile(
+        CrtVaultButton(
+            title = "OPEN VAULT",
+            subtitle = "AUTHORIZATION REQUIRED",
+            icon = Icons.Filled.PowerSettingsNew,
             location = location,
             onClick = onOpenVault,
-            modifier = Modifier.weight(1.7f)
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-private fun CommandTile(
+private fun CrtCommandButton(
     title: String,
-    subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     tone: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    val contentTone = if (enabled) tone else TextMuted
+    val contentTone = if (enabled) tone else TextMuted.copy(alpha = 0.4f)
+    val backgroundTone = if (enabled) SurfaceContainerHigh else SurfaceContainerLow
 
-    Column(
+    Box(
         modifier = modifier
-            .background(SurfaceContainerHigh)
+            .fillMaxSize()
+            .background(backgroundTone)
+            .border(1.dp, OutlineVariant.copy(alpha = 0.35f))
             .clickable(enabled = enabled) { onClick() }
-            .drawBehind {
-                drawRect(
-                    SurfaceContainerHighest,
-                    topLeft = Offset(0f, size.height - 4.dp.toPx()),
-                    size = size.copy(height = 4.dp.toPx())
-                )
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .tacticalGrid(alpha = 0.18f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = contentTone)
-        Text(
-            title,
-            color = contentTone,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-        Text(
-            subtitle,
-            color = TextPrimary.copy(alpha = 0.55f),
-            style = MaterialTheme.typography.labelSmall
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = contentTone,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                title,
+                color = contentTone,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
+            )
+        }
     }
 }
 
 @Composable
-private fun OpenVaultTile(
+private fun CrtVaultButton(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     location: SurfaceLocation,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val vaultGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF800000), // Brighter red top
+            Color(0xFF500000), // Darker red middle
+            Color(0xFF800000)  // Brighter red bottom
+        )
+    )
+    
     Row(
         modifier = modifier
-            .background(ErrorContainer)
+            .fillMaxSize()
+            .background(vaultGradient)
+            .border(1.dp, Color(0xFFC00000).copy(alpha = 0.3f))
             .clickable { onClick() }
-            .drawBehind {
-                drawRect(
-                    Color(0xFF690005),
-                    topLeft = Offset(0f, size.height - 4.dp.toPx()),
-                    size = size.copy(height = 4.dp.toPx())
-                )
-            }
-            .padding(horizontal = 20.dp),
+            .tacticalGrid(alpha = 0.20f, horizontalSpacing = 2.dp, verticalSpacing = 3.dp)
+            .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(verticalArrangement = Arrangement.Center) {
             Text(
-                "OPEN VAULT",
-                color = OnErrorContainer,
-                style = MaterialTheme.typography.titleLarge,
+                title.uppercase(),
+                color = Color.White,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black,
                 letterSpacing = (-1).sp
             )
             Text(
-                "Commit to ${location.name}",
-                color = OnErrorContainer.copy(0.7f),
-                style = MaterialTheme.typography.labelSmall
+                subtitle.uppercase(),
+                color = Color.White.copy(alpha = 0.55f),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp
             )
         }
 
         Icon(
-            Icons.Filled.PowerSettingsNew,
+            icon,
             contentDescription = null,
-            tint = severityColor(location),
-            modifier = Modifier.size(30.dp)
+            tint = Color.White,
+            modifier = Modifier.size(36.dp)
         )
     }
 }
@@ -987,6 +992,7 @@ private fun TacticalPanel(
             .fillMaxWidth()
             .background(SurfaceContainerLow)
             .border(1.dp, OutlineVariant.copy(alpha = 0.2f))
+            .tacticalGrid(alpha = 0.08f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
             .padding(16.dp)
     ) {
         Box(
@@ -1269,5 +1275,36 @@ private fun SurfaceScanlineOverlay() {
             )
             x += verticalSpacing
         }
+    }
+}
+
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    
+    // Horizontal Scanlines
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    // Vertical Phosphor Columns
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
     }
 }

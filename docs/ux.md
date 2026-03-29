@@ -83,7 +83,7 @@ Current content:
 - Summary panel with top entry and ranked run count
 - Return to main menu
 - Start new mission shortcut
-- Ranked list with score, site, survivors, years, and completion date
+- Ranked list with archived location thumbnails, score, site, survivors, years, outcome status, and completion date
 
 ### 7. Run History
 
@@ -95,7 +95,7 @@ Current content:
 - Archived run count
 - Return to main menu
 - Start new mission shortcut
-- Reverse-chronological outcome list with summary text
+- Reverse-chronological outcome cards with per-run location art, score, survivors, duration, outcome status, and narrative summary
 
 ### 8. Quit Confirmation Modal
 
@@ -128,7 +128,7 @@ Current content:
 - There is no onboarding or first-run tutorial for scanners, probes, or archive value.
 - The game has no inline explanation for how score is computed.
 - Event choices still depend heavily on text density and could use clearer consequence grouping.
-- Leaderboard and history are read-only and lack filters, detail drill-down, or comparison tools.
+- Leaderboard and history are still read-only and lack filters, drill-down beyond the saved summary, or comparison tools.
 - Accessibility work is still missing for larger text, screen-reader labeling, and stronger non-color cues.
 
 ## Future UX Plan

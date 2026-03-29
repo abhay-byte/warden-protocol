@@ -2,10 +2,8 @@ package com.wardenprotocol.game.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,21 +16,17 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wardenprotocol.game.data.model.RunRecord
 import com.wardenprotocol.game.ui.component.ActionButton
 import com.wardenprotocol.game.ui.component.CommandPanel
+import com.wardenprotocol.game.ui.component.RunArchiveCard
 import com.wardenprotocol.game.ui.component.StatusBadge
 import com.wardenprotocol.game.ui.component.WardenBackdrop
 import com.wardenprotocol.game.ui.theme.SignalCyan
-import com.wardenprotocol.game.ui.theme.TextPrimary
 import com.wardenprotocol.game.ui.theme.TextSecondary
 import com.wardenprotocol.game.ui.theme.VaultGreen
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun HistoryScreen(
@@ -70,6 +64,7 @@ fun HistoryScreen(
                 accent = SignalCyan,
                 onClick = onBack
             )
+
             ActionButton(
                 title = "Start New Mission",
                 subtitle = "Jump straight from the archive into a new run.",
@@ -80,7 +75,7 @@ fun HistoryScreen(
 
             CommandPanel(
                 title = "Recent Outcomes",
-                subtitle = "Latest runs first",
+                subtitle = "Latest runs first with archived site records",
                 icon = Icons.Filled.AccessTime,
                 accent = SignalCyan
             ) {
@@ -92,7 +87,7 @@ fun HistoryScreen(
                     )
                 } else {
                     entries.forEachIndexed { index, entry ->
-                        HistoryEntry(entry = entry)
+                        RunArchiveCard(entry = entry)
                         if (index != entries.lastIndex) {
                             Spacer(modifier = Modifier.height(10.dp))
                         }
@@ -101,50 +96,4 @@ fun HistoryScreen(
             }
         }
     }
-}
-
-@Composable
-private fun HistoryEntry(entry: RunRecord) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = entry.classification,
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
-            )
-            Text(
-                text = formatArchiveDate(entry.completedAtMillis),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-        }
-        Text(
-            text = "${entry.settlementName}  |  ${entry.locationName}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
-        )
-        Text(
-            text = "${entry.score} score  |  ${entry.survivors} survivors  |  ${entry.yearsSinceWar} years underground",
-            style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
-        )
-        Text(
-            text = entry.summary,
-            style = MaterialTheme.typography.bodyLarge,
-            color = TextSecondary
-        )
-    }
-}
-
-private fun formatArchiveDate(timestamp: Long): String {
-    if (timestamp == 0L) return "Unknown"
-    return DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
-        .format(Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()))
 }

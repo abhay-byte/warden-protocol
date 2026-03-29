@@ -141,24 +141,36 @@ private fun EventTopBar() {
         modifier = Modifier
             .fillMaxWidth()
             .background(BackgroundColor)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Filled.Terminal, contentDescription = null, tint = Primary)
+            Icon(
+                imageVector = Icons.Filled.Terminal,
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(24.dp)
+            )
             Text(
-                "WARDEN_PROTOCOL_v1.0.4",
-                style = MaterialTheme.typography.titleLarge,
+                text = "WARDEN_PROTOCOL_V1.0.4",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
                 color = Primary,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-1).sp
+                letterSpacing = (-0.5).sp
             )
         }
-        Icon(Icons.Filled.SettingsInputComponent, contentDescription = null, tint = Primary.copy(0.6f))
+
+        Icon(
+            imageVector = Icons.Filled.Tune,
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 
@@ -217,9 +229,10 @@ private fun ThreatVisualizer(event: GameEvent) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .aspectRatio(1.2f)
             .background(Color(0xFF0D0F0F))
             .border(1.dp, Color.White.copy(0.1f))
+            .tacticalGrid(alpha = 0.12f)
             .padding(8.dp)
     ) {
         // Target Labels
@@ -299,6 +312,7 @@ private fun TelemetryAnalysis(eventId: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(SurfaceContainerLow)
+            .tacticalGrid(alpha = 0.07f)
             .drawBehind {
                 drawRect(Primary, size = size.copy(width = 4.dp.toPx()))
             }
@@ -372,6 +386,7 @@ private fun ApexThreatHeader(title: String, description: String) {
                 .fillMaxWidth()
                 .background(Color(0xFF0D0F0F))
                 .border(1.dp, Color.White.copy(0.05f))
+                .tacticalGrid(alpha = 0.07f)
                 .padding(24.dp)
         ) {
             Text(
@@ -423,7 +438,8 @@ private fun ProtocolChoiceCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .tacticalGrid(alpha = 0.12f, horizontalSpacing = 2.dp, verticalSpacing = 3.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceContainerHigh),
         shape = RoundedCornerShape(0.dp)
     ) {
@@ -519,31 +535,40 @@ private fun MetricLine(icon: androidx.compose.ui.graphics.vector.ImageVector, la
 
 @Composable
 private fun EventCRTOverlay() {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val width = size.width
-        val height = size.height
-        
-        // Horizontal Line Effect
-        val horizontalSpacing = 4.dp.toPx()
-        var y = 0f
-        while (y < height) {
-            drawRect(
-                color = Color.Black.copy(alpha = 0.12f),
-                topLeft = Offset(0f, y),
-                size = Size(width, 1.dp.toPx())
-            )
-            y += horizontalSpacing
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .tacticalGrid(alpha = 0.05f, horizontalSpacing = 3.dp, verticalSpacing = 5.dp)
+    )
+}
 
-        // Vertical RGB Pixel Matrix Simulation
-        val verticalSpacing = 3.dp.toPx()
-        val columnWidth = 1.dp.toPx()
-        var x = 0f
-        while (x < width) {
-            drawRect(color = Color(255, 0, 0, (255 * 0.02).toInt()), topLeft = Offset(x, 0f), size = Size(columnWidth, height))
-            drawRect(color = Color(0, 255, 0, (255 * 0.01).toInt()), topLeft = Offset(x + columnWidth, 0f), size = Size(columnWidth, height))
-            drawRect(color = Color(0, 0, 255, (255 * 0.02).toInt()), topLeft = Offset(x + 2 * columnWidth, 0f), size = Size(columnWidth, height))
-            x += verticalSpacing
-        }
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    
+    // Horizontal Scanlines
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    // Vertical Phosphor Columns
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
     }
 }

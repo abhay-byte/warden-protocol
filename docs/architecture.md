@@ -17,6 +17,8 @@ Owns the game domain data:
 - `ColonyOutcome`
 - `RunRecord`
 
+`RunRecord` persists the archive-facing snapshot for completed runs, including score, settlement name, location name, location type, duration, survivors, outcome label, grade label, and summary text used by leaderboard and history cards.
+
 ### `data/repository`
 
 Owns content and persistence:

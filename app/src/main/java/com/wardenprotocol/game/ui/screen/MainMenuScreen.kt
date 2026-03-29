@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
@@ -165,37 +167,39 @@ fun MainMenuScreen(
 
 @Composable
 private fun HomeTopBar() {
-    val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(HomeBackground)
-            .padding(top = topPadding, start = 16.dp, end = 16.dp, bottom = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(HomeBackground)
+                .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Filled.Security,
+                imageVector = Icons.Filled.Terminal,
                 contentDescription = null,
                 tint = HomeAmber,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(24.dp)
             )
             Text(
-                text = "WARDEN_PROTOCOL_v1.0.4",
-                style = MaterialTheme.typography.labelLarge,
-                color = HomeAmber
+                text = "WARDEN_PROTOCOL_V1.0.4",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                color = HomeAmber,
+                letterSpacing = (-0.5).sp
             )
         }
 
         Icon(
-            imageVector = Icons.Filled.Settings,
+            imageVector = Icons.Filled.Tune,
             contentDescription = null,
             tint = HomeAmber,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }
@@ -282,6 +286,12 @@ private fun MobileHomeContent(
             .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 84.dp + navPadding),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        HomeHeroPanel(
+            runCount = runCount,
+            lastRun = lastRun,
+            topRun = leaderboardPreview.firstOrNull()
+        )
+        StartMissionButton(onClick = onNewGame)
         ArchiveStatsPanel(
             highScore = highScore,
             successfulRuns = successfulRuns,
@@ -297,12 +307,6 @@ private fun MobileHomeContent(
             icon = Icons.Filled.EmojiEvents,
             onClick = onOpenLeaderboard
         )
-        HomeHeroPanel(
-            runCount = runCount,
-            lastRun = lastRun,
-            topRun = leaderboardPreview.firstOrNull()
-        )
-        StartMissionButton(onClick = onNewGame)
         DiagnosticsPanel()
         BroadcastInterceptPanel()
         TacticalOverlayPanel()
@@ -363,6 +367,7 @@ private fun StatTile(
         modifier = Modifier
             .fillMaxWidth()
             .background(HomePanelLow)
+            .tacticalGrid(alpha = 0.07f)
             .padding(14.dp)
             .drawBehind {
                 drawRect(
@@ -400,6 +405,7 @@ private fun SideCommandButton(
             .fillMaxWidth()
             .background(HomePanelHigh)
             .clickable(onClick = onClick)
+            .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
             .padding(horizontal = 14.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -599,6 +605,7 @@ private fun MiniTelemetryCard(
     Column(
         modifier = modifier
             .background(HomePanelLow)
+            .tacticalGrid(alpha = 0.08f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
             .padding(12.dp)
     ) {
         Text(
@@ -639,6 +646,7 @@ private fun StartMissionButton(onClick: () -> Unit) {
                 indication = null,
                 onClick = onClick
             )
+            .tacticalGrid(alpha = 0.18f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
             .drawBehind {
                 // Bottom shadow/3D edge
                 drawRect(
@@ -736,6 +744,7 @@ private fun BroadcastInterceptPanel() {
         modifier = Modifier
             .fillMaxWidth()
             .background(HomePanelLow)
+            .tacticalGrid(alpha = 0.10f)
             .padding(14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -768,6 +777,7 @@ private fun TacticalOverlayPanel() {
             .fillMaxWidth()
             .height(160.dp)
             .background(HomePanelLow)
+            .tacticalGrid(alpha = 0.10f)
             .clip(RectangleShape)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -874,10 +884,12 @@ private fun BottomCommandItem(
     modifier: Modifier = Modifier,
     active: Boolean = false
 ) {
+    val background = if (active) HomeAmberStrong else HomeBackground
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(if (active) HomeAmberStrong else HomeBackground),
+            .background(background)
+            .tacticalGrid(alpha = if (active) 0.18f else 0.08f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -904,6 +916,7 @@ private fun IndustrialPanel(
     Column(
         modifier = modifier
             .background(HomePanel)
+            .tacticalGrid(alpha = 0.07f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
             .drawBehind {
                 // Main subtle gradient
                 drawRect(
@@ -1027,4 +1040,35 @@ private fun formatScore(score: Int): String = "%,d".format(score)
 private fun buildNetworkLoad(runCount: Int): String {
     val load = 4.2f + (runCount.coerceAtMost(18) * 0.07f)
     return "${"%.1f".format(load)} TB/S"
+}
+
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    
+    // Horizontal Scanlines
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    // Vertical Phosphor Columns
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
+    }
 }

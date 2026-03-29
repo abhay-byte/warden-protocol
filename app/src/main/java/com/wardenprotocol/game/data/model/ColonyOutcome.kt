@@ -13,6 +13,7 @@ data class OutcomeStats(
     val yearsSinceWar: Int,
     val deaths: Int,
     val locationName: String,
+    val locationTypeName: String,
     val travelRoute: String,
     val travelTime: String,
     val travelRisk: String,

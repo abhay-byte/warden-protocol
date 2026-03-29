@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wardenprotocol.game.data.model.ColonyOutcome
 import com.wardenprotocol.game.data.model.RunRecord
+import com.wardenprotocol.game.data.model.buildArchiveGradeLabel
+import com.wardenprotocol.game.data.model.buildArchiveOutcomeLabel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
@@ -55,7 +57,17 @@ class HighScoreRepository(private val context: Context) {
                 survivors = stats?.survivors ?: 0,
                 yearsSinceWar = stats?.yearsSinceWar ?: 0,
                 completedAtMillis = System.currentTimeMillis(),
-                summary = outcome.narrative.take(220)
+                summary = outcome.narrative.take(320),
+                locationTypeName = stats?.locationTypeName.orEmpty(),
+                outcomeLabel = buildArchiveOutcomeLabel(
+                    score = outcome.score,
+                    classification = outcome.classification,
+                    stats = stats
+                ),
+                gradeLabel = buildArchiveGradeLabel(
+                    score = outcome.score,
+                    classification = outcome.classification
+                )
             )
             existing.add(0, record)
             preferences[RUN_HISTORY_KEY] = encodeRunHistory(existing.take(25))
@@ -79,7 +91,10 @@ class HighScoreRepository(private val context: Context) {
                             survivors = item.optInt("survivors"),
                             yearsSinceWar = item.optInt("yearsSinceWar"),
                             completedAtMillis = item.optLong("completedAtMillis"),
-                            summary = item.optString("summary")
+                            summary = item.optString("summary"),
+                            locationTypeName = item.optString("locationTypeName"),
+                            outcomeLabel = item.optString("outcomeLabel"),
+                            gradeLabel = item.optString("gradeLabel")
                         )
                     )
                 }
@@ -101,6 +116,9 @@ class HighScoreRepository(private val context: Context) {
                     put("yearsSinceWar", entry.yearsSinceWar)
                     put("completedAtMillis", entry.completedAtMillis)
                     put("summary", entry.summary)
+                    put("locationTypeName", entry.locationTypeName)
+                    put("outcomeLabel", entry.outcomeLabel)
+                    put("gradeLabel", entry.gradeLabel)
                 }
             )
         }

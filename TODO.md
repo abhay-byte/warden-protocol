@@ -1,29 +1,6 @@
 # TODO
-
-This file tracks the current task in progress.
-
-## Active Task
-
-- Status: idle
-- Title:
-- Requested by:
-- Requested at:
-- Goal:
-- Notes:
-- Verification status:
-- Planned checks:
-  - [ ] Build with Gradle
-  - [ ] Run on device with `adb`
-  - [ ] Commit changes
-  - [ ] Push to `origin`
-
-## How We Use This
-
-When you send a new task, I will:
-
-1. Write it into `TODO.md`.
-2. Implement the change.
-3. Build the app.
-4. Run or install it through `adb`.
-5. Commit and push the branch.
-6. Move the completed item into `DONE.md`.
+- [ ] Warden HUD Unification & Height Bug Resolution
+    - Requested At: 2026-03-29 22:39
+    - Goal: Universal Top Bar parity, Vault Status redesign, and command tray height fix.
+    - Notes: Fixes the 'Towering Tray' regression and ensures all archives match the home deck.
+    - Verification Status: PENDING

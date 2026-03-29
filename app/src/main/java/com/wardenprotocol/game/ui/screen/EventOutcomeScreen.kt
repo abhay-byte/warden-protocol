@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -100,23 +101,68 @@ private fun OutcomeTopBar() {
         modifier = Modifier
             .fillMaxWidth()
             .background(BackgroundColor)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Filled.Terminal, contentDescription = null, tint = Primary)
+            Icon(
+                imageVector = Icons.Filled.Terminal,
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(24.dp)
+            )
             Text(
-                "WARDEN_PROTOCOL_v1.0.4",
-                style = MaterialTheme.typography.titleLarge,
+                text = "WARDEN_PROTOCOL_V1.0.4",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
                 color = Primary,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-1).sp
+                letterSpacing = (-0.5).sp
             )
         }
+
+        Icon(
+            imageVector = Icons.Filled.Tune,
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    
+    // Horizontal Scanlines
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    // Vertical Phosphor Columns
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
     }
 }
 

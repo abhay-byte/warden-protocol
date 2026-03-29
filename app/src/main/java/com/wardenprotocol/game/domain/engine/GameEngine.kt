@@ -497,6 +497,7 @@ class GameEngine(private val eventRepository: EventRepository) {
                 yearsSinceWar = state.yearsSinceWar,
                 deaths = 1000 - state.survivors,
                 locationName = location.name,
+                locationTypeName = location.type.name,
                 travelRoute = location.travelProfile.routeName,
                 travelTime = location.travelProfile.durationText,
                 travelRisk = location.travelProfile.riskLevel.displayName,

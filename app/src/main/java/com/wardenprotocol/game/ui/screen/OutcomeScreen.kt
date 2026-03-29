@@ -70,31 +70,12 @@ fun OutcomeScreen(
                 )
             )
     ) {
-        // CRT Scanlines & RGB Matrix Effect
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val scanlineCount = (size.height / 3f).toInt()
-            for (i in 0 until scanlineCount) {
-                val y = i * 3f
-                drawLine(
-                    color = Color.Black.copy(alpha = 0.15f),
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1f
-                )
-            }
-            
-            val pixelDensity = 6f
-            for (x in 0 until (size.width / pixelDensity).toInt()) {
-                for (y in 0 until (size.height / pixelDensity).toInt()) {
-                    if ((x + y) % 2 == 0) continue
-                    drawRect(
-                        color = Color.White.copy(alpha = 0.02f),
-                        topLeft = Offset(x * pixelDensity, y * pixelDensity),
-                        size = Size(1f, 1f)
-                    )
-                }
-            }
-        }
+        // Global Calibrated Baseline Grid
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .tacticalGrid(alpha = 0.05f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+        )
 
         Column(
             modifier = Modifier
@@ -135,30 +116,31 @@ private fun TacticalMissionHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
             .padding(horizontal = 24.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             Icon(
-                Icons.Filled.Terminal, 
-                contentDescription = null, 
-                tint = Primary, 
+                imageVector = Icons.Filled.Terminal,
+                contentDescription = null,
+                tint = Primary,
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                "WARDEN_PROTOCOL_v1.0.4",
+                "WARDEN_PROTOCOL_V1.0.4",
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-1).sp
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-0.5).sp
             )
         }
         Icon(
-            Icons.Filled.SettingsInputComponent,
+            imageVector = Icons.Filled.Tune,
             contentDescription = null,
             tint = Primary,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }
@@ -171,6 +153,7 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
             .height(280.dp)
             .border(1.dp, Primary.copy(alpha = 0.1f))
             .background(SurfaceContainerLowest)
+            .tacticalGrid(alpha = 0.10f)
             .clip(RoundedCornerShape(0.dp))
     ) {
         // Hero Image Backdrop (Grayscale/Dimmed)
@@ -318,6 +301,7 @@ private fun RunBreakdownSection(stats: OutcomeStats?) {
         modifier = Modifier
             .fillMaxWidth()
             .background(SurfaceContainerLowest.copy(alpha = 0.5f))
+            .tacticalGrid(alpha = 0.07f)
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -384,6 +368,7 @@ private fun VaultStatusSection(stats: OutcomeStats?) {
                 )
             }
             .background(SurfaceContainerHigh)
+            .tacticalGrid(alpha = 0.07f)
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -428,7 +413,8 @@ private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, on
             onClick = onRestart,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp),
+                .height(64.dp)
+                .tacticalGrid(alpha = 0.18f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryContainer),
             shape = RoundedCornerShape(0.dp)
         ) {
@@ -447,7 +433,8 @@ private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, on
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(
                 onClick = onArchive,
-                modifier = Modifier.weight(1f).height(56.dp),
+                modifier = Modifier.weight(1f).height(56.dp)
+                    .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
@@ -455,7 +442,8 @@ private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, on
             }
             OutlinedButton(
                 onClick = onMenu,
-                modifier = Modifier.weight(1f).height(56.dp),
+                modifier = Modifier.weight(1f).height(56.dp)
+                    .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp),
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
@@ -466,3 +454,34 @@ private fun GlobalActionSection(onRestart: () -> Unit, onArchive: () -> Unit, on
 }
 
 private fun borderStroke(width: androidx.compose.ui.unit.Dp, color: Color) = androidx.compose.foundation.BorderStroke(width, color)
+
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    
+    // Horizontal Scanlines
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    // Vertical Phosphor Columns
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
+    }
+}

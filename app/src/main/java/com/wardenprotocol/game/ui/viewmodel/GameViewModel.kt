@@ -240,6 +240,7 @@ class GameViewModel(
                 yearsSinceWar = state.yearsSinceWar,
                 deaths = 1000,
                 locationName = locationName,
+                locationTypeName = state.currentLocation?.type?.name.orEmpty(),
                 travelRoute = state.currentLocation?.travelProfile?.routeName ?: "Unavailable",
                 travelTime = state.currentLocation?.travelProfile?.durationText ?: "Unavailable",
                 travelRisk = state.currentLocation?.travelProfile?.riskLevel?.displayName ?: "Unknown",
