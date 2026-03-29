@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Multi-Event Search Chains And Forecast Reliability Fix
+
+- Status: completed
+- Title: Let a single search trigger multiple events in sequence and fix missing long-range result responses
+- Goal: Support real chained events between scans, where one `Search` can surface multiple consecutive events with each extra event becoming 20 percent less likely than the previous one, while also making the long-range result generation respond more reliably and keeping the forecast token budget at `1024`.
+- What changed:
+    - Reworked the scan-event flow so `continueSearching()` now builds an event chain and stores the remaining events in `GameState.pendingEvents`, instead of showing only one event per scan.
+    - Updated `dismissEventOutcome()` so it keeps stepping through queued events before generating the next surface location, which is the core behavior needed for true multi-event searches.
+    - Removed the earlier per-event weighting approach and documented the actual chain behavior in `docs/gameplay.md`.
+    - Tightened the forecast request strategy in `AiEndingForecastRepository.kt`, kept the structured JSON prompt approach, restored both request attempts to `max_tokens = 1024`, and prevented surviving runs from being flattened to a zero score by the long-range adjustment.
+- Verification: `./gradlew :app:assembleDebug` succeeded, the configured model endpoint responded successfully in a local smoke test, and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `5469f82`
+
 ### 2026-03-30 - Remove Archive Start Button
 
 - Status: completed
