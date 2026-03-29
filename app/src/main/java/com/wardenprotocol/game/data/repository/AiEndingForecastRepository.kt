@@ -27,11 +27,44 @@ class AiEndingForecastRepository {
             return@withContext AiEndingForecastResult.Fallback("Forecast engine offline: missing NVIDIA API key.")
         }
 
+        val firstAttempt = requestForecast(
+            baseOutcome = baseOutcome,
+            apiKey = apiKey,
+            maxTokens = 1024,
+            compactPrompt = false
+        )
+        if (firstAttempt is AiEndingForecastResult.Success) {
+            return@withContext firstAttempt
+        }
+
+        val secondAttempt = requestForecast(
+            baseOutcome = baseOutcome,
+            apiKey = apiKey,
+            maxTokens = 720,
+            compactPrompt = true
+        )
+        return@withContext when (secondAttempt) {
+            is AiEndingForecastResult.Success -> secondAttempt
+            is AiEndingForecastResult.Fallback -> {
+                val firstReason = (firstAttempt as AiEndingForecastResult.Fallback).reason
+                AiEndingForecastResult.Fallback(
+                    reason = "$firstReason Retry failed: ${secondAttempt.reason}"
+                )
+            }
+        }
+    }
+
+    private fun requestForecast(
+        baseOutcome: ColonyOutcome,
+        apiKey: String,
+        maxTokens: Int,
+        compactPrompt: Boolean
+    ): AiEndingForecastResult {
         val requestBody = JSONObject().apply {
             put("model", BuildConfig.NVIDIA_NIM_MODEL)
             put("temperature", 0.2)
             put("top_p", 0.7)
-            put("max_tokens", 1024)
+            put("max_tokens", maxTokens)
             put("stream", false)
             put(
                 "messages",
@@ -45,18 +78,18 @@ class AiEndingForecastRepository {
                     put(
                         JSONObject().apply {
                             put("role", "user")
-                            put("content", buildUserPrompt(baseOutcome))
+                            put("content", buildUserPrompt(baseOutcome, compactPrompt))
                         }
                     )
                 }
             )
         }
 
-        return@withContext runCatching {
+        return runCatching {
             val connection = (URL("${BuildConfig.NVIDIA_NIM_BASE_URL}/chat/completions").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
-                connectTimeout = 6_000
-                readTimeout = 6_000
+                connectTimeout = 10_000
+                readTimeout = 20_000
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("Authorization", "Bearer $apiKey")
@@ -160,7 +193,7 @@ class AiEndingForecastRepository {
         return rawContent.substring(start, end + 1)
     }
 
-    private fun buildUserPrompt(outcome: ColonyOutcome): String {
+    private fun buildUserPrompt(outcome: ColonyOutcome, compactPrompt: Boolean): String {
         val stats = outcome.detailedStats
         return buildString {
             appendLine("You are the ending-analysis engine for a brutal post-nuclear survival game.")
@@ -185,60 +218,80 @@ class AiEndingForecastRepository {
             appendLine("5. Adjust the score based on long-term sustainability, logistics, environmental fitness, archive preservation, and realism.")
             appendLine()
             appendLine("RETURN THIS EXACT JSON SHAPE")
-            appendLine(
-                """
-                {
-                  "score_adjustment": {
-                    "delta": -420,
-                    "reason": "The route and long-term water scarcity make the initial score too optimistic."
-                  },
-                  "headline": "RESOURCE DEPLETION",
-                  "civilization_verdict": "The settlement survives its first decade but never escapes scarcity and dies before a true state can form.",
-                  "failure_causes": [
-                    "Water access never becomes dependable.",
-                    "Travel attrition removed too much skilled labor before construction began.",
-                    "Hostility pressure forced resources into defense instead of renewal."
-                  ],
-                  "survival_drivers": [
-                    "Archive continuity preserved technical memory.",
-                    "Security discipline delayed immediate collapse."
-                  ],
-                  "timeline": [
-                    {
-                      "marker": "10 YEARS",
-                      "title": "The First Scarcity Decade",
-                      "status": "Bare Survival",
-                      "population_estimate": "640 survivors",
-                      "narrative": "They are alive, but only because rationing is absolute and every machine is cannibalized faster than it is repaired."
-                    },
-                    {
-                      "marker": "50 YEARS",
-                      "title": "Inheritance of Ruin",
-                      "status": "Declining",
-                      "population_estimate": "210 survivors",
-                      "narrative": "The second generation inherits doctrine instead of abundance. The settlement still stands, but mostly as a harder method of starving slowly."
-                    },
-                    {
-                      "marker": "100 YEARS",
-                      "title": "The Last Ledger",
-                      "status": "Near Collapse",
-                      "population_estimate": "43 survivors",
-                      "narrative": "By the century mark the archives matter more than the bloodline because there are barely enough people left to read them."
-                    },
-                    {
-                      "marker": "FINAL",
-                      "title": "Terminal Verdict",
-                      "status": "Extinction",
-                      "population_estimate": "0 survivors",
-                      "narrative": "The colony dies without re-establishing civilization. Its failure is logistical first, environmental second, and only then moral."
-                    }
-                  ],
-                  "detailed_narrative": "A long-form, dark, honest narrative that synthesizes all of the above into one cohesive ending report."
-                }
-                """.trimIndent()
-            )
+            appendLine(exampleJson(compactPrompt))
         }
     }
+
+    private fun exampleJson(compactPrompt: Boolean): String =
+        if (compactPrompt) {
+            """
+            {
+              "score_adjustment": {"delta": -220, "reason": "The route losses and weak long-term sustainability lower the final value."},
+              "headline": "FRAGILE SURVIVAL",
+              "civilization_verdict": "They endure for a time but remain one failed season away from collapse.",
+              "failure_causes": ["Thin labor pool.", "Environmental pressure."],
+              "survival_drivers": ["Archive retention.", "Discipline."],
+              "timeline": [
+                {"marker": "10 YEARS", "title": "Holding Pattern", "status": "Alive", "population_estimate": "Unknown", "narrative": "They survive through strict rationing and salvage."},
+                {"marker": "50 YEARS", "title": "Attrition", "status": "Declining", "population_estimate": "Unknown", "narrative": "The second generation inherits scarcity instead of renewal."},
+                {"marker": "100 YEARS", "title": "Century Mark", "status": "Critical", "population_estimate": "Unknown", "narrative": "What remains is stubborn survival, not recovered civilization."},
+                {"marker": "FINAL", "title": "Verdict", "status": "Terminal", "population_estimate": "Unknown", "narrative": "State plainly whether they rebuild civilization or die out, and why."}
+              ],
+              "detailed_narrative": "A dark, cohesive ending report."
+            }
+            """.trimIndent()
+        } else {
+            """
+            {
+              "score_adjustment": {
+                "delta": -420,
+                "reason": "The route and long-term water scarcity make the initial score too optimistic."
+              },
+              "headline": "RESOURCE DEPLETION",
+              "civilization_verdict": "The settlement survives its first decade but never escapes scarcity and dies before a true state can form.",
+              "failure_causes": [
+                "Water access never becomes dependable.",
+                "Travel attrition removed too much skilled labor before construction began.",
+                "Hostility pressure forced resources into defense instead of renewal."
+              ],
+              "survival_drivers": [
+                "Archive continuity preserved technical memory.",
+                "Security discipline delayed immediate collapse."
+              ],
+              "timeline": [
+                {
+                  "marker": "10 YEARS",
+                  "title": "The First Scarcity Decade",
+                  "status": "Bare Survival",
+                  "population_estimate": "640 survivors",
+                  "narrative": "They are alive, but only because rationing is absolute and every machine is cannibalized faster than it is repaired."
+                },
+                {
+                  "marker": "50 YEARS",
+                  "title": "Inheritance of Ruin",
+                  "status": "Declining",
+                  "population_estimate": "210 survivors",
+                  "narrative": "The second generation inherits doctrine instead of abundance. The settlement still stands, but mostly as a harder method of starving slowly."
+                },
+                {
+                  "marker": "100 YEARS",
+                  "title": "The Last Ledger",
+                  "status": "Near Collapse",
+                  "population_estimate": "43 survivors",
+                  "narrative": "By the century mark the archives matter more than the bloodline because there are barely enough people left to read them."
+                },
+                {
+                  "marker": "FINAL",
+                  "title": "Terminal Verdict",
+                  "status": "Extinction",
+                  "population_estimate": "0 survivors",
+                  "narrative": "The colony dies without re-establishing civilization. Its failure is logistical first, environmental second, and only then moral."
+                }
+              ],
+              "detailed_narrative": "A long-form, dark, honest narrative that synthesizes all of the above into one cohesive ending report."
+            }
+            """.trimIndent()
+        }
 
     private fun formatStats(stats: OutcomeStats?): String {
         if (stats == null) return "No detailed telemetry available."
