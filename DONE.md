@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Event Choice Card Wrapping Fix
+
+- Status: completed
+- Title: Fix cramped wrapping and truncation in the event choice cards
+- Goal: Keep the existing event-page styling while making long option titles, risk badges, and detail text render cleanly on narrow mobile screens.
+- What changed:
+    - Reworked the protocol choice-card header so the risk badge no longer fights the option title for the same horizontal row.
+    - Let the option body keep more usable width and improved body text spacing for the expanded event briefings.
+    - Stacked the metric lines in a stable vertical group so they stay readable instead of forcing the card into awkward narrow wrapping.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `92b0da8`
+
 ### 2026-03-29 - Expanded Static Event Briefings
 
 - Status: completed
