@@ -4,6 +4,15 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Surface Scan Gameplay Integration In New UI
+
+- Status: completed
+- Title: Map the real game features onto the surface scan page, remove placeholders, and keep the newer custom UI
+- Goal: Make the surface scan page reflect the actual gameplay and docs, including scanner-gated telemetry, transit risk, probe and anomaly intel, bunker status, and real action states, without falling back to the older shared panel UI.
+- What changed: Reworked `GameScreen.kt` around live `GameState` and `SurfaceLocation` data; replaced hardcoded telemetry, fake transit data, and placeholder sections with real scanner, probe, anomaly, transit, and alert information; and restored the custom surface-scan visual treatment while keeping the new gameplay mapping in that layout.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `1d175c2`
+
 ### 2026-03-25 - Result Casualty Wording Fix
 
 - Status: completed
