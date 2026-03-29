@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - AI Ending Forecast System
+
+- Status: completed
+- Title: Add AI-generated ending forecasts with structured score adjustment and deterministic fallback
+- Goal: Enhance the result screen with a dark, brutally honest, structured long-range ending analysis that uses full run telemetry, can revise score, and safely falls back to the existing deterministic ending if the AI path fails or times out.
+- What changed:
+    - Added an NVIDIA NIM-backed `AiEndingForecastRepository` that sends the full outcome, location, travel, survivor, archive, and vault-system context through a strict JSON-only prompt with an embedded example response.
+    - Extended the outcome pipeline so the result screen first shows the deterministic ending, then upgrades to the structured AI forecast if it returns in time; otherwise it preserves the current ending text and score as the fallback.
+    - Updated `OutcomeScreen.kt` to render AI forecast status, score-review reasoning, 10/50/100/final timeline beats, and explicit failure/survival drivers while replacing fake breakdown values with real travel and vault telemetry.
+    - Wired the NVIDIA key through ignored local Gradle properties instead of tracked source, and updated the maintained docs to reflect the AI-enhanced ending flow.
+- Verification: `./gradlew :app:assembleDebug` succeeded, the debug APK was installed and launched on device `d30a1726` via `adb`, and a live NVIDIA NIM JSON-response smoke test succeeded against `meta/llama-3.3-70b-instruct`.
+- Commit: `d203863`
+
 ### 2026-03-29 - Archive Run Cards With Location Art
 
 - Status: completed
