@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Remove Archive Start Button
+
+- Status: completed
+- Title: Remove the start new mission button from the archive page
+- Goal: Simplify the archive screen by removing the floating start action so it focuses only on archive navigation and saved-run access.
+- What changed:
+    - Removed the floating `START NEW MISSION` button block from `HistoryScreen.kt`.
+    - Dropped the now-unused archive-screen `onNewGame` callback from `HistoryScreen.kt` and its caller in `MainActivity.kt`.
+    - Kept the rest of the archive layout, card interactions, and navigation behavior unchanged.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `6396211`
+
 ### 2026-03-30 - Ending Wait Screen Freeze Fix
 
 - Status: completed
