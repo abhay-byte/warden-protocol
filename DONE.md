@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Steeper Event Chains And Nemotron Streaming Forecast
+
+- Status: completed
+- Title: Make long scan-event chains much rarer and switch the forecast client to Nemotron nano streaming
+- Goal: Keep multiple events possible within a single `Search`, but make the chain fall off sharply enough that a 5th event is near-zero probability, and move the ending forecast client to the requested `nvidia/nemotron-3-nano-30b-a3b` streaming model configuration.
+- What changed:
+    - Updated `GameEngine.kt` so follow-up event odds now decay much more aggressively: 2nd event `40%`, 3rd `12%`, 4th `3.6%`, 5th `1.08%`.
+    - Updated `docs/gameplay.md` so the documented chain probabilities match the live behavior.
+    - Switched `NVIDIA_NIM_MODEL` in `app/build.gradle.kts` to `nvidia/nemotron-3-nano-30b-a3b`.
+    - Reworked `AiEndingForecastRepository.kt` to use the requested streaming-style request shape with `temperature = 1`, `top_p = 1`, `max_tokens = 16384`, `reasoning_budget = 16384`, and `chat_template_kwargs.enable_thinking = true`, while still extracting the streamed assistant content into the existing structured JSON result pipeline.
+- Verification: `./gradlew :app:assembleDebug` succeeded, the new model endpoint returned valid streamed chunks in a local smoke test, and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `41a1a0f`
+
 ### 2026-03-30 - Multi-Event Search Chains And Forecast Reliability Fix
 
 - Status: completed
