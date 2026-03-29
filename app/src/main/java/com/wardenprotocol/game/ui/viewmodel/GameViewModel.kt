@@ -113,7 +113,14 @@ class GameViewModel(
         }
         
         val event = gameEngine.generateEvent(state)
-        _gameState.value = state.copy(currentEvent = event, phase = GamePhase.RANDOM_EVENT)
+        val updatedEventCounts = state.eventOccurrenceCounts.toMutableMap().apply {
+            this[event.id] = (this[event.id] ?: 0) + 1
+        }
+        _gameState.value = state.copy(
+            eventOccurrenceCounts = updatedEventCounts,
+            currentEvent = event,
+            phase = GamePhase.RANDOM_EVENT
+        )
         _uiState.value = UiState.RandomEvent(event)
     }
     

@@ -30,8 +30,10 @@ class AiEndingForecastRepository {
         val firstAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 1024,
-            compactPrompt = false
+            maxTokens = 800,
+            compactPrompt = false,
+            connectTimeoutMs = 8_000,
+            readTimeoutMs = 32_000
         )
         if (firstAttempt is AiEndingForecastResult.Success) {
             return@withContext firstAttempt
@@ -40,8 +42,10 @@ class AiEndingForecastRepository {
         val secondAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
-            maxTokens = 720,
-            compactPrompt = true
+            maxTokens = 520,
+            compactPrompt = true,
+            connectTimeoutMs = 6_000,
+            readTimeoutMs = 16_000
         )
         return@withContext when (secondAttempt) {
             is AiEndingForecastResult.Success -> secondAttempt
@@ -58,7 +62,9 @@ class AiEndingForecastRepository {
         baseOutcome: ColonyOutcome,
         apiKey: String,
         maxTokens: Int,
-        compactPrompt: Boolean
+        compactPrompt: Boolean,
+        connectTimeoutMs: Int,
+        readTimeoutMs: Int
     ): AiEndingForecastResult {
         val requestBody = JSONObject().apply {
             put("model", BuildConfig.NVIDIA_NIM_MODEL)
@@ -88,8 +94,8 @@ class AiEndingForecastRepository {
         return runCatching {
             val connection = (URL("${BuildConfig.NVIDIA_NIM_BASE_URL}/chat/completions").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
-                connectTimeout = 10_000
-                readTimeout = 20_000
+                connectTimeout = connectTimeoutMs
+                readTimeout = readTimeoutMs
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("Authorization", "Bearer $apiKey")
@@ -142,7 +148,8 @@ class AiEndingForecastRepository {
         val scoreBlock = payload.getJSONObject("score_adjustment")
         val rawDelta = scoreBlock.optInt("delta", 0)
         val clampedDelta = rawDelta.coerceIn(-1500, 1500)
-        val adjustedScore = (baseOutcome.score + clampedDelta).coerceAtLeast(0)
+        val minimumScore = if ((baseOutcome.detailedStats?.survivors ?: 0) > 0 && baseOutcome.score > 0) 1 else 0
+        val adjustedScore = (baseOutcome.score + clampedDelta).coerceAtLeast(minimumScore)
 
         val timeline = payload.optJSONArray("timeline")
             ?.let(::parseTimeline)
@@ -196,26 +203,20 @@ class AiEndingForecastRepository {
     private fun buildUserPrompt(outcome: ColonyOutcome, compactPrompt: Boolean): String {
         val stats = outcome.detailedStats
         return buildString {
-            appendLine("You are the ending-analysis engine for a brutal post-nuclear survival game.")
-            appendLine("You must produce a dark, brutally honest, long-range settlement forecast based on the full run state.")
-            appendLine("Return ONLY valid JSON. No markdown fences. No commentary outside JSON.")
-            appendLine("Score adjustment delta must be an integer between -1500 and 1500.")
+            appendLine("Produce a dark long-range settlement forecast from this run state.")
+            appendLine("Return ONLY valid JSON. No markdown. No commentary.")
+            appendLine("Use blunt concrete language.")
+            appendLine("Keep score_adjustment.delta between -1500 and 1500.")
+            appendLine("Explain 10 years, 50 years, 100 years, and a final verdict.")
             appendLine()
-            appendLine("RUN SNAPSHOT")
+            appendLine("RUN")
             appendLine("Settlement: ${outcome.settlementName}")
             appendLine("Classification: ${outcome.classification}")
             appendLine("Base Score: ${outcome.score}")
-            appendLine("Fallback Deterministic Narrative: ${outcome.narrative}")
+            appendLine("Deterministic Narrative: ${outcome.narrative}")
             appendLine()
-            appendLine("FULL STATE")
-            appendLine(formatStats(stats))
-            appendLine()
-            appendLine("TASK")
-            appendLine("1. Judge whether this colony meaningfully stabilizes, decays slowly, collapses violently, or re-establishes civilization.")
-            appendLine("2. Explain why with material causes, social causes, environmental causes, and travel consequences.")
-            appendLine("3. Project what happens after 10 years, 50 years, 100 years, and then give a final terminal verdict.")
-            appendLine("4. Be unsentimental, concrete, and dark. If they fail, say exactly why they fail. If they survive, say what it cost and whether it is truly civilization or only a harsher machine for living.")
-            appendLine("5. Adjust the score based on long-term sustainability, logistics, environmental fitness, archive preservation, and realism.")
+            appendLine("STATE")
+            appendLine(formatStats(stats, compactPrompt))
             appendLine()
             appendLine("RETURN THIS EXACT JSON SHAPE")
             appendLine(exampleJson(compactPrompt))
@@ -293,16 +294,15 @@ class AiEndingForecastRepository {
             """.trimIndent()
         }
 
-    private fun formatStats(stats: OutcomeStats?): String {
+    private fun formatStats(stats: OutcomeStats?, compactPrompt: Boolean): String {
         if (stats == null) return "No detailed telemetry available."
         return buildString {
             appendLine("Location Name: ${stats.locationName}")
             appendLine("Location Type: ${stats.locationTypeName}")
-            appendLine("Years Since War: ${stats.yearsSinceWar}")
             appendLine("Survivors: ${stats.survivors}")
             appendLine("Deaths: ${stats.deaths}")
+            appendLine("Years Since War: ${stats.yearsSinceWar}")
             appendLine("Travel Route: ${stats.travelRoute}")
-            appendLine("Travel Time: ${stats.travelTime}")
             appendLine("Travel Risk: ${stats.travelRisk}")
             appendLine("Travel Deaths: ${stats.travelDeaths}")
             appendLine("Radiation: ${stats.radiation}")
@@ -319,6 +319,9 @@ class AiEndingForecastRepository {
             appendLine("Atmosphere Scrubbers: ${stats.atmosphereScrubbers}")
             appendLine("Cultural Archive: ${stats.culturalArchive}")
             appendLine("Scientific Archive: ${stats.scientificArchive}")
+            if (!compactPrompt) {
+                appendLine("Travel Time: ${stats.travelTime}")
+            }
         }
     }
 

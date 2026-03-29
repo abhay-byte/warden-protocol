@@ -172,10 +172,26 @@ class GameEngine(private val eventRepository: EventRepository) {
         )
     }
 
-    @Suppress("UNUSED_PARAMETER")
     fun generateEvent(state: GameState): GameEvent {
         val allEvents = eventRepository.getAllEvents()
-        return allEvents.random()
+        if (allEvents.isEmpty()) error("Event repository returned no events.")
+
+        val weightedEvents = allEvents.map { event ->
+            val priorOccurrences = state.eventOccurrenceCounts[event.id] ?: 0
+            val weight = 0.8.pow(priorOccurrences)
+            event to weight
+        }
+        val totalWeight = weightedEvents.sumOf { it.second }
+        if (totalWeight <= 0.0) return allEvents.random()
+
+        var roll = Random.nextDouble(totalWeight)
+        weightedEvents.forEach { (event, weight) ->
+            roll -= weight
+            if (roll <= 0.0) {
+                return event
+            }
+        }
+        return weightedEvents.last().first
     }
 
     fun applyEventChoice(state: GameState, choice: EventChoice): Pair<GameState, String> {
@@ -979,4 +995,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         val suffixes = listOf("Dawn", "Light", "Home", "Rest", "Peace", "Tomorrow", "Spring", "Harbor")
         return "${prefixes.random()} ${suffixes.random()}"
     }
+}
+
+private fun Double.pow(exponent: Int): Double {
+    var result = 1.0
+    repeat(exponent) { result *= this }
+    return result
 }
