@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - AI Forecast Timeout Recovery
+
+- Status: completed
+- Title: Give the AI ending forecast enough time to answer before falling back
+- Goal: Fix the result-screen AI forecast path so the structured NVIDIA NIM response is not abandoned prematurely by overly short client and coroutine timeouts.
+- What changed:
+    - Increased the HTTP connection/read timeout budget for the forecast request instead of cutting it off after six seconds.
+    - Increased the overall coroutine timeout around ending generation so the result flow gives the 70B model a realistic response window.
+    - Added a lighter compact-prompt retry before the app gives up and shows the deterministic fallback ending.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `2a782bb`
+
 ### 2026-03-29 - AI Ending Forecast System
 
 - Status: completed
