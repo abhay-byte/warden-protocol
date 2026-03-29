@@ -275,10 +275,6 @@ fun GameApp(viewModel: GameViewModel) {
                             audioController.play(UiSound.NAV)
                             viewModel.handleAction(GameAction.GoToMainMenu)
                         },
-                        onNewGame = {
-                            audioController.play(UiSound.PRIMARY)
-                            viewModel.handleAction(GameAction.StartNewGame)
-                        },
                         onOpenSettings = {
                             audioController.play(UiSound.NAV)
                             viewModel.handleAction(GameAction.ShowSettings)

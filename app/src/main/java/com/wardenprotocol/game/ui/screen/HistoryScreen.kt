@@ -2,7 +2,6 @@ package com.wardenprotocol.game.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsApplications
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Terminal
@@ -50,7 +47,6 @@ import com.wardenprotocol.game.ui.theme.WarningAmber
 fun HistoryScreen(
     entries: List<RunRecord>,
     onBack: () -> Unit,
-    onNewGame: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenLeaderboard: () -> Unit,
     onOpenRun: (RunRecord) -> Unit,
@@ -110,15 +106,6 @@ fun HistoryScreen(
 
                 // Terminal Decor Footer
                 TerminalDecorFooter()
-            }
-
-            // Floating Start New Mission FAB
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 24.dp)
-            ) {
-                StartMissionFAB(onClick = onNewGame)
             }
         }
     }
@@ -210,38 +197,5 @@ private fun TerminalDecorFooter() {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-@Composable
-private fun StartMissionFAB(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .background(WarningAmber)
-            .drawBehind {
-                drawRect(
-                    color = Color(0xFF6A4700),
-                    topLeft = Offset(0f, this.size.height - 4.dp.toPx()),
-                    size = this.size.copy(height = 4.dp.toPx())
-                )
-            }
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Filled.PlayArrow,
-            contentDescription = null,
-            tint = Color(0xFF121414),
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = "START NEW MISSION",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFF121414),
-            fontWeight = FontWeight.Black,
-            letterSpacing = (-0.5).sp
-        )
     }
 }
