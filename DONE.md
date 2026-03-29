@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Local Release Signing Key Setup
+
+- Status: completed
+- Title: Create a release keystore under `~/repos/keys` and wire Gradle release signing to it
+- Goal: Generate a real Android release signing key and credential file outside the repository, then configure the app to produce signed release builds without storing secrets in Git.
+- What changed:
+    - Generated a new release keystore at `~/repos/keys/wardenprotocol-release.jks`.
+    - Wrote the local signing credentials to `~/repos/keys/wardenprotocol-release.properties` with restricted file permissions.
+    - Updated `app/build.gradle.kts` so the release build automatically reads that external properties file and applies the release signing config when it is present.
+    - Kept all signing secrets outside the repository; `local.properties` remains ignored and no passwords were added to tracked files.
+- Verification: `./gradlew :app:assembleRelease` succeeded, the signed release APK certificate was verified locally with `apksigner`, and the release APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `093f54e`
+
 ### 2026-03-30 - App Logo Home Hero, Stronger Ending Animation, And Source Audio Pack Commit
 
 - Status: completed
