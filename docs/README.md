@@ -37,6 +37,7 @@ cd /home/abhay/repos/thewardenprotocol
 - [`gameplay.md`](/home/abhay/repos/thewardenprotocol/docs/gameplay.md): systems, loop, progression, and scoring model
 - [`architecture.md`](/home/abhay/repos/thewardenprotocol/docs/architecture.md): package layout, state flow, and persistence model
 - [`ux.md`](/home/abhay/repos/thewardenprotocol/docs/ux.md): implemented pages, interaction patterns, and UX roadmap
+- [`design.md`](/home/abhay/repos/thewardenprotocol/docs/design.md): home-screen visual direction based on the Brutalist Relic reference set
 
 ## Notes On Accuracy
 
