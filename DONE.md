@@ -4,6 +4,15 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Extract And Map Surface Location Hero Art
+
+- Status: completed
+- Title: Extract stitched location art into clean assets and map it to the live surface location categories
+- Goal: Normalize the generated location images from `assets/stitch_main_menu.zip`, wire them to the 16 live `LocationType` values used by the surface scan UI, and replace the old generic image buckets with category-specific art.
+- What changed: Extracted the selected hero images into `assets/location_hero_sources/`, copied normalized `loc_<category>.png` files into `app/src/main/res/drawable-nodpi/`, removed the old `loc_urban` and `loc_tech` fallback assets, and updated `GameScreen.kt` so each location category resolves to its own hero image. The supplied archive did not include a distinct `CULT_TERRITORY` image, so `loc_cult_territory.png` currently uses the selected military-base variant as a documented fallback.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `2fa9618`
+
 ### 2026-03-29 - Surface Scan Gameplay Integration In New UI
 
 - Status: completed
