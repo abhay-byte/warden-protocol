@@ -54,6 +54,7 @@ fun OutcomeScreen(
     onPlayAgain: () -> Unit,
     onShowLeaderboard: () -> Unit,
     onShowHistory: () -> Unit,
+    onGoToMainMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -120,7 +121,7 @@ fun OutcomeScreen(
                 GlobalActionSection(
                     onRestart = onPlayAgain,
                     onArchive = onShowLeaderboard,
-                    onMenu = onShowHistory
+                    onMenu = onGoToMainMenu
                 )
 
                 Spacer(modifier = Modifier.height(64.dp))
@@ -191,7 +192,7 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 // Status Badge
@@ -212,6 +213,23 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
                     )
                 }
 
+                // Permanent Score Badge
+                Row(
+                    modifier = Modifier
+                        .border(1.dp, Primary.copy(alpha = 0.3f))
+                        .background(Primary.copy(alpha = 0.05f))
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "${outcome.score} PTS",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
                 if (isNewHighScore) {
                     Box(
                         modifier = Modifier
@@ -219,7 +237,7 @@ private fun OutcomeHeroSection(outcome: ColonyOutcome, isNewHighScore: Boolean) 
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            "NEW HIGH SCORE! ${outcome.score} PTS",
+                            "NEW HIGH SCORE!",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Black,
                             fontWeight = FontWeight.Black

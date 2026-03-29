@@ -199,7 +199,8 @@ fun GameApp(viewModel: GameViewModel) {
                         isNewHighScore = state.isNewHighScore,
                         onPlayAgain = { viewModel.handleAction(GameAction.StartNewGame) },
                         onShowLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                        onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) }
+                        onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
+                        onGoToMainMenu = { viewModel.handleAction(GameAction.GoToMainMenu) }
                     )
                 }
             }
