@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Ending Wait Screen Freeze Fix
+
+- Status: completed
+- Title: Fix the loading page freeze and make the wait screen actually animate
+- Goal: Stop the ending wait page from appearing frozen by making its motion reliable during long forecast generation, while also allowing the page content to scroll on smaller screens.
+- What changed:
+    - Replaced the transition-clock animation values in `EndingProcessingScreen.kt` with frame-driven values computed from `withFrameNanos`, so the loader, signal sweep, progress rail, and ticker continue moving reliably during the wait state.
+    - Added vertical scrolling to the wait-page content column so the screen no longer feels locked when the content runs taller than the viewport.
+    - Kept the existing bunker-console styling and telemetry layout intact while making the movement much more dependable.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and cold-launched on device `d30a1726` via `adb`.
+- Commit: `3eced13`
+
 ### 2026-03-30 - Local Release Signing Key Setup
 
 - Status: completed
