@@ -4,19 +4,16 @@ This file tracks the current task in progress.
 
 ## Active Task
 
-- Status: in progress
-- Title: Add a dedicated ending wait screen and persist the full generated ending data locally
-- Requested by: user
-- Requested at: 2026-03-29T23:45:00+05:30
-- Goal: Show a proper loading/wait page while the long-form ending is being prepared, remove explicit model/review/scoring language from the player-facing result flow, and save the full generated ending data locally with each run.
+- Status: idle
+- Title:
+- Requested by:
+- Requested at:
+- Goal:
 - Notes:
-  - Replace the inline loading panel with a dedicated interstitial ending-processing screen.
-  - Remove visible provider/review/score-adjustment wording from the result UI while still applying the final resolved score.
-  - Extend local run persistence so the long narrative, verdict, timeline, and related ending fields are stored with the run record.
-- Verification status: `./gradlew :app:assembleDebug` passed and the updated debug APK was clean-installed and launched on device `d30a1726`; commit and push pending
+- Verification status:
 - Planned checks:
-  - [x] Build with Gradle
-  - [x] Run on device with `adb`
+  - [ ] Build with Gradle
+  - [ ] Run on device with `adb`
   - [ ] Commit changes
   - [ ] Push to `origin`
 

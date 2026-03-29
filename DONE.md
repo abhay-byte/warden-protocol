@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-29 - Themed Ending Wait Screen And Full Local Result Persistence
+
+- Status: completed
+- Title: Add a properly themed ending-processing page and save the full generated result locally
+- Goal: Show a mission-consistent wait page while the long-form ending is being assembled, hide internal provider/review wording from the player-facing result flow, and store the full resolved ending data for completed runs.
+- What changed:
+    - Added a dedicated `EndingProcessingScreen.kt` that follows the same command-console visual language as the other gameplay screens instead of showing an inline loading block inside the final result page.
+    - Updated the result flow so the final outcome screen no longer exposes provider/review/score-adjustment wording while still showing the resolved final score and long-range story output.
+    - Extended `RunRecord` and `HighScoreRepository` so completed runs now persist the full narrative, verdict, timeline payload, cause lists, and score delta data locally instead of only the short summary.
+- Verification: `./gradlew :app:assembleDebug` succeeded and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `55876a4`
+
 ### 2026-03-29 - AI Forecast Timeout Recovery
 
 - Status: completed
