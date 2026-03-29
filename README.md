@@ -1,107 +1,78 @@
 # The Warden Protocol
 
-A complete, production-ready Android game built with Kotlin and Jetpack Compose.
+The Warden Protocol is a single-player Android strategy game built with Kotlin and Jetpack Compose. You act as the bunker intelligence that keeps a thousand survivors alive, scans a ruined surface for settlement targets, resolves brutal incidents, and decides when to open the vault.
 
-## Overview
+## Current State
 
-The Warden Protocol is a text-based narrative strategy game inspired by Seedship. You play as an AI managing an underground fallout bunker, sending scouts to the ruined surface, managing vault resources, responding to crises, and ultimately choosing when to open the vault doors.
+- Playable end-to-end Android app
+- Kotlin + Jetpack Compose + Material 3
+- Single-activity app with `StateFlow`-driven screen state
+- Local persistence for high score, run history, and top-10 leaderboard
+- 7 implemented screens: main menu, gameplay, event, event outcome, final outcome, leaderboard, and run history
 
-## Tech Stack
+## Core Gameplay
 
-- **Language:** Kotlin
-- **UI:** Jetpack Compose (Material Design 3)
-- **Architecture:** MVVM + Clean Architecture
-- **State Management:** StateFlow + ViewModel
-- **Navigation:** Compose Navigation (single-activity)
-- **Persistence:** DataStore for high score tracking
-- **Min SDK:** 26 | **Target SDK:** 35
+Each run starts with 1,000 survivors, 3 probes, and a fully operational vault. The game loop is:
 
-## Features
+1. Review a generated surface site.
+2. Inspect vault status, scanner output, and travel risk.
+3. Choose to search again, deploy a probe, or open the vault.
+4. If you keep searching, the vault decays and a random event fires.
+5. Resolve the event, absorb the outcome, and scan a new site.
+6. Open the vault when the site quality and bunker condition justify the risk.
 
-- **40+ Unique Events:** Vault internal crises, surface encounters, and cosmic anomalies
-- **Procedural Location Generation:** Each surface location is randomly generated with unique characteristics
-- **8 Vault Systems:** Power, food, medical, security, construction, atmosphere, and more
-- **2 Knowledge Databases:** Cultural and scientific archives that shape your civilization
-- **Dynamic Outcome Generation:** Your choices create unique civilization outcomes
-- **High Score Tracking:** Persistent high score saved locally
-- **Atmospheric UI:** Dark theme with vault/bunker aesthetic and smooth animations
+The current build includes:
 
-## Game Mechanics
+- 16 location archetypes
+- 300 named surface locations
+- Travel routes with time, risk, attrition, and score penalties
+- Scanner-gated intel for radiation, water, food, shelter, resources, and threats
+- Probe reports with deeper site recommendations
+- Expanded encounter catalog with vault, surface, cosmic, and apex-threat events
+- Procedural colony outcome generation with end-of-run telemetry
 
-### Vault Systems
-Each system degrades over time and affects gameplay:
-- **Power Grid:** Affects all other systems
-- **Food Stores:** Survivors die when depleted
-- **Medical Bay:** Critical for disease events
-- **Security System:** Prevents coups and mutinies
-- **Construction Gear:** Needed for surface settlement
-- **Atmosphere Scrubbers:** Survivors take damage without it
-- **Scanners:** Reveal surface location details
+## Tech Snapshot
 
-### Surface Scanning
-- Evaluate procedurally generated locations
-- Deploy probes to reveal anomalies
-- Balance risk vs. reward
-- Decide when to open the vault
-
-### Random Events
-- 15 vault internal events (power failures, coups, plagues)
-- 15 surface/external events (signals, scavengers, storms)
-- 10 cosmic/weird events (AI broadcasts, anomalies)
-- Difficult choices with hidden risks
-
-### Outcome Scoring
-Final score based on:
-- Survivors remaining
-- Location quality (radiation, water, food, shelter, resources)
-- Vault system health
-- Database preservation
-- Threats and anomalies
+- Language: Kotlin
+- UI: Jetpack Compose
+- Architecture: simple MVVM split across `data`, `domain`, and `ui`
+- State: `ViewModel` + `MutableStateFlow`
+- Persistence: Jetpack DataStore Preferences
+- Android config: min SDK 26, target/compile SDK 36, Java 17
 
 ## Project Structure
 
-```
-com.wardenprotocol.game/
+```text
+app/src/main/java/com/wardenprotocol/game/
 ├── data/
-│   ├── model/          # Data classes (GameState, SurfaceLocation, GameEvent)
-│   └── repository/     # EventRepository, HighScoreRepository
-├── domain/
-│   └── engine/         # GameEngine (core game logic)
+│   ├── model/
+│   └── repository/
+├── domain/engine/
 ├── ui/
-│   ├── screen/         # Composable screens
-│   ├── component/      # Reusable UI components
-│   ├── theme/          # Material3 theme
-│   └── viewmodel/      # GameViewModel
+│   ├── component/
+│   ├── screen/
+│   ├── theme/
+│   └── viewmodel/
 ├── MainActivity.kt
 └── WPApplication.kt
 ```
 
-## Building
+## Run Locally
 
-1. Open project in Android Studio
-2. Sync Gradle
-3. Run on emulator or device (API 26+)
+```bash
+cd /home/abhay/repos/thewardenprotocol
+./gradlew assembleDebug
+```
 
-## Game Loop
+Open the project in Android Studio to run on an emulator or device running Android 8.0+.
 
-1. Start at main menu
-2. Generate surface location
-3. Evaluate location with available scanners
-4. Choose to: open vault, continue searching, or deploy probe
-5. If continuing: face random event, make choice, see outcome
-6. Repeat until vault opens or all survivors die
-7. View final civilization outcome and score
+## Documentation
 
-## No Placeholders
+The current docs live in [`docs/README.md`](/home/abhay/repos/thewardenprotocol/docs/README.md).
 
-This is a complete, fully playable game with:
-- ✅ All 40+ events implemented with full narrative text
-- ✅ Complete procedural generation systems
-- ✅ Full UI implementation with animations
-- ✅ Working persistence layer
-- ✅ End-to-end gameplay from menu to outcome
-- ✅ No TODOs, no stubs, no lorem ipsum
+- Product and setup: [`docs/README.md`](/home/abhay/repos/thewardenprotocol/docs/README.md)
+- Gameplay systems: [`docs/gameplay.md`](/home/abhay/repos/thewardenprotocol/docs/gameplay.md)
+- Architecture and code map: [`docs/architecture.md`](/home/abhay/repos/thewardenprotocol/docs/architecture.md)
+- UX inventory and future plans: [`docs/ux.md`](/home/abhay/repos/thewardenprotocol/docs/ux.md)
 
-## License
-
-Created as a complete game implementation example.
+Legacy planning notes still exist in the repo root, but the `docs/` directory and this README are now the maintained references.

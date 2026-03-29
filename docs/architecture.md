@@ -1,0 +1,82 @@
+# Architecture
+
+## High-Level Shape
+
+The app is a single-activity Compose application. `MainActivity` wires repositories, the game engine, and the `GameViewModel`, then renders one of several full-screen composables based on `UiState`.
+
+## Packages
+
+### `data/model`
+
+Owns the game domain data:
+
+- `GameState`
+- `SurfaceLocation`
+- `TravelProfile`
+- `GameEvent`
+- `ColonyOutcome`
+- `RunRecord`
+
+### `data/repository`
+
+Owns content and persistence:
+
+- `EventRepository`: base event set plus the expanded catalog
+- `ExpandedEventCatalog`: larger generated event pools and apex-threat content
+- `HighScoreRepository`: DataStore-backed high score and run history storage
+
+### `domain/engine`
+
+- `GameEngine`: location generation, passive decay, event selection, choice resolution, score calculation, and final narrative generation
+
+### `ui/viewmodel`
+
+- `GameViewModel`: accepts `GameAction`, mutates `GameState`, exposes `UiState`, and coordinates persistence on run completion
+
+### `ui/screen`
+
+Full-screen Compose surfaces:
+
+- `MainMenuScreen`
+- `GameScreen`
+- `EventScreen`
+- `EventOutcomeScreen`
+- `OutcomeScreen`
+- `LeaderboardScreen`
+- `HistoryScreen`
+
+### `ui/component`
+
+Reusable bunker-console building blocks such as:
+
+- `CommandPanel`
+- `ActionButton`
+- `StatusBadge`
+- `VaultStatusPanel`
+- `SystemStatusBar`
+- `ChoiceButton`
+- Shared backdrop and entrance motion helpers
+
+## State Flow
+
+The core runtime path is:
+
+1. `MainActivity` builds `GameViewModel`.
+2. `GameApp` collects `gameState`, `uiState`, `highScore`, `leaderboard`, and `runHistory`.
+3. Screen-level callbacks dispatch `GameAction`.
+4. `GameViewModel` calls into `GameEngine` for deterministic game mutations and generated content.
+5. Finished runs are written to DataStore and then reflected back into leaderboard/history flows.
+
+## Persistence
+
+`HighScoreRepository` stores three user-facing data sets in DataStore Preferences:
+
+- Best score seen so far
+- Chronological run history, capped to 25 runs
+- Leaderboard derived from the top 10 saved runs by score
+
+There is no cloud sync, account system, or multi-slot save state. Progress is local to the device install.
+
+## Navigation Model
+
+This project does not use a route graph in practice despite having the navigation dependency present. Screen changes are driven directly by the `UiState` sealed class and rendered through `AnimatedContent`.
