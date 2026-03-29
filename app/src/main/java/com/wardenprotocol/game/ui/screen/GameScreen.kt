@@ -2,6 +2,7 @@ package com.wardenprotocol.game.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,12 +23,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wardenprotocol.game.R
 import com.wardenprotocol.game.data.model.GameState
+import com.wardenprotocol.game.data.model.LocationType
 import com.wardenprotocol.game.data.model.SurfaceLocation
 import kotlin.math.roundToInt
 
@@ -268,14 +273,24 @@ private fun EnvBox(label: String, value: String, color: Color, modifier: Modifie
 
 @Composable
 private fun SurfaceScanTargetPanel(location: SurfaceLocation) {
+    val locationImage = getLocationImage(location.type)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .background(SurfaceContainerHighest)
     ) {
+        // Dynamic backdrop image
+        Image(
+            painter = painterResource(id = locationImage),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize().alpha(0.4f),
+            contentScale = ContentScale.Crop
+        )
+
         // Gradient backdrop simulating the mix-blend imagery
-        Box(modifier = Modifier.fillMaxSize().background(
+        Box(modifier = Modifier.matchParentSize().background(
             Brush.verticalGradient(listOf(Color.Transparent, BackgroundColor))
         ))
         
@@ -285,12 +300,12 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation) {
                 Column {
                     Text("TARGET_LOCKED", color = BackgroundColor, modifier = Modifier.background(Primary).padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
-                    Text("SHATTERED", color = Primary, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black, letterSpacing = (-2).sp)
-                    Text("SPIRE", color = Primary, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black, letterSpacing = (-2).sp)
+                    Text(location.name.uppercase().split(" ").getOrElse(0) { "SURFACE" }, color = Primary, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black, letterSpacing = (-2).sp)
+                    Text(location.name.uppercase().split(" ").getOrNull(1) ?: "TARGET", color = Primary, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black, letterSpacing = (-2).sp)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("LAT: 34.0522 N", color = Primary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
-                    Text("LNG: 118.2437 W", color = Primary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
+                    Text("LAT: ${"%.4f".format(34.0 + (location.name.hashCode() % 1000) / 10000.0)} N", color = Primary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
+                    Text("LNG: ${"%.4f".format(118.0 + (location.name.hashCode() % 1000) / 10000.0)} W", color = Primary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
                 }
             }
             
@@ -305,7 +320,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation) {
                     .padding(24.dp)
             ) {
                 Text(
-                    "\"Visual confirms the structural collapse of the primary observation deck. Signal interference is peaking at 400MHz. Thermal bloom detected in the lower strata. Suggest immediate probe deployment before atmospheric shift.\"",
+                    "\"${location.shortDescription}\"",
                     color = TextPrimary,
                     style = MaterialTheme.typography.bodyMedium,
                     fontStyle = FontStyle.Italic,
@@ -317,8 +332,8 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation) {
             
             // Image placeholders
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ImageFeedBox("IMAGERY_01", Modifier.weight(1f))
-                ImageFeedBox("SPECTRAL_02", Modifier.weight(1f))
+                ImageFeedBox("IMAGERY_01", locationImage, Modifier.weight(1f))
+                ImageFeedBox("SPECTRAL_02", locationImage, Modifier.weight(1f))
             }
         }
         
@@ -335,7 +350,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation) {
 }
 
 @Composable
-private fun ImageFeedBox(label: String, modifier: Modifier) {
+private fun ImageFeedBox(label: String, imageRes: Int, modifier: Modifier) {
     Box(
         modifier = modifier
             .height(128.dp)
@@ -343,7 +358,20 @@ private fun ImageFeedBox(label: String, modifier: Modifier) {
             .border(1.dp, OutlineVariant.copy(0.2f)),
         contentAlignment = Alignment.Center
     ) {
-        // Mock noise background
+        // Real image content
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize().graphicsLayer {
+                if (label.contains("SPECTRAL")) {
+                    // Slight color tint/shift for spectral
+                    alpha = 0.7f
+                }
+            },
+            contentScale = ContentScale.Crop
+        )
+
+        // Mock noise background overlay
         Box(modifier = Modifier.fillMaxSize().drawBehind {
             drawRect(Color.White.copy(0.05f))
         })
@@ -354,6 +382,13 @@ private fun ImageFeedBox(label: String, modifier: Modifier) {
             style = MaterialTheme.typography.labelSmall
         )
     }
+}
+
+private fun getLocationImage(type: LocationType): Int = when (type) {
+    LocationType.RUINED_CITY, LocationType.COASTAL_TOWN, LocationType.ABANDONED_SUBWAY -> R.drawable.loc_urban
+    LocationType.MILITARY_BASE, LocationType.RESEARCH_FACILITY, LocationType.SCRAP_HEAP -> R.drawable.loc_tech
+    // Fallback until other images are generated
+    else -> R.drawable.loc_urban 
 }
 
 @Composable
