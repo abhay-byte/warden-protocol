@@ -449,7 +449,6 @@ private fun ProtocolChoiceCard(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                // Index Box
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -460,11 +459,13 @@ private fun ProtocolChoiceCard(
                     Text(index, color = accent, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 }
 
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             choice.label.uppercase(),
@@ -477,7 +478,7 @@ private fun ProtocolChoiceCard(
                             modifier = Modifier
                                 .border(1.dp, riskColor.copy(0.2f))
                                 .background(riskColor.copy(0.1f))
-                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
                             color = riskColor,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold
@@ -486,10 +487,14 @@ private fun ProtocolChoiceCard(
                     Text(
                         choice.description,
                         color = TextSecondary,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        lineHeight = 20.sp
                     )
-                    
-                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                    Column(
+                        modifier = Modifier.padding(top = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         MetricLine(Icons.Filled.Bolt, "ENERGY_COST", "[REDACTED]", Primary)
                         MetricLine(
                             if (isCritical) Icons.Filled.Dangerous else Icons.Filled.CheckCircle,
@@ -499,12 +504,14 @@ private fun ProtocolChoiceCard(
                         )
                     }
                 }
-                
+
                 Icon(
                     Icons.Filled.ChevronRight,
                     contentDescription = null,
                     tint = Primary,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .align(Alignment.Top)
                 )
             }
             
@@ -521,7 +528,10 @@ private fun ProtocolChoiceCard(
 
 @Composable
 private fun MetricLine(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String, color: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(12.dp))
         Text(
             "$label: $value",
