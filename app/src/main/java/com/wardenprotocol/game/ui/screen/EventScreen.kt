@@ -432,8 +432,6 @@ private fun ProtocolChoiceCard(
     onClick: () -> Unit
 ) {
     val accent = if (isCritical) Error else Primary
-    val riskLevel = if (choice.hiddenRisk > 0.4f) "UNKNOWN RISK" else if (choice.hiddenRisk > 0) "MODERATE RISK" else "SAFE_PROBABILITY: HIGH"
-    val riskColor = if (choice.hiddenRisk > 0.4f) Error else if (choice.hiddenRisk > 0) Primary else Secondary
 
     Card(
         modifier = Modifier
@@ -473,16 +471,6 @@ private fun ProtocolChoiceCard(
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            riskLevel,
-                            modifier = Modifier
-                                .border(1.dp, riskColor.copy(0.2f))
-                                .background(riskColor.copy(0.1f))
-                                .padding(horizontal = 10.dp, vertical = 4.dp),
-                            color = riskColor,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
-                        )
                     }
                     Text(
                         choice.description,
@@ -496,12 +484,6 @@ private fun ProtocolChoiceCard(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         MetricLine(Icons.Filled.Bolt, "ENERGY_COST", "[REDACTED]", Primary)
-                        MetricLine(
-                            if (isCritical) Icons.Filled.Dangerous else Icons.Filled.CheckCircle,
-                            if (isCritical) "SURVIVOR_LOSS" else "SURVIVOR_RISK",
-                            if (isCritical) "CRITICAL" else "LOW",
-                            if (isCritical) Error else Secondary
-                        )
                     }
                 }
 

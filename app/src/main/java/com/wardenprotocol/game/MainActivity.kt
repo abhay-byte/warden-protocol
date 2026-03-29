@@ -47,9 +47,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.wardenprotocol.game.audio.MusicScene
+import com.wardenprotocol.game.audio.UiSound
+import com.wardenprotocol.game.audio.WardenAudioController
 import com.wardenprotocol.game.data.repository.EventRepository
 import com.wardenprotocol.game.data.repository.AiEndingForecastRepository
 import com.wardenprotocol.game.data.repository.HighScoreRepository
@@ -109,12 +114,47 @@ fun GameApp(viewModel: GameViewModel) {
     val musicEnabled by viewModel.musicEnabled.collectAsState()
     val sfxEnabled by viewModel.sfxEnabled.collectAsState()
     val context = LocalContext.current
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    val audioController = remember(context.applicationContext) {
+        WardenAudioController(context.applicationContext)
+    }
     var showQuitDialog by remember { mutableStateOf(false) }
+
+    DisposableEffect(audioController) {
+        onDispose { audioController.release() }
+    }
+
+    DisposableEffect(lifecycleOwner, audioController) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> audioController.onResume()
+                Lifecycle.Event.ON_PAUSE -> audioController.onPause()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(musicEnabled) {
+        audioController.setMusicEnabled(musicEnabled)
+    }
+
+    LaunchedEffect(sfxEnabled) {
+        audioController.setSfxEnabled(sfxEnabled)
+    }
+
+    LaunchedEffect(uiState) {
+        audioController.setScene(musicSceneFor(uiState))
+    }
 
     BackHandler {
         when {
             showQuitDialog -> showQuitDialog = false
-            uiState != UiState.MainMenu -> viewModel.handleAction(GameAction.GoToMainMenu)
+            uiState != UiState.MainMenu -> {
+                audioController.play(UiSound.NAV)
+                viewModel.handleAction(GameAction.GoToMainMenu)
+            }
             else -> showQuitDialog = true
         }
     }
@@ -148,10 +188,22 @@ fun GameApp(viewModel: GameViewModel) {
                         runCount = runHistory.size,
                         leaderboardPreview = leaderboard,
                         lastRun = runHistory.firstOrNull(),
-                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
-                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
-                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) }
+                        onNewGame = {
+                            audioController.play(UiSound.PRIMARY)
+                            viewModel.handleAction(GameAction.StartNewGame)
+                        },
+                        onOpenLeaderboard = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowLeaderboard)
+                        },
+                        onOpenHistory = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowRunHistory)
+                        },
+                        onOpenSettings = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.ShowSettings)
+                        }
                     )
                 }
 
@@ -159,33 +211,82 @@ fun GameApp(viewModel: GameViewModel) {
                     SettingsScreen(
                         musicEnabled = musicEnabled,
                         sfxEnabled = sfxEnabled,
-                        onToggleMusic = { viewModel.handleAction(GameAction.ToggleMusic) },
-                        onToggleSfx = { viewModel.handleAction(GameAction.ToggleSfx) },
-                        onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
-                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
-                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) }
+                        onToggleMusic = {
+                            val enabling = !musicEnabled
+                            if (!enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            viewModel.handleAction(GameAction.ToggleMusic)
+                            if (enabling) audioController.play(UiSound.TOGGLE, force = true)
+                        },
+                        onToggleSfx = {
+                            val enabling = !sfxEnabled
+                            if (!enabling) audioController.play(UiSound.TOGGLE, force = true)
+                            viewModel.handleAction(GameAction.ToggleSfx)
+                            if (enabling) audioController.play(UiSound.TOGGLE, force = true)
+                        },
+                        onBack = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.GoToMainMenu)
+                        },
+                        onOpenHistory = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowRunHistory)
+                        },
+                        onOpenLeaderboard = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowLeaderboard)
+                        }
                     )
                 }
 
                 is UiState.Leaderboard -> {
                     LeaderboardScreen(
                         entries = leaderboard,
-                        onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
-                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
-                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
-                        onOpenHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
-                        onOpenRun = { entry -> viewModel.handleAction(GameAction.OpenArchivedOutcome(entry)) }
+                        onBack = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.GoToMainMenu)
+                        },
+                        onNewGame = {
+                            audioController.play(UiSound.PRIMARY)
+                            viewModel.handleAction(GameAction.StartNewGame)
+                        },
+                        onOpenSettings = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.ShowSettings)
+                        },
+                        onOpenHistory = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowRunHistory)
+                        },
+                        onOpenRun = { entry ->
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.OpenArchivedOutcome(entry))
+                        }
                     )
                 }
 
                 is UiState.RunHistory -> {
                     HistoryScreen(
                         entries = runHistory,
-                        onBack = { viewModel.handleAction(GameAction.GoToMainMenu) },
-                        onNewGame = { viewModel.handleAction(GameAction.StartNewGame) },
-                        onOpenSettings = { viewModel.handleAction(GameAction.ShowSettings) },
-                        onOpenLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                        onOpenRun = { entry -> viewModel.handleAction(GameAction.OpenArchivedOutcome(entry)) }
+                        onBack = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.GoToMainMenu)
+                        },
+                        onNewGame = {
+                            audioController.play(UiSound.PRIMARY)
+                            viewModel.handleAction(GameAction.StartNewGame)
+                        },
+                        onOpenSettings = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.ShowSettings)
+                        },
+                        onOpenLeaderboard = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.ShowLeaderboard)
+                        },
+                        onOpenRun = { entry ->
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.OpenArchivedOutcome(entry))
+                        }
                     )
                 }
 
@@ -194,9 +295,18 @@ fun GameApp(viewModel: GameViewModel) {
                         gameState = gameState,
                         location = state.location,
                         probeRevealed = state.probeRevealed,
-                        onOpenVault = { viewModel.handleAction(GameAction.OpenVault) },
-                        onContinueSearching = { viewModel.handleAction(GameAction.ContinueSearching) },
-                        onDeployProbe = { viewModel.handleAction(GameAction.DeployProbe) }
+                        onOpenVault = {
+                            audioController.play(UiSound.DANGER)
+                            viewModel.handleAction(GameAction.OpenVault)
+                        },
+                        onContinueSearching = {
+                            audioController.play(UiSound.PRIMARY)
+                            viewModel.handleAction(GameAction.ContinueSearching)
+                        },
+                        onDeployProbe = {
+                            audioController.play(UiSound.SECONDARY)
+                            viewModel.handleAction(GameAction.DeployProbe)
+                        }
                     )
                 }
 
@@ -204,6 +314,7 @@ fun GameApp(viewModel: GameViewModel) {
                     EventScreen(
                         event = state.event,
                         onChoiceSelected = { choice ->
+                            audioController.play(UiSound.PRIMARY)
                             viewModel.handleAction(GameAction.SelectEventChoice(choice))
                         }
                     )
@@ -212,7 +323,10 @@ fun GameApp(viewModel: GameViewModel) {
                 is UiState.EventOutcome -> {
                     EventOutcomeScreen(
                         narrative = state.narrative,
-                        onDismiss = { viewModel.handleAction(GameAction.DismissEventOutcome) }
+                        onDismiss = {
+                            audioController.play(UiSound.NAV)
+                            viewModel.handleAction(GameAction.DismissEventOutcome)
+                        }
                     )
                 }
 
@@ -223,10 +337,22 @@ fun GameApp(viewModel: GameViewModel) {
                         OutcomeScreen(
                             outcome = state.outcome,
                             isNewHighScore = state.isNewHighScore,
-                            onPlayAgain = { viewModel.handleAction(GameAction.StartNewGame) },
-                            onShowLeaderboard = { viewModel.handleAction(GameAction.ShowLeaderboard) },
-                            onShowHistory = { viewModel.handleAction(GameAction.ShowRunHistory) },
-                            onGoToMainMenu = { viewModel.handleAction(GameAction.GoToMainMenu) }
+                            onPlayAgain = {
+                                audioController.play(UiSound.PRIMARY)
+                                viewModel.handleAction(GameAction.StartNewGame)
+                            },
+                            onShowLeaderboard = {
+                                audioController.play(UiSound.SECONDARY)
+                                viewModel.handleAction(GameAction.ShowLeaderboard)
+                            },
+                            onShowHistory = {
+                                audioController.play(UiSound.SECONDARY)
+                                viewModel.handleAction(GameAction.ShowRunHistory)
+                            },
+                            onGoToMainMenu = {
+                                audioController.play(UiSound.NAV)
+                                viewModel.handleAction(GameAction.GoToMainMenu)
+                            }
                         )
                     }
                 }
@@ -236,10 +362,27 @@ fun GameApp(viewModel: GameViewModel) {
 
     if (showQuitDialog) {
         QuitGameDialog(
-            onDismiss = { showQuitDialog = false },
-            onQuit = { context.findActivity()?.finish() }
+            onDismiss = {
+                audioController.play(UiSound.NAV)
+                showQuitDialog = false
+            },
+            onQuit = {
+                audioController.play(UiSound.DANGER, force = true)
+                context.findActivity()?.finish()
+            }
         )
     }
+}
+
+private fun musicSceneFor(state: UiState): MusicScene = when (state) {
+    UiState.MainMenu -> MusicScene.COMMAND
+    UiState.Settings -> MusicScene.COMMAND
+    UiState.Leaderboard -> MusicScene.ARCHIVE
+    UiState.RunHistory -> MusicScene.ARCHIVE
+    is UiState.SurfaceScanning -> MusicScene.SURFACE
+    is UiState.RandomEvent -> MusicScene.EVENT
+    is UiState.EventOutcome -> MusicScene.EVENT
+    is UiState.GameOutcome -> MusicScene.OUTCOME
 }
 
 private fun screenKey(state: UiState): String = when (state) {
