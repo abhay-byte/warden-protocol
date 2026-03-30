@@ -68,16 +68,10 @@ class AiEndingForecastRepository {
     ): AiEndingForecastResult {
         val requestBody = JSONObject().apply {
             put("model", BuildConfig.NVIDIA_NIM_MODEL)
-            put("temperature", 1.0)
+            put("reasoning_effort", "high")
+            put("temperature", 0.10)
             put("top_p", 1.0)
             put("max_tokens", maxTokens)
-            put("reasoning_budget", maxTokens)
-            put(
-                "chat_template_kwargs",
-                JSONObject().apply {
-                    put("enable_thinking", true)
-                }
-            )
             put("stream", true)
             put(
                 "messages",
@@ -106,6 +100,7 @@ class AiEndingForecastRepository {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("Authorization", "Bearer $apiKey")
+                setRequestProperty("Accept", "text/event-stream")
             }
 
             connection.outputStream.use { output ->

@@ -47,7 +47,7 @@ android {
         buildConfigField(
             "String",
             "NVIDIA_NIM_MODEL",
-            "nvidia/nemotron-3-nano-30b-a3b".asBuildConfigString()
+            "mistralai/mistral-small-4-119b-2603".asBuildConfigString()
         )
     }
 
