@@ -4,6 +4,18 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-03-30 - Mistral Small 4 Forecast Switch
+
+- Status: completed
+- Title: Switch the ending forecast client to `mistralai/mistral-small-4-119b-2603`
+- Goal: Update the streamed ending-forecast request to use the provided Mistral Small 4 model and request shape while keeping the current result-parsing pipeline intact.
+- What changed:
+    - Updated `NVIDIA_NIM_MODEL` in `app/build.gradle.kts` to `mistralai/mistral-small-4-119b-2603`.
+    - Updated `AiEndingForecastRepository.kt` so the streamed request now uses `reasoning_effort = high`, `temperature = 0.10`, `top_p = 1.00`, `max_tokens = 16384`, `stream = true`, and `Accept: text/event-stream`.
+    - Kept the existing streamed chunk parser so the assistant content still feeds the strict JSON ending-report pipeline already used by the app.
+- Verification: `./gradlew :app:assembleDebug` succeeded, the new model endpoint returned valid streamed chunks in a local smoke test, and the updated debug APK was installed and launched on device `d30a1726` via `adb`.
+- Commit: `71d16a6`
+
 ### 2026-03-30 - Steeper Event Chains And Nemotron Streaming Forecast
 
 - Status: completed
