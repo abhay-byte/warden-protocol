@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Terminal
@@ -74,37 +72,27 @@ private data class BriefingLine(
 private val missionBriefing = listOf(
     BriefingLine(
         channel = "BOOT",
-        message = "Vault command systems online. Strategic archive integrity stable.",
+        message = "Vault command systems online.",
         accent = SignalBlue
     ),
     BriefingLine(
         channel = "IDENT",
-        message = "You are the Warden, the bunker intelligence responsible for every human life sealed below.",
+        message = "You are the Warden, the intelligence responsible for every life sealed below.",
         accent = Secondary
     ),
     BriefingLine(
         channel = "SITUATION",
-        message = "The surface above is a wasteland of radiation, fractured enclaves, scavenged ruins, and false promises.",
+        message = "The surface is broken by radiation, scarcity, ruined shelter, and hostile survivors.",
         accent = Primary
     ),
     BriefingLine(
         channel = "DIRECTIVE",
-        message = "Find a location where vault survivors can rebuild civilization instead of dying on first contact with the world.",
+        message = "Search the wasteland and find one location where humanity can rebuild civilization.",
         accent = SignalBlue
     ),
     BriefingLine(
-        channel = "THREATS",
-        message = "Water loss, failed shelter, hostile factions, travel attrition, and poisoned ground will decide the species' future.",
-        accent = Primary
-    ),
-    BriefingLine(
-        channel = "MANDATE",
-        message = "Judge every site without mercy. Open the vault only when survival is more than hope.",
-        accent = Secondary
-    ),
-    BriefingLine(
         channel = "SIGNOFF",
-        message = "Good luck, Warden.",
+        message = "Judge without mercy. Open the vault only when survival is real. Good luck, Warden.",
         accent = Primary
     )
 )
@@ -114,7 +102,6 @@ fun MissionIntroScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val terminalScroll = rememberScrollState()
     val infiniteTransition = rememberInfiniteTransition(label = "mission_intro")
     val cursorAlpha by infiniteTransition.animateFloat(
         initialValue = 0.25f,
@@ -151,10 +138,6 @@ fun MissionIntroScreen(
             delay(if (index == missionBriefing.lastIndex) 260L else 340L)
         }
         briefingComplete = true
-    }
-
-    LaunchedEffect(activeLineIndex, activeCharacterCount, briefingComplete) {
-        terminalScroll.animateScrollTo(terminalScroll.maxValue)
     }
 
     Scaffold(
@@ -228,7 +211,7 @@ fun MissionIntroScreen(
                         )
                         Text(
                             text = "A live terminal brief precedes the first scan. You can continue immediately or stay and read the full transmission.",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = TextSecondaryColor
                         )
 
@@ -242,9 +225,8 @@ fun MissionIntroScreen(
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxWidth()
-                                .verticalScroll(terminalScroll),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.SpaceEvenly
                         ) {
                             missionBriefing.forEachIndexed { index, line ->
                                 when {
@@ -422,13 +404,21 @@ private fun MissionIntroBottomBar(
                         )
                     )
                 )
+                .tacticalGrid(alpha = 0.18f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
                 .clickable(onClick = onContinue)
         ) {
             Column {
+                Text(
+                    text = "CRT COMMAND LINK",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = SignalBlue,
+                    letterSpacing = 1.6.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp)
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -490,20 +480,20 @@ private fun TerminalLine(
     ) {
         Text(
             text = channel,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = accent,
             letterSpacing = 2.2.sp
         )
         Row(verticalAlignment = Alignment.Top) {
             Text(
                 text = "> ",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = accent,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = TextPrimaryColor
             )
             if (showCursor) {
