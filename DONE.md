@@ -4,6 +4,20 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-04-02 - Mission Briefing Chrome Alignment And Immediate Continue
+
+- Status: completed
+- Title: Bring the pre-run mission intro back onto the shared page chrome and make Continue available immediately
+- Goal: Rework the new pre-run intro so it uses the same top bar and structural language as the search and event screens, follows the documented bunker-console direction more strictly, and lets the player continue into gameplay without waiting for the full terminal text sequence to finish.
+- What changed:
+    - Rebuilt `MissionIntroScreen.kt` around the same top command bar treatment used by the search and event pages instead of using a separate custom header.
+    - Shifted the intro layout toward the established tactical-console structure with a shared background, status breadcrumb, hard-edged terminal body, and fixed bottom command area.
+    - Kept the sequential terminal text animation, but removed the gated-button behavior so `Begin Surface Scan` is available immediately while the briefing continues to unfold.
+    - Condensed the mission copy into a larger non-scroll layout so the full briefing stays visible in one view, and added stronger CRT grid treatment to the bottom command button so it matches the rest of the interface more closely.
+    - Updated `docs/design.md` so the design note now explicitly states that the intro action is visible immediately during the unfolding terminal sequence.
+- Verification: `./gradlew --no-daemon -Dorg.gradle.workers.max=1 -Pandroid.aapt2FromMavenOverride=/opt/android-sdk/build-tools/36.0.0/aapt2 assembleRelease bundleRelease --console=plain` succeeded, the rebuilt release APK installed successfully on device `192.168.137.21:42711` via `adb`, the corrected app launched through `adb shell monkey -p com.ivarna.wardenprotocol -c android.intent.category.LAUNCHER 1`, and the rebuilt AAB was copied to `/sdcard/Download/app-release.aab`.
+- Commit: `ad057fd`
+
 ### 2026-04-02 - Animated Pre-Run Mission Briefing
 
 - Status: completed
