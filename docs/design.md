@@ -31,7 +31,7 @@ That screen should feel like:
 - stronger scanline and sweep motion than the home screen
 - sequential copy reveal instead of static paragraphs
 - a controlled handoff from archive/meta space into mission space
-- one clear bottom action after the full briefing resolves
+- one clear bottom action that is visible immediately, even while the briefing text is still unfolding
 
 ## Implemented Home-Screen Structure
 

@@ -9,10 +9,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,46 +25,45 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Radar
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ivarna.wardenprotocol.ui.component.ActionButton
-import com.ivarna.wardenprotocol.ui.component.WardenBackdrop
-import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
-import com.ivarna.wardenprotocol.ui.theme.CyanGlow
-import com.ivarna.wardenprotocol.ui.theme.PanelStroke
-import com.ivarna.wardenprotocol.ui.theme.SignalCyan
-import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
-import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
-import com.ivarna.wardenprotocol.ui.theme.TextPrimary
-import com.ivarna.wardenprotocol.ui.theme.TextSecondary
-import com.ivarna.wardenprotocol.ui.theme.VaultGreen
-import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 import kotlinx.coroutines.delay
+
+private val BackgroundColor = Color(0xFF121414)
+private val Primary = Color(0xFFFFD597)
+private val Secondary = Color(0xFF9EFF8B)
+private val SurfaceContainerMedium = Color(0xFF1E2020)
+private val SurfaceContainerHigh = Color(0xFF282A2A)
+private val SurfaceContainerHighest = Color(0xFF333535)
+private val SurfaceContainerLowest = Color(0xFF0D0F0F)
+private val TextPrimaryColor = Color(0xFFE2E2E2)
+private val TextSecondaryColor = Color(0xFFD7C4AC)
+private val SignalBlue = Color(0xFF88E1FF)
 
 private data class BriefingLine(
     val channel: String,
@@ -76,37 +75,37 @@ private val missionBriefing = listOf(
     BriefingLine(
         channel = "BOOT",
         message = "Vault command systems online. Strategic archive integrity stable.",
-        accent = SignalCyan
+        accent = SignalBlue
     ),
     BriefingLine(
         channel = "IDENT",
-        message = "You are the Warden, the governing intelligence responsible for every human life sealed below.",
-        accent = VaultGreen
+        message = "You are the Warden, the bunker intelligence responsible for every human life sealed below.",
+        accent = Secondary
     ),
     BriefingLine(
         channel = "SITUATION",
-        message = "The old world above has collapsed into irradiated wasteland, fractured enclaves, and scavenged ruins.",
-        accent = WarningAmber
+        message = "The surface above is a wasteland of radiation, fractured enclaves, scavenged ruins, and false promises.",
+        accent = Primary
     ),
     BriefingLine(
         channel = "DIRECTIVE",
-        message = "Your task is to scan the surface, reject death traps, and locate ground where survivors can rebuild civilization.",
-        accent = SignalCyan
+        message = "Find a location where vault survivors can rebuild civilization instead of dying on first contact with the world.",
+        accent = SignalBlue
     ),
     BriefingLine(
         channel = "THREATS",
-        message = "Water scarcity, radiation, failed shelter, hostile factions, and travel losses will decide whether the vault becomes a nation or a grave.",
-        accent = WarningAmber
+        message = "Water loss, failed shelter, hostile factions, travel attrition, and poisoned ground will decide the species' future.",
+        accent = Primary
     ),
     BriefingLine(
         channel = "MANDATE",
-        message = "Preserve the bunker. Judge each site without mercy. Open the vault only when humanity has a real chance to endure.",
-        accent = VaultGreen
+        message = "Judge every site without mercy. Open the vault only when survival is more than hope.",
+        accent = Secondary
     ),
     BriefingLine(
         channel = "SIGNOFF",
         message = "Good luck, Warden.",
-        accent = WarningAmber
+        accent = Primary
     )
 )
 
@@ -158,100 +157,86 @@ fun MissionIntroScreen(
         terminalScroll.animateScrollTo(terminalScroll.maxValue)
     }
 
-    val bottomInset = WindowInsets.navigationBars.asPaddingValues()
-
-    WardenBackdrop(modifier = modifier.fillMaxSize()) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = BackgroundColor,
+        topBar = { MissionIntroTopBar() },
+        bottomBar = {
+            MissionIntroBottomBar(
+                briefingComplete = briefingComplete,
+                onContinue = onContinue
+            )
+        }
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            BackgroundBlack,
-                            Color(0xFF08121A),
-                            Color(0xFF071016),
-                            BackgroundBlack
+                            Color(0xFF101316),
+                            BackgroundColor,
+                            SurfaceContainerLowest
                         )
                     )
                 )
         ) {
-            TerminalScanOverlay(sweepProgress = sweepProgress)
+            MissionIntroOverlay(sweepProgress = sweepProgress)
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp, vertical = 18.dp)
-                    .padding(bottom = bottomInset.calculateBottomPadding()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(padding)
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                MissionIntroHeader()
+                MissionStatusBreadcrumb(briefingComplete = briefingComplete)
 
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .border(1.dp, PanelStroke.copy(alpha = 0.95f))
+                        .border(1.dp, SurfaceContainerHighest)
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    SurfaceElevated.copy(alpha = 0.96f),
-                                    SurfaceBlack.copy(alpha = 0.98f),
-                                    Color(0xFF091018).copy(alpha = 0.99f)
+                                    SurfaceContainerHigh,
+                                    SurfaceContainerMedium,
+                                    SurfaceContainerLowest
                                 )
                             )
                         )
-                        .padding(18.dp)
+                        .tacticalGrid(alpha = 0.08f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+                        .padding(24.dp)
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            MissionTag(
-                                icon = Icons.Filled.Shield,
-                                label = "VAULT 01",
-                                value = "STRATEGIC BRIEFING",
-                                accent = VaultGreen
-                            )
-                            MissionTag(
-                                icon = Icons.Filled.Radar,
-                                label = "OBJECTIVE",
-                                value = "FIND CIVILIZATION SITE",
-                                accent = WarningAmber
-                            )
-                        }
-
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Text(
-                                text = "MISSION PREFACE",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = SignalCyan,
-                                letterSpacing = 2.8.sp
-                            )
-                            Text(
-                                text = "WARDEN INITIATION PROTOCOL",
-                                style = MaterialTheme.typography.displaySmall,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(
-                                text = "The vault survives. The species might not. Read the brief, then begin the surface search.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary
-                            )
-                        }
+                        Text(
+                            text = "MISSION PREFACE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Primary,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 2.sp
+                        )
+                        Text(
+                            text = "WARDEN INITIATION PROTOCOL",
+                            style = MaterialTheme.typography.displaySmall,
+                            color = TextPrimaryColor,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = "A live terminal brief precedes the first scan. You can continue immediately or stay and read the full transmission.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondaryColor
+                        )
 
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(PanelStroke.copy(alpha = 0.8f))
+                                .background(SurfaceContainerHighest)
                         )
 
                         Column(
@@ -288,131 +273,205 @@ fun MissionIntroScreen(
 
                         Text(
                             text = if (briefingComplete) {
-                                "SYSTEM READY // CONTINUE TO FIRST SURFACE SCAN"
+                                "BRIEFING COMPLETE // CONTINUE WHEN READY"
                             } else {
-                                "DECODING VAULT DIRECTIVE..."
+                                "BRIEFING STREAM ACTIVE // CONTINUE AVAILABLE"
                             },
                             style = MaterialTheme.typography.labelMedium,
-                            color = if (briefingComplete) VaultGreen else SignalCyan.copy(alpha = 0.84f),
+                            color = if (briefingComplete) Secondary else SignalBlue,
                             letterSpacing = 1.6.sp
                         )
                     }
                 }
-
-                ActionButton(
-                    title = "Begin Surface Scan",
-                    subtitle = if (briefingComplete) {
-                        "Accept command authority and review the first settlement target."
-                    } else {
-                        "Stand by while the mission briefing finishes loading."
-                    },
-                    icon = Icons.Filled.PlayArrow,
-                    accent = WarningAmber,
-                    enabled = briefingComplete,
-                    onClick = onContinue
-                )
             }
         }
     }
 }
 
 @Composable
-private fun MissionIntroHeader() {
+private fun MissionIntroTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, PanelStroke.copy(alpha = 0.7f))
-            .background(Color(0xFF0A1119).copy(alpha = 0.94f))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .background(BackgroundColor)
+            .tacticalGrid(alpha = 0.14f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                shape = CircleShape,
-                color = SurfaceElevated,
-                tonalElevation = 0.dp
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFF101923)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Terminal,
-                        contentDescription = null,
-                        tint = SignalCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
+            Icon(
+                imageVector = Icons.Filled.Terminal,
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(24.dp)
+            )
             Column {
                 Text(
-                    text = "WARDEN_PROTOCOL",
+                    text = "WARDEN_PROTOCOL_V1.0.4",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Black
+                    color = Primary,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
                 )
                 Text(
-                    text = "PRE-RUN COMMAND BRIEFING",
+                    text = "MISSION BRIEF / YEAR 0",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
-                    letterSpacing = 1.6.sp
+                    color = TextPrimaryColor.copy(alpha = 0.55f),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
 
-        Text(
-            text = "YEAR 0 // VAULT SEALED",
-            style = MaterialTheme.typography.labelSmall,
-            color = WarningAmber,
-            letterSpacing = 1.8.sp
+        Icon(
+            imageVector = Icons.Filled.Tune,
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.size(24.dp)
         )
     }
 }
 
 @Composable
-private fun MissionTag(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String,
-    accent: Color
-) {
+private fun MissionStatusBreadcrumb(briefingComplete: Boolean) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                drawRect(Primary, size = size.copy(width = 4.dp.toPx()))
+            }
+            .padding(start = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .background(accent.copy(alpha = 0.12f), CircleShape)
-                .border(1.dp, accent.copy(alpha = 0.3f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(18.dp)
-            )
-        }
         Column {
             Text(
-                text = label,
+                text = "MISSION_BRIEF: ACTIVE",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary,
-                letterSpacing = 1.2.sp
+                color = Primary,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp
             )
             Text(
-                text = value,
-                style = MaterialTheme.typography.labelLarge,
-                color = TextPrimary
+                text = "DIRECTIVE: FIND A SURFACE SITE WHERE CIVILIZATION CAN ENDURE",
+                style = MaterialTheme.typography.labelSmall,
+                color = TextSecondaryColor,
+                letterSpacing = 1.6.sp
             )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(if (briefingComplete) Secondary else SignalBlue)
+            )
+            Text(
+                text = if (briefingComplete) "BRIEF_READY" else "CONTINUE_AVAILABLE",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (briefingComplete) Secondary else SignalBlue,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun MissionIntroBottomBar(
+    briefingComplete: Boolean,
+    onContinue: () -> Unit
+) {
+    val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BackgroundColor)
+            .tacticalGrid(alpha = 0.12f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(bottom = bottomInset),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = if (briefingComplete) {
+                "The full transmission is complete. Proceed when ready."
+            } else {
+                "Continue is live now. The terminal feed will keep unfolding if you stay."
+            },
+            style = MaterialTheme.typography.labelSmall,
+            color = TextSecondaryColor,
+            letterSpacing = 0.9.sp
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Primary.copy(alpha = 0.48f))
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            SurfaceContainerHigh,
+                            SurfaceContainerMedium,
+                            SurfaceContainerLowest
+                        )
+                    )
+                )
+                .clickable(onClick = onContinue)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        tint = Primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "BEGIN SURFACE SCAN",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TextPrimaryColor,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = if (briefingComplete) {
+                                "Mission brief acknowledged. Open the first settlement target."
+                            } else {
+                                "Skip ahead now or let the briefing finish before entering the first scan."
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondaryColor
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    Primary.copy(alpha = 0.55f),
+                                    Primary,
+                                    Primary.copy(alpha = 0.55f)
+                                )
+                            )
+                        )
+                )
+            }
         }
     }
 }
@@ -445,7 +504,7 @@ private fun TerminalLine(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary
+                color = TextPrimaryColor
             )
             if (showCursor) {
                 Spacer(Modifier.width(4.dp))
@@ -463,35 +522,56 @@ private fun TerminalLine(
 }
 
 @Composable
-private fun TerminalScanOverlay(sweepProgress: Float) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val spacing = 6.dp.toPx()
-        var currentY = 0f
-        while (currentY < size.height) {
-            drawLine(
-                color = Color.White.copy(alpha = 0.032f),
-                start = Offset(0f, currentY),
-                end = Offset(size.width, currentY),
-                strokeWidth = 1f
-            )
-            currentY += spacing
-        }
-
-        val sweepY = size.height * sweepProgress
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    CyanGlow.copy(alpha = 0.12f),
-                    Color.Transparent
+private fun MissionIntroOverlay(sweepProgress: Float) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .tacticalGrid(alpha = 0.05f, horizontalSpacing = 3.dp, verticalSpacing = 5.dp)
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val sweepY = size.height * sweepProgress
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        SignalBlue.copy(alpha = 0.08f),
+                        Color.Transparent
+                    ),
+                    startY = sweepY - 140f,
+                    endY = sweepY + 140f
                 ),
-                startY = sweepY - 140f,
-                endY = sweepY + 140f
-            ),
-            topLeft = Offset.Zero,
-            size = size
-        )
+                topLeft = Offset.Zero,
+                size = size
+            )
+        }
+    }
+}
 
-        drawRect(color = Color(0xFF020304).copy(alpha = 0.08f))
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
     }
 }
