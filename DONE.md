@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-04-02 - Animated Pre-Run Mission Briefing
+
+- Status: completed
+- Title: Add a terminal-style intro page before each run starts and update the docs for the new flow
+- Goal: Insert a new animated mission-briefing screen between the main menu `Start` action and the first gameplay scan, present the player as the AI Warden of the vault, explain the surface-settlement objective, preserve the app’s bunker-terminal visual language, and document the new run-start flow across the maintained docs.
+- What changed:
+    - Added `MissionIntroScreen.kt` as a dedicated full-screen pre-run terminal briefing with stronger scanlines, a moving CRT-style sweep, sequential sentence reveal, cursor effects, and a final `Good luck, Warden.` signoff before the Continue action unlocks.
+    - Updated `GameViewModel` so `StartNewGame` now initializes the first run state and generated location, pauses on a new `UiState.PreRunBriefing`, and only enters `SurfaceScanning` after the player confirms the briefing.
+    - Updated `MainActivity` so the new screen is rendered in the main `AnimatedContent` flow, uses the shared mission audio scene, and preserves existing replay/start entry points through the new briefing path.
+    - Updated `README.md`, `docs/README.md`, `docs/architecture.md`, `docs/gameplay.md`, `docs/ux.md`, and `docs/design.md` so the documented screen count, run loop, UX inventory, and design direction all reflect the new intro sequence.
+- Verification: `./gradlew --no-daemon -Dorg.gradle.workers.max=1 -Pandroid.aapt2FromMavenOverride=/opt/android-sdk/build-tools/36.0.0/aapt2 assembleRelease bundleRelease --console=plain` succeeded, the rebuilt release APK installed successfully on device `192.168.137.21:36325` via `adb`, the app launched through `adb shell monkey -p com.ivarna.wardenprotocol -c android.intent.category.LAUNCHER 1`, and the rebuilt AAB was copied to `/sdcard/Download/app-release.aab`.
+- Commit: `d29c3b7`
+
 ### 2026-04-02 - Verified NIM Models, True Ending, And UI Cleanup
 
 - Status: completed
