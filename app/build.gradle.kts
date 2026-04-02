@@ -47,7 +47,7 @@ android {
         buildConfigField(
             "String",
             "NVIDIA_NIM_MODEL",
-            "qwen/qwen3.5-122b-a10b".asBuildConfigString()
+            "meta/llama-4-maverick-17b-128e-instruct".asBuildConfigString()
         )
     }
 

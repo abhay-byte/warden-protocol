@@ -111,8 +111,8 @@ fun SettingsScreen(
                 )
                 DiagnosticRow("ACTIVE_MODEL", selectedModel.label.uppercase())
                 DiagnosticRow(
-                    "RECOMMENDED_PROFILE",
-                    NvidiaModelCatalog.resolve(NvidiaModelCatalog.RECOMMENDED_MODEL_ID).label.uppercase()
+                    "DEFAULT_PROFILE",
+                    NvidiaModelCatalog.resolve(NvidiaModelCatalog.DEFAULT_MODEL_ID).label.uppercase()
                 )
             }
 

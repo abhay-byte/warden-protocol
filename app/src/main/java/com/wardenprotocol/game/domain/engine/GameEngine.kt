@@ -310,6 +310,9 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scientific = state.databases.scientificArchive
 
         val (classification, tier) = when {
+            qualifiesForTrueEnding(state, location, score) -> {
+                "True Ending" to 5
+            }
             score >= 8000 -> {
                 when {
                     state.survivors > 900 -> "Paradise Reclaimed" to 5
@@ -403,6 +406,7 @@ class GameEngine(private val eventRepository: EventRepository) {
         val outcomeDetail = when (tier) {
             5 -> {
                 val specificEnding = when (classification) {
+                    "True Ending" -> "A full century after the vault opened, their descendants still held the land, the archives were still taught, and the settlement had become a real civilization rather than a lucky camp that happened to last. This is the ending where humanity truly came back."
                     "Paradise Reclaimed" -> "With over ${state.survivors} survivors, they had the numbers to build a true civilization. Within a generation, ${location.name} changed from wasteland to thriving homeland, with schools, clinics, farms, and markets."
                     "Renaissance of Humanity" -> "They emerged with more than enough bodies to survive; they also preserved memory and knowledge. The archives stayed largely intact. Artists painted new murals. Scientists developed radiation treatments. Philosophers argued about what survival should mean. Humanity kept its soul as well as its bloodline."
                     "Blessed Settlement" -> "The ${location.anomaly?.displayName} reshaped their fate. What first looked like a curse became their greatest advantage, giving them resources, knowledge, or protection strong enough to turn survival into certainty."
@@ -564,6 +568,8 @@ class GameEngine(private val eventRepository: EventRepository) {
             5 -> {
                 val maturityYears = state.yearsSinceWar + 60 + (state.survivors / 25)
                 val milestone = when {
+                    classification == "True Ending" ->
+                        "their city had survived past the 100-year mark, spread stable law and infrastructure across the region, and clearly crossed from survival into civilization"
                     location.resources == ResourceRichness.RICH ->
                         "metalworks, power relays, and reclaimed transit routes tied neighboring settlements to $settlementName"
                     state.databases.scientificArchive >= 80 ->
@@ -574,6 +580,11 @@ class GameEngine(private val eventRepository: EventRepository) {
                 composeNarrative(
                     "Within $foundationYears years, they had raised permanent walls, clinics, and fields around $settlementName.",
                     "By Year $futureYear after the war, the first generation born under open sky was reaching adulthood and no longer thought of the vault as home.",
+                    if (classification == "True Ending") {
+                        "By Year ${state.yearsSinceWar + 100}, the descendants of Vault $vaultNumber were still there, still growing, and still recognizable as a civilization."
+                    } else {
+                        ""
+                    },
                     "By Year $maturityYears, $milestone.",
                     "Later historians would mark the opening of Vault $vaultNumber as the beginning of a civilization that endured for centuries."
                 )
@@ -662,6 +673,22 @@ class GameEngine(private val eventRepository: EventRepository) {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .joinToString(" ")
+    }
+
+    private fun qualifiesForTrueEnding(
+        state: GameState,
+        location: SurfaceLocation,
+        score: Int
+    ): Boolean {
+        return score >= 9000 &&
+            state.survivors >= 850 &&
+            state.databases.culturalArchive >= 70 &&
+            state.databases.scientificArchive >= 70 &&
+            state.vaultSystems.constructionGear >= 60 &&
+            state.vaultSystems.securitySystem >= 55 &&
+            location.water != WaterAvailability.NONE &&
+            location.food != FoodPotential.BARREN &&
+            location.radiation != RadiationLevel.LETHAL
     }
 
     private fun generateCasualtyLine(

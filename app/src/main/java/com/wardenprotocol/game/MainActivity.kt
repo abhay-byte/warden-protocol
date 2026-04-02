@@ -28,14 +28,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -43,13 +38,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ivarna.wardenprotocol.audio.MusicScene
@@ -60,13 +55,10 @@ import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
 import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
 import com.ivarna.wardenprotocol.domain.engine.GameEngine
 import com.ivarna.wardenprotocol.ui.component.ActionButton
-import com.ivarna.wardenprotocol.ui.component.StatusBadge
 import com.ivarna.wardenprotocol.ui.screen.*
 import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
 import com.ivarna.wardenprotocol.ui.theme.PanelStroke
-import com.ivarna.wardenprotocol.ui.theme.SignalCyan
 import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
-import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
 import com.ivarna.wardenprotocol.ui.theme.TextPrimary
 import com.ivarna.wardenprotocol.ui.theme.TextSecondary
 import com.ivarna.wardenprotocol.ui.theme.VaultGreen
@@ -432,39 +424,67 @@ private fun QuitGameDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundBlack.copy(alpha = 0.72f))
+                .background(BackgroundBlack.copy(alpha = 0.82f))
                 .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, PanelStroke, RoundedCornerShape(32.dp)),
-                colors = CardDefaults.cardColors(containerColor = SurfaceBlack.copy(alpha = 0.98f)),
-                shape = RoundedCornerShape(32.dp)
+                    .background(SurfaceBlack.copy(alpha = 0.98f))
+                    .border(1.dp, PanelStroke)
             ) {
-                Column(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(SurfaceElevated, SurfaceBlack)
-                            )
+                        .background(Color(0xFF1A1C1C))
+                        .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 4.dp, height = 48.dp)
+                            .background(WarningAmber)
+                    )
+                    Column {
+                        Text(
+                            "EXIT PROTOCOL",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = WarningAmber,
+                            fontSize = 10.sp,
+                            letterSpacing = 2.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 4.dp)
                         )
-                        .padding(22.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                        Text(
+                            "COMMAND_ABORT",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = WarningAmber,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = (-1).sp
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF1A1C1C))
+                            .border(1.dp, Color(0xFF333535).copy(alpha = 0.2f))
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(54.dp)
-                                .clip(CircleShape)
-                                .background(WarningAmber.copy(alpha = 0.14f))
-                                .border(1.dp, WarningAmber.copy(alpha = 0.28f), CircleShape),
+                                .size(48.dp)
+                                .background(WarningAmber.copy(alpha = 0.10f))
+                                .border(1.dp, WarningAmber.copy(alpha = 0.55f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -475,48 +495,68 @@ private fun QuitGameDialog(
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Leave The Bunker?",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = TextPrimary
+                                text = "LEAVE THE BUNKER",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = (-0.5).sp
                             )
                             Text(
-                                text = "The command feed will go dark if you exit now.",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = "The command feed will go dark if you terminate the current session.",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = TextSecondary
                             )
                         }
                     }
 
-                    StatusBadge(
-                        icon = Icons.Filled.Shield,
-                        label = "Command Prompt",
-                        value = "Do you want to quit? 😢",
-                        accent = WarningAmber
-                    )
+                    QuitDialogRow(label = "EXIT_MODE", value = "FULL SHUTDOWN")
+                    QuitDialogRow(label = "ACTIVE_SESSION", value = "COMMAND DECK ONLINE")
+                    QuitDialogRow(label = "FAILSAFE", value = "RETURN TO HUB AVAILABLE")
 
                     Text(
-                        text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = "Stay keeps the current bunker session alive. Quit closes the app immediately.",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = TextSecondary
                     )
 
                     ActionButton(
                         title = "Stay In The Vault",
-                        subtitle = "Return to the home page and keep command online.",
+                        subtitle = "Return to the home deck and keep the command feed online.",
                         icon = Icons.Filled.Home,
                         accent = VaultGreen,
                         onClick = onDismiss
                     )
 
                     ActionButton(
-                        title = "Quit Game",
-                        subtitle = "Close the app and leave the bunker interface.",
+                        title = "Execute Shutdown",
+                        subtitle = "Close the application and terminate the bunker session.",
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        accent = SignalCyan,
+                        accent = WarningAmber,
                         onClick = onQuit
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun QuitDialogRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = TextSecondary,
+            fontSize = 11.sp
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelSmall,
+            color = WarningAmber,
+            fontSize = 11.sp
+        )
     }
 }

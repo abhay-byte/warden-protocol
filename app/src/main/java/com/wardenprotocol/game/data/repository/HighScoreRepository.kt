@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.ivarna.wardenprotocol.BuildConfig
 import com.ivarna.wardenprotocol.data.model.ColonyOutcome
+import com.ivarna.wardenprotocol.data.model.NvidiaModelCatalog
 import com.ivarna.wardenprotocol.data.model.RunRecord
 import com.ivarna.wardenprotocol.data.model.AiTimelineEntry
 import com.ivarna.wardenprotocol.data.model.buildArchiveGradeLabel
@@ -40,7 +41,8 @@ class HighScoreRepository(private val context: Context) {
     }
 
     val selectedAiModel: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[SELECTED_AI_MODEL_KEY] ?: BuildConfig.NVIDIA_NIM_MODEL
+        val stored = preferences[SELECTED_AI_MODEL_KEY] ?: BuildConfig.NVIDIA_NIM_MODEL
+        NvidiaModelCatalog.options.firstOrNull { it.id == stored }?.id ?: BuildConfig.NVIDIA_NIM_MODEL
     }
     
     suspend fun saveHighScore(score: Int) {

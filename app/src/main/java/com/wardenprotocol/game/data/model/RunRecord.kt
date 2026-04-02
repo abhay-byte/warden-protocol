@@ -72,6 +72,7 @@ fun buildArchiveOutcomeLabel(
 ): String {
     if (stats == null) return classification.uppercase()
     return when {
+        classification == "True Ending" -> "TRUE ENDING"
         stats.survivors <= 0 || classification == "Total Extinction" -> "TOTAL EXTINCTION"
         stats.radiation == RadiationLevel.LETHAL.displayName -> "RADIATION COLLAPSE"
         stats.water == WaterAvailability.NONE.displayName && stats.food == FoodPotential.BARREN.displayName -> "RESOURCE DEPLETION"
