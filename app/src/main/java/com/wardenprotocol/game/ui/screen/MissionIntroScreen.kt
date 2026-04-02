@@ -48,6 +48,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -143,13 +144,7 @@ fun MissionIntroScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = BackgroundColor,
-        topBar = { MissionIntroTopBar() },
-        bottomBar = {
-            MissionIntroBottomBar(
-                briefingComplete = briefingComplete,
-                onContinue = onContinue
-            )
-        }
+        topBar = { MissionIntroTopBar() }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -170,15 +165,13 @@ fun MissionIntroScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 24.dp, vertical = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
             ) {
-                MissionStatusBreadcrumb(briefingComplete = briefingComplete)
-
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1f, fill = true)
                         .fillMaxWidth()
+                        .padding(bottom = 12.dp)
                         .border(1.dp, SurfaceContainerHighest)
                         .background(
                             Brush.verticalGradient(
@@ -194,8 +187,10 @@ fun MissionIntroScreen(
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        MissionStatusBreadcrumb(briefingComplete = briefingComplete)
+
                         Text(
                             text = "MISSION PREFACE",
                             style = MaterialTheme.typography.labelSmall,
@@ -209,11 +204,6 @@ fun MissionIntroScreen(
                             color = TextPrimaryColor,
                             fontWeight = FontWeight.Black
                         )
-                        Text(
-                            text = "A live terminal brief precedes the first scan. You can continue immediately or stay and read the full transmission.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = TextSecondaryColor
-                        )
 
                         Spacer(
                             modifier = Modifier
@@ -226,7 +216,7 @@ fun MissionIntroScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceEvenly
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             missionBriefing.forEachIndexed { index, line ->
                                 when {
@@ -265,6 +255,11 @@ fun MissionIntroScreen(
                         )
                     }
                 }
+
+                MissionIntroBottomBar(
+                    briefingComplete = briefingComplete,
+                    onContinue = onContinue
+                )
             }
         }
     }
@@ -325,25 +320,18 @@ private fun MissionStatusBreadcrumb(briefingComplete: Boolean) {
             .drawBehind {
                 drawRect(Primary, size = size.copy(width = 4.dp.toPx()))
             }
-            .padding(start = 16.dp),
+            .padding(start = 12.dp, end = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(
-                text = "MISSION_BRIEF: ACTIVE",
-                style = MaterialTheme.typography.labelSmall,
-                color = Primary,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp
-            )
-            Text(
-                text = "DIRECTIVE: FIND A SURFACE SITE WHERE CIVILIZATION CAN ENDURE",
-                style = MaterialTheme.typography.labelSmall,
-                color = TextSecondaryColor,
-                letterSpacing = 1.6.sp
-            )
-        }
+        Text(
+            text = "MISSION BRIEF ACTIVE",
+            style = MaterialTheme.typography.labelSmall,
+            color = Primary,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.8.sp,
+            maxLines = 1
+        )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -375,22 +363,10 @@ private fun MissionIntroBottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(BackgroundColor)
-            .tacticalGrid(alpha = 0.12f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(top = 4.dp)
             .padding(bottom = bottomInset),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = if (briefingComplete) {
-                "The full transmission is complete. Proceed when ready."
-            } else {
-                "Continue is live now. The terminal feed will keep unfolding if you stay."
-            },
-            style = MaterialTheme.typography.labelSmall,
-            color = TextSecondaryColor,
-            letterSpacing = 0.9.sp
-        )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -408,17 +384,10 @@ private fun MissionIntroBottomBar(
                 .clickable(onClick = onContinue)
         ) {
             Column {
-                Text(
-                    text = "CRT COMMAND LINK",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = SignalBlue,
-                    letterSpacing = 1.6.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp)
-                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -439,10 +408,12 @@ private fun MissionIntroBottomBar(
                             text = if (briefingComplete) {
                                 "Mission brief acknowledged. Open the first settlement target."
                             } else {
-                                "Skip ahead now or let the briefing finish before entering the first scan."
+                                "Continue now or stay for the rest of the transmission."
                             },
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondaryColor
+                            color = TextSecondaryColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -482,7 +453,7 @@ private fun TerminalLine(
             text = channel,
             style = MaterialTheme.typography.labelMedium,
             color = accent,
-            letterSpacing = 2.2.sp
+            letterSpacing = 1.8.sp
         )
         Row(verticalAlignment = Alignment.Top) {
             Text(
@@ -494,7 +465,8 @@ private fun TerminalLine(
             Text(
                 text = message,
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimaryColor
+                color = TextPrimaryColor,
+                lineHeight = 24.sp
             )
             if (showCursor) {
                 Spacer(Modifier.width(4.dp))
