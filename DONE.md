@@ -4,6 +4,20 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-04-02 - Ivarna Package Rename, Release Size Reduction, And Selectable NVIDIA Models
+
+- Status: completed
+- Title: Rename the app to `com.ivarna.wardenprotocol`, shrink the release build, and add a settings-driven NVIDIA NIM model selector
+- Goal: Rebrand the Android package, wire the provided NVIDIA API key, reduce the shipped APK/AAB size aggressively, research current NVIDIA NIM options for the ending-forecast task, and let the app send requests with a model chosen from the Settings screen.
+- What changed:
+    - Renamed the Android namespace and application ID to `com.ivarna.wardenprotocol` and updated the related app and fastlane references.
+    - Added the provided NVIDIA API key to local configuration and updated the default build model value.
+    - Compressed the large bundled artwork from PNG to WebP, re-encoded bundled audio from MP3 to Ogg Vorbis, and enabled release minification/resource shrinking to cut the release artifacts down substantially.
+    - Added a persistent settings dropdown for eight testable NVIDIA NIM model profiles, including Llama 4 and Llama 3.3 options, while preserving the existing bunker-console styling.
+    - Updated the forecast request path so the selected settings model is sent live in the `/chat/completions` request instead of using a fixed model constant.
+- Verification: `./gradlew --no-daemon -Dorg.gradle.workers.max=1 -Pandroid.aapt2FromMavenOverride=/opt/android-sdk/build-tools/36.0.0/aapt2 assembleRelease bundleRelease --console=plain` succeeded, the rebuilt release APK was installed successfully on device `192.168.137.21:36325` via `adb`, and the rebuilt AAB was copied to `/sdcard/Download/app-release.aab`.
+- Commit: `55eaf38`
+
 ### 2026-03-30 - Mistral Small 4 Forecast Switch
 
 - Status: completed
