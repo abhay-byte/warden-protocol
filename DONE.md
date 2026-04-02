@@ -4,6 +4,19 @@ This file tracks tasks that have been fully completed.
 
 ## Completed Tasks
 
+### 2026-04-02 - Verified NIM Models, True Ending, And UI Cleanup
+
+- Status: completed
+- Title: Verify working NVIDIA NIM models, set Llama 4 Maverick as default, add the true ending path, retheme the quit dialog, and remove spoiler-style event choice impact text
+- Goal: Validate the selectable NVIDIA NIM model IDs against official NVIDIA Build pages, keep only working options with a stronger default, add an explicit 100-year civilization true ending if the vault meaningfully survives and establishes itself, bring the exit confirmation back in line with the newer app theming, and stop event choices from revealing exact vault-impact details up front.
+- What changed:
+    - Replaced the selector catalog with verified model IDs from official NVIDIA Build listings, removed the broken entries, set `meta/llama-4-maverick-17b-128e-instruct` as the default, and made stored settings fall back safely if an older invalid model ID is present.
+    - Added a distinct `True Ending` classification path in the outcome engine for exceptionally strong runs that can realistically preserve the vault population and establish civilization after 100 years, and surfaced that state in the archived result label.
+    - Reworked the quit confirmation dialog in `MainActivity.kt` so it uses the newer bunker-console treatment instead of the older stock-looking popup styling.
+    - Simplified event choice detail text so players no longer see explicit spoiler-like vault effect summaries before choosing.
+- Verification: Official NVIDIA Build pages were checked for the shipped model IDs, `./gradlew --no-daemon -Dorg.gradle.workers.max=1 -Pandroid.aapt2FromMavenOverride=/opt/android-sdk/build-tools/36.0.0/aapt2 assembleRelease bundleRelease --console=plain` succeeded, `/opt/android-sdk/build-tools/36.0.0/aapt dump badging` confirmed the release APK package as `com.ivarna.wardenprotocol` on SDK 36, the rebuilt release APK installed successfully on device `192.168.137.21:36325` via `adb`, and the rebuilt AAB was copied to `/sdcard/Download/app-release.aab`.
+- Commit: `376cc63`
+
 ### 2026-04-02 - Ivarna Package Rename, Release Size Reduction, And Selectable NVIDIA Models
 
 - Status: completed

@@ -5,18 +5,16 @@ This file tracks the current task in progress.
 ## Active Task
 
 - Status: idle
-- Title:
-- Requested by:
-- Requested at:
-- Goal:
+- Title: No active task
+- Requested by: -
+- Requested at: -
+- Goal: Waiting for the next task.
 - Notes:
-  - 
+  - The previous task was completed, pushed to `origin`, and recorded in `DONE.md`.
 - Verification status:
+  - No active verification pending.
 - Planned checks:
-  - [ ] Build with Gradle
-  - [ ] Run on device with `adb`
-  - [ ] Commit changes
-  - [ ] Push to `origin`
+  - [ ] Await next task
 
 ## How We Use This
 
