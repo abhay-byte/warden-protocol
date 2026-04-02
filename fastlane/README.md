@@ -80,7 +80,7 @@ F-Droid builds automatically from tagged commits:
 2. Run `bundle exec fastlane deploy_fdroid`
 3. This runs lint + test, creates git tag `vX.Y.Z`
 4. F-Droid picks up tagged commits automatically
-5. Maintain `metadata/com.wardenprotocol.game.yml` in F-Droid data repository
+5. Maintain `metadata/com.ivarna.wardenprotocol.yml` in F-Droid data repository
 
 ## Adding Locales
 

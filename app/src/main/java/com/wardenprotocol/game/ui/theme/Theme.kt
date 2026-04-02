@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.theme
+package com.ivarna.wardenprotocol.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme

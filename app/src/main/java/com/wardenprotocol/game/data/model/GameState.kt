@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.data.model
+package com.ivarna.wardenprotocol.data.model
 
 data class GameState(
     val survivors: Int = 1000,

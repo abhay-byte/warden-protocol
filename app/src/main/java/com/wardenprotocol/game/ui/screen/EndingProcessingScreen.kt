@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.data.model.ColonyOutcome
+import com.ivarna.wardenprotocol.data.model.ColonyOutcome
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max

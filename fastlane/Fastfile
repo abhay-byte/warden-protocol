@@ -33,7 +33,7 @@ platform :android do
     build_release
     upload_to_play_store(
       track: "internal",
-      package_name: "com.wardenprotocol.game"
+      package_name: "com.ivarna.wardenprotocol"
     )
   end
 
@@ -42,7 +42,7 @@ platform :android do
     build_release
     upload_to_play_store(
       track: "alpha",
-      package_name: "com.wardenprotocol.game"
+      package_name: "com.ivarna.wardenprotocol"
     )
   end
 
@@ -51,7 +51,7 @@ platform :android do
     build_release
     upload_to_play_store(
       track: "beta",
-      package_name: "com.wardenprotocol.game"
+      package_name: "com.ivarna.wardenprotocol"
     )
   end
 
@@ -61,7 +61,7 @@ platform :android do
     build_release
     upload_to_play_store(
       track: "production",
-      package_name: "com.wardenprotocol.game"
+      package_name: "com.ivarna.wardenprotocol"
     )
   end
 
@@ -76,7 +76,7 @@ platform :android do
 
     add_git_tag(tag: "v#{version}")
 
-    UI.message("F-Droid builds automatically from tagged commits. Please ensure metadata/com.wardenprotocol.game.yml is maintained in the F-Droid data repository.")
+    UI.message("F-Droid builds automatically from tagged commits. Please ensure metadata/com.ivarna.wardenprotocol.yml is maintained in the F-Droid data repository.")
   end
 
   desc "Bumps versionCode and creates git tag"
@@ -96,9 +96,9 @@ platform :android do
 
   desc "Placeholder for Screengrab screenshot capture"
   lane :screenshot do
-    UI.message("Screengrab setup required for com.wardenprotocol.game")
-    UI.message("Run: fastlane screengrab --package com.wardenprotocol.game")
-    UI.message("Configure in Screengrabfile with package_name: 'com.wardenprotocol.game'")
+    UI.message("Screengrab setup required for com.ivarna.wardenprotocol")
+    UI.message("Run: fastlane screengrab --package com.ivarna.wardenprotocol")
+    UI.message("Configure in Screengrabfile with package_name: 'com.ivarna.wardenprotocol'")
   end
 
   desc "Posts deployment summary to Slack"

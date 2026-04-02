@@ -1,10 +1,10 @@
-package com.wardenprotocol.game.audio
+package com.ivarna.wardenprotocol.audio
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
-import com.wardenprotocol.game.R
+import com.ivarna.wardenprotocol.R
 import kotlin.random.Random
 
 enum class MusicScene {

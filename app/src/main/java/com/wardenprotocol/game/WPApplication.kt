@@ -1,4 +1,4 @@
-package com.wardenprotocol.game
+package com.ivarna.wardenprotocol
 
 import android.app.Application
 

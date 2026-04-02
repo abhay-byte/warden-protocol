@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -30,13 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.R
-import com.wardenprotocol.game.data.model.AiEndingReport
-import com.wardenprotocol.game.data.model.LocationType
-import com.wardenprotocol.game.data.model.ColonyOutcome
-import com.wardenprotocol.game.data.model.OutcomeStats
-import com.wardenprotocol.game.ui.component.locationArtworkRes
-import com.wardenprotocol.game.ui.theme.*
+import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.data.model.AiEndingReport
+import com.ivarna.wardenprotocol.data.model.LocationType
+import com.ivarna.wardenprotocol.data.model.ColonyOutcome
+import com.ivarna.wardenprotocol.data.model.OutcomeStats
+import com.ivarna.wardenprotocol.ui.component.locationArtworkRes
+import com.ivarna.wardenprotocol.ui.theme.*
 
 // Theme Colors consistent with Brutalist bunker interface
 private val Primary = Color(0xFFFFD597)

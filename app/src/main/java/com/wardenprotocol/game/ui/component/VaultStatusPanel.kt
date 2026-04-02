@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,15 +23,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.wardenprotocol.game.data.model.Databases
-import com.wardenprotocol.game.data.model.VaultSystems
-import com.wardenprotocol.game.ui.theme.DangerRed
-import com.wardenprotocol.game.ui.theme.SignalCyan
-import com.wardenprotocol.game.ui.theme.SurfaceElevated
-import com.wardenprotocol.game.ui.theme.TextPrimary
-import com.wardenprotocol.game.ui.theme.TextSecondary
-import com.wardenprotocol.game.ui.theme.VaultGreen
-import com.wardenprotocol.game.ui.theme.WarningAmber
+import com.ivarna.wardenprotocol.data.model.Databases
+import com.ivarna.wardenprotocol.data.model.VaultSystems
+import com.ivarna.wardenprotocol.ui.theme.DangerRed
+import com.ivarna.wardenprotocol.ui.theme.SignalCyan
+import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
+import com.ivarna.wardenprotocol.ui.theme.TextPrimary
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 import kotlin.math.roundToInt
 
 @Composable

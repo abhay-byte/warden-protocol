@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.data.model
+package com.ivarna.wardenprotocol.data.model
 
 import org.json.JSONArray
 import org.json.JSONObject

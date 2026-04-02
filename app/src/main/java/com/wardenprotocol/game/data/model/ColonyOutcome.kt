@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.data.model
+package com.ivarna.wardenprotocol.data.model
 
 data class ColonyOutcome(
     val score: Int,

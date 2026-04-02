@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -29,8 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.data.model.EventChoice
-import com.wardenprotocol.game.data.model.GameEvent
+import com.ivarna.wardenprotocol.data.model.EventChoice
+import com.ivarna.wardenprotocol.data.model.GameEvent
 
 // High-Fidelity Color Tokens (Material 3 Surface Mappings)
 private val BackgroundColor = Color(0xFF121414)

@@ -1,12 +1,13 @@
-package com.wardenprotocol.game.ui.viewmodel
+package com.ivarna.wardenprotocol.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wardenprotocol.game.data.model.*
-import com.wardenprotocol.game.data.repository.AiEndingForecastRepository
-import com.wardenprotocol.game.data.repository.AiEndingForecastResult
-import com.wardenprotocol.game.data.repository.HighScoreRepository
-import com.wardenprotocol.game.domain.engine.GameEngine
+import com.ivarna.wardenprotocol.BuildConfig
+import com.ivarna.wardenprotocol.data.model.*
+import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
+import com.ivarna.wardenprotocol.data.repository.AiEndingForecastResult
+import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
+import com.ivarna.wardenprotocol.domain.engine.GameEngine
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -23,6 +24,7 @@ sealed class GameAction {
     object GoToMainMenu : GameAction()
     data class OpenArchivedOutcome(val entry: RunRecord) : GameAction()
     data class SelectEventChoice(val choice: EventChoice) : GameAction()
+    data class SelectAiModel(val modelId: String) : GameAction()
     object DismissEventOutcome : GameAction()
     object ToggleMusic : GameAction()
     object ToggleSfx : GameAction()
@@ -69,6 +71,11 @@ class GameViewModel(
 
     val runHistory: StateFlow<List<RunRecord>> = highScoreRepository.runHistory
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val selectedAiModel: StateFlow<String> = highScoreRepository.selectedAiModel
+        .stateIn(viewModelScope, SharingStarted.Eagerly, BuildConfig.NVIDIA_NIM_MODEL)
+
+    val availableAiModels: List<NvidiaModelOption> = NvidiaModelCatalog.options
     
     fun handleAction(action: GameAction) {
         when (action) {
@@ -82,6 +89,9 @@ class GameViewModel(
             is GameAction.GoToMainMenu -> _uiState.value = UiState.MainMenu
             is GameAction.OpenArchivedOutcome -> openArchivedOutcome(action.entry)
             is GameAction.SelectEventChoice -> selectEventChoice(action.choice)
+            is GameAction.SelectAiModel -> viewModelScope.launch {
+                highScoreRepository.saveSelectedAiModel(action.modelId)
+            }
             is GameAction.DismissEventOutcome -> dismissEventOutcome()
             is GameAction.ToggleMusic -> _musicEnabled.value = !_musicEnabled.value
             is GameAction.ToggleSfx -> _sfxEnabled.value = !_sfxEnabled.value
@@ -282,8 +292,13 @@ class GameViewModel(
         )
 
         viewModelScope.launch {
+            val activeModelId = selectedAiModel.value
+            val activeModel = NvidiaModelCatalog.resolve(activeModelId)
             val forecastResult = withTimeoutOrNull(60_000) {
-                aiEndingForecastRepository.enhanceOutcome(outcome)
+                aiEndingForecastRepository.enhanceOutcome(
+                    baseOutcome = outcome,
+                    modelId = activeModelId
+                )
             } ?: AiEndingForecastResult.Fallback(
                 reason = "Forecast engine timed out. Using deterministic ending log."
             )
@@ -298,7 +313,7 @@ class GameViewModel(
             highScoreRepository.saveRun(finalOutcome)
 
             val finalAnalysisState = when (forecastResult) {
-                is AiEndingForecastResult.Success -> EndingForecastState.Ready("NVIDIA NIM")
+                is AiEndingForecastResult.Success -> EndingForecastState.Ready("NVIDIA NIM / ${activeModel.label}")
                 is AiEndingForecastResult.Fallback -> EndingForecastState.Fallback(forecastResult.reason)
             }
 

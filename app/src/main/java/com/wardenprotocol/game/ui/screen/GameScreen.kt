@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -59,18 +59,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.R
-import com.wardenprotocol.game.data.model.FoodPotential
-import com.wardenprotocol.game.data.model.GameState
-import com.wardenprotocol.game.data.model.Hostility
-import com.wardenprotocol.game.data.model.LocationType
-import com.wardenprotocol.game.data.model.RadiationLevel
-import com.wardenprotocol.game.data.model.ResourceRichness
-import com.wardenprotocol.game.data.model.ShelterQuality
-import com.wardenprotocol.game.data.model.SurfaceAnomaly
-import com.wardenprotocol.game.data.model.SurfaceLocation
-import com.wardenprotocol.game.data.model.TravelRisk
-import com.wardenprotocol.game.data.model.WaterAvailability
+import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.data.model.FoodPotential
+import com.ivarna.wardenprotocol.data.model.GameState
+import com.ivarna.wardenprotocol.data.model.Hostility
+import com.ivarna.wardenprotocol.data.model.LocationType
+import com.ivarna.wardenprotocol.data.model.RadiationLevel
+import com.ivarna.wardenprotocol.data.model.ResourceRichness
+import com.ivarna.wardenprotocol.data.model.ShelterQuality
+import com.ivarna.wardenprotocol.data.model.SurfaceAnomaly
+import com.ivarna.wardenprotocol.data.model.SurfaceLocation
+import com.ivarna.wardenprotocol.data.model.TravelRisk
+import com.ivarna.wardenprotocol.data.model.WaterAvailability
 import kotlin.math.roundToInt
 
 private val BackgroundColor = Color(0xFF121414)

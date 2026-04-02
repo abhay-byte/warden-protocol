@@ -1,4 +1,4 @@
-package com.wardenprotocol.game
+package com.ivarna.wardenprotocol
 
 import android.app.Activity
 import android.content.Context
@@ -52,29 +52,29 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.wardenprotocol.game.audio.MusicScene
-import com.wardenprotocol.game.audio.UiSound
-import com.wardenprotocol.game.audio.WardenAudioController
-import com.wardenprotocol.game.data.repository.EventRepository
-import com.wardenprotocol.game.data.repository.AiEndingForecastRepository
-import com.wardenprotocol.game.data.repository.HighScoreRepository
-import com.wardenprotocol.game.domain.engine.GameEngine
-import com.wardenprotocol.game.ui.component.ActionButton
-import com.wardenprotocol.game.ui.component.StatusBadge
-import com.wardenprotocol.game.ui.screen.*
-import com.wardenprotocol.game.ui.theme.BackgroundBlack
-import com.wardenprotocol.game.ui.theme.PanelStroke
-import com.wardenprotocol.game.ui.theme.SignalCyan
-import com.wardenprotocol.game.ui.theme.SurfaceBlack
-import com.wardenprotocol.game.ui.theme.SurfaceElevated
-import com.wardenprotocol.game.ui.theme.TextPrimary
-import com.wardenprotocol.game.ui.theme.TextSecondary
-import com.wardenprotocol.game.ui.theme.VaultGreen
-import com.wardenprotocol.game.ui.theme.WardenProtocolTheme
-import com.wardenprotocol.game.ui.theme.WarningAmber
-import com.wardenprotocol.game.ui.viewmodel.GameViewModel
-import com.wardenprotocol.game.ui.viewmodel.GameAction
-import com.wardenprotocol.game.ui.viewmodel.UiState
+import com.ivarna.wardenprotocol.audio.MusicScene
+import com.ivarna.wardenprotocol.audio.UiSound
+import com.ivarna.wardenprotocol.audio.WardenAudioController
+import com.ivarna.wardenprotocol.data.repository.EventRepository
+import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
+import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
+import com.ivarna.wardenprotocol.domain.engine.GameEngine
+import com.ivarna.wardenprotocol.ui.component.ActionButton
+import com.ivarna.wardenprotocol.ui.component.StatusBadge
+import com.ivarna.wardenprotocol.ui.screen.*
+import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
+import com.ivarna.wardenprotocol.ui.theme.PanelStroke
+import com.ivarna.wardenprotocol.ui.theme.SignalCyan
+import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
+import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
+import com.ivarna.wardenprotocol.ui.theme.TextPrimary
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.WardenProtocolTheme
+import com.ivarna.wardenprotocol.ui.theme.WarningAmber
+import com.ivarna.wardenprotocol.ui.viewmodel.GameViewModel
+import com.ivarna.wardenprotocol.ui.viewmodel.GameAction
+import com.ivarna.wardenprotocol.ui.viewmodel.UiState
 
 class MainActivity : ComponentActivity() {
     
@@ -113,6 +113,7 @@ fun GameApp(viewModel: GameViewModel) {
     val runHistory by viewModel.runHistory.collectAsState()
     val musicEnabled by viewModel.musicEnabled.collectAsState()
     val sfxEnabled by viewModel.sfxEnabled.collectAsState()
+    val selectedAiModel by viewModel.selectedAiModel.collectAsState()
     val context = LocalContext.current
     val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
     val audioController = remember(context.applicationContext) {
@@ -211,6 +212,8 @@ fun GameApp(viewModel: GameViewModel) {
                     SettingsScreen(
                         musicEnabled = musicEnabled,
                         sfxEnabled = sfxEnabled,
+                        selectedModelId = selectedAiModel,
+                        modelOptions = viewModel.availableAiModels,
                         onToggleMusic = {
                             val enabling = !musicEnabled
                             audioController.setMusicEnabled(enabling)
@@ -226,6 +229,10 @@ fun GameApp(viewModel: GameViewModel) {
                             if (enabling) {
                                 audioController.play(UiSound.TOGGLE, force = true)
                             }
+                        },
+                        onSelectModel = { modelId ->
+                            audioController.play(UiSound.SECONDARY, force = true)
+                            viewModel.handleAction(GameAction.SelectAiModel(modelId))
                         },
                         onBack = {
                             audioController.play(UiSound.NAV)
@@ -331,7 +338,7 @@ fun GameApp(viewModel: GameViewModel) {
                 }
 
                 is UiState.GameOutcome -> {
-                    if (state.analysisState is com.wardenprotocol.game.ui.viewmodel.EndingForecastState.Loading) {
+                    if (state.analysisState is com.ivarna.wardenprotocol.ui.viewmodel.EndingForecastState.Loading) {
                         EndingProcessingScreen(outcome = state.outcome)
                     } else {
                         OutcomeScreen(

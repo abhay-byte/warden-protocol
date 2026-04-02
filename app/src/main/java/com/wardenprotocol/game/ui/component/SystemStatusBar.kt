@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.wardenprotocol.game.ui.theme.*
+import com.ivarna.wardenprotocol.ui.theme.*
 
 @Composable
 fun SystemStatusBar(

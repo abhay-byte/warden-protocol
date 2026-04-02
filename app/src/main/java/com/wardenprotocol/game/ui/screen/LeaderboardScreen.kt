@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,11 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.PaddingValues
-import com.wardenprotocol.game.data.model.RunRecord
-import com.wardenprotocol.game.ui.component.*
-import com.wardenprotocol.game.ui.theme.TextSecondary
-import com.wardenprotocol.game.ui.theme.VaultGreen
-import com.wardenprotocol.game.ui.theme.WarningAmber
+import com.ivarna.wardenprotocol.data.model.RunRecord
+import com.ivarna.wardenprotocol.ui.component.*
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 
 @Composable
 fun LeaderboardScreen(

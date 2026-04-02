@@ -23,13 +23,13 @@ fun String.asBuildConfigString(): String =
     "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
-    namespace = "com.wardenprotocol.game"
+    namespace = "com.ivarna.wardenprotocol"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
     ndkVersion = "29.0.14206865"
 
     defaultConfig {
-        applicationId = "com.wardenprotocol.game"
+        applicationId = "com.ivarna.wardenprotocol"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -47,7 +47,7 @@ android {
         buildConfigField(
             "String",
             "NVIDIA_NIM_MODEL",
-            "mistralai/mistral-small-4-119b-2603".asBuildConfigString()
+            "qwen/qwen3.5-122b-a10b".asBuildConfigString()
         )
     }
 
@@ -64,7 +64,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -77,6 +78,16 @@ android {
     
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "/META-INF/{AL2.0,LGPL2.1}",
+                "/META-INF/LICENSE*",
+                "/META-INF/NOTICE*"
+            )
+        }
     }
     
     buildFeatures {

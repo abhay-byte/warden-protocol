@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -73,13 +73,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.R
-import com.wardenprotocol.game.data.model.RunRecord
-import com.wardenprotocol.game.ui.component.WardenBackdrop
-import com.wardenprotocol.game.ui.component.WardenBottomNav
-import com.wardenprotocol.game.ui.component.WardenTab
-import com.wardenprotocol.game.ui.component.WardenTopBar
-import com.wardenprotocol.game.ui.component.animatedEntranceModifier
+import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.data.model.RunRecord
+import com.ivarna.wardenprotocol.ui.component.WardenBackdrop
+import com.ivarna.wardenprotocol.ui.component.WardenBottomNav
+import com.ivarna.wardenprotocol.ui.component.WardenTab
+import com.ivarna.wardenprotocol.ui.component.WardenTopBar
+import com.ivarna.wardenprotocol.ui.component.animatedEntranceModifier
 import kotlin.math.roundToInt
 
 private val HomeBackground = Color(0xFF121414)

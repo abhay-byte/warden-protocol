@@ -1,8 +1,8 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
-import com.wardenprotocol.game.R
-import com.wardenprotocol.game.data.model.GameEvent
-import com.wardenprotocol.game.data.repository.ExpandedEventCatalog
+import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.data.model.GameEvent
+import com.ivarna.wardenprotocol.data.repository.ExpandedEventCatalog
 
 internal enum class EventImageKey(
     val drawableRes: Int

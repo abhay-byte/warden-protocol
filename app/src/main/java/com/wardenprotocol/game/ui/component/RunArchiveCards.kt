@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,14 +46,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.data.model.RunRecord
-import com.wardenprotocol.game.data.model.locationTypeOrNull
-import com.wardenprotocol.game.data.model.resolvedGradeLabel
-import com.wardenprotocol.game.data.model.resolvedOutcomeLabel
-import com.wardenprotocol.game.ui.theme.TextPrimary
-import com.wardenprotocol.game.ui.theme.TextSecondary
-import com.wardenprotocol.game.ui.theme.VaultGreen
-import com.wardenprotocol.game.ui.theme.WarningAmber
+import com.ivarna.wardenprotocol.data.model.RunRecord
+import com.ivarna.wardenprotocol.data.model.locationTypeOrNull
+import com.ivarna.wardenprotocol.data.model.resolvedGradeLabel
+import com.ivarna.wardenprotocol.data.model.resolvedOutcomeLabel
+import com.ivarna.wardenprotocol.ui.theme.TextPrimary
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

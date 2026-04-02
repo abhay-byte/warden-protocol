@@ -1,7 +1,7 @@
-package com.wardenprotocol.game.domain.engine
+package com.ivarna.wardenprotocol.domain.engine
 
-import com.wardenprotocol.game.data.model.*
-import com.wardenprotocol.game.data.repository.EventRepository
+import com.ivarna.wardenprotocol.data.model.*
+import com.ivarna.wardenprotocol.data.repository.EventRepository
 import kotlin.random.Random
 
 class GameEngine(private val eventRepository: EventRepository) {

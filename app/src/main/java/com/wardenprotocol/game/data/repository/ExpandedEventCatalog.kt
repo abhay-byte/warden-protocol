@@ -1,8 +1,8 @@
-package com.wardenprotocol.game.data.repository
+package com.ivarna.wardenprotocol.data.repository
 
-import com.wardenprotocol.game.data.model.EventChoice
-import com.wardenprotocol.game.data.model.EventOutcome
-import com.wardenprotocol.game.data.model.GameEvent
+import com.ivarna.wardenprotocol.data.model.EventChoice
+import com.ivarna.wardenprotocol.data.model.EventOutcome
+import com.ivarna.wardenprotocol.data.model.GameEvent
 
 internal object ExpandedEventCatalog {
     val vaultEvents: List<GameEvent> by lazy {

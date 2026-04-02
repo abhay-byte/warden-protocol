@@ -1,8 +1,8 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.annotation.DrawableRes
-import com.wardenprotocol.game.R
-import com.wardenprotocol.game.data.model.LocationType
+import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.data.model.LocationType
 
 @DrawableRes
 fun locationArtworkRes(type: LocationType?): Int = when (type ?: LocationType.RUINED_CITY) {

@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.screen
+package com.ivarna.wardenprotocol.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -8,39 +8,51 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wardenprotocol.game.ui.component.TerminalDecorFooter
-import com.wardenprotocol.game.ui.component.WardenBottomNav
-import com.wardenprotocol.game.ui.component.WardenTab
-import com.wardenprotocol.game.ui.component.WardenTopBar
-import com.wardenprotocol.game.ui.theme.WarningAmber
-import com.wardenprotocol.game.ui.theme.VaultGreen
-import com.wardenprotocol.game.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.data.model.NvidiaModelCatalog
+import com.ivarna.wardenprotocol.data.model.NvidiaModelOption
+import com.ivarna.wardenprotocol.ui.component.TerminalDecorFooter
+import com.ivarna.wardenprotocol.ui.component.WardenBottomNav
+import com.ivarna.wardenprotocol.ui.component.WardenTab
+import com.ivarna.wardenprotocol.ui.component.WardenTopBar
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 
 @Composable
 fun SettingsScreen(
     musicEnabled: Boolean,
     sfxEnabled: Boolean,
+    selectedModelId: String,
+    modelOptions: List<NvidiaModelOption>,
     onToggleMusic: () -> Unit,
     onToggleSfx: () -> Unit,
+    onSelectModel: (String) -> Unit,
     onBack: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenLeaderboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val selectedModel = remember(selectedModelId, modelOptions) {
+        modelOptions.firstOrNull { it.id == selectedModelId } ?: NvidiaModelCatalog.resolve(selectedModelId)
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color(0xFF121414),
@@ -91,6 +103,19 @@ fun SettingsScreen(
                 )
             }
 
+            SettingsCategory(title = "FORECAST_MATRIX") {
+                ModelSelectorCard(
+                    selectedModel = selectedModel,
+                    options = modelOptions,
+                    onSelectModel = onSelectModel
+                )
+                DiagnosticRow("ACTIVE_MODEL", selectedModel.label.uppercase())
+                DiagnosticRow(
+                    "RECOMMENDED_PROFILE",
+                    NvidiaModelCatalog.resolve(NvidiaModelCatalog.RECOMMENDED_MODEL_ID).label.uppercase()
+                )
+            }
+
             // System Diagnostics
             SettingsCategory(title = "CORE_TELEMETRY") {
                 DiagnosticRow("OS_VERSION", "WARDEN_OS 1.0.4")
@@ -110,6 +135,116 @@ fun SettingsScreen(
                     "> SETTINGS_BUFFER_READY"
                 )
             )
+        }
+    }
+}
+
+@Composable
+private fun ModelSelectorCard(
+    selectedModel: NvidiaModelOption,
+    options: List<NvidiaModelOption>,
+    onSelectModel: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF1A1C1C))
+                .border(1.dp, Color(0xFF333535).copy(alpha = 0.2f))
+                .clickable { expanded = true }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(WarningAmber.copy(alpha = 0.08f))
+                    .border(1.dp, WarningAmber.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Memory,
+                    contentDescription = null,
+                    tint = WarningAmber,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "FORECAST MODEL",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
+                )
+                Text(
+                    text = selectedModel.label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = WarningAmber,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = selectedModel.detail,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+                tint = WarningAmber,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.96f)
+                .background(Color(0xFF1A1C1C))
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(
+                                text = buildString {
+                                    append(option.label)
+                                    if (option.recommended) append("  [RECOMMENDED]")
+                                },
+                                color = if (option.id == selectedModel.id) WarningAmber else Color.White,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = option.detail,
+                                color = TextSecondary,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        onSelectModel(option.id)
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = Color.White
+                    )
+                )
+            }
         }
     }
 }

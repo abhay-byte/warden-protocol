@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
@@ -47,21 +47,21 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.wardenprotocol.game.ui.theme.BackgroundBlack
-import com.wardenprotocol.game.ui.theme.BackgroundBlue
-import com.wardenprotocol.game.ui.theme.Brass
-import com.wardenprotocol.game.ui.theme.BrassDeep
-import com.wardenprotocol.game.ui.theme.CyanGlow
-import com.wardenprotocol.game.ui.theme.PanelStroke
-import com.wardenprotocol.game.ui.theme.SurfaceBlack
-import com.wardenprotocol.game.ui.theme.SurfaceElevated
-import com.wardenprotocol.game.ui.theme.SurfaceMetal
-import com.wardenprotocol.game.ui.theme.SurfaceSteel
-import com.wardenprotocol.game.ui.theme.SteelHighlight
-import com.wardenprotocol.game.ui.theme.TextMuted
-import com.wardenprotocol.game.ui.theme.TextPrimary
-import com.wardenprotocol.game.ui.theme.TextSecondary
-import com.wardenprotocol.game.ui.theme.VaultGreen
+import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
+import com.ivarna.wardenprotocol.ui.theme.BackgroundBlue
+import com.ivarna.wardenprotocol.ui.theme.Brass
+import com.ivarna.wardenprotocol.ui.theme.BrassDeep
+import com.ivarna.wardenprotocol.ui.theme.CyanGlow
+import com.ivarna.wardenprotocol.ui.theme.PanelStroke
+import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
+import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
+import com.ivarna.wardenprotocol.ui.theme.SurfaceMetal
+import com.ivarna.wardenprotocol.ui.theme.SurfaceSteel
+import com.ivarna.wardenprotocol.ui.theme.SteelHighlight
+import com.ivarna.wardenprotocol.ui.theme.TextMuted
+import com.ivarna.wardenprotocol.ui.theme.TextPrimary
+import com.ivarna.wardenprotocol.ui.theme.TextSecondary
+import com.ivarna.wardenprotocol.ui.theme.VaultGreen
 import kotlinx.coroutines.delay
 
 private val panelShape = RoundedCornerShape(24.dp)

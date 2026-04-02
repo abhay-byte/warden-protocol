@@ -1,10 +1,10 @@
-package com.wardenprotocol.game.ui.component
+package com.ivarna.wardenprotocol.ui.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wardenprotocol.game.ui.theme.SignalCyan
+import com.ivarna.wardenprotocol.ui.theme.SignalCyan
 
 @Composable
 fun ChoiceButton(

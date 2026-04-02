@@ -1,4 +1,4 @@
-package com.wardenprotocol.game.data.repository
+package com.ivarna.wardenprotocol.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -7,12 +7,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.wardenprotocol.game.data.model.ColonyOutcome
-import com.wardenprotocol.game.data.model.RunRecord
-import com.wardenprotocol.game.data.model.AiTimelineEntry
-import com.wardenprotocol.game.data.model.buildArchiveGradeLabel
-import com.wardenprotocol.game.data.model.buildArchiveOutcomeLabel
-import com.wardenprotocol.game.data.model.OutcomeStats
+import com.ivarna.wardenprotocol.BuildConfig
+import com.ivarna.wardenprotocol.data.model.ColonyOutcome
+import com.ivarna.wardenprotocol.data.model.RunRecord
+import com.ivarna.wardenprotocol.data.model.AiTimelineEntry
+import com.ivarna.wardenprotocol.data.model.buildArchiveGradeLabel
+import com.ivarna.wardenprotocol.data.model.buildArchiveOutcomeLabel
+import com.ivarna.wardenprotocol.data.model.OutcomeStats
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
@@ -24,6 +25,7 @@ class HighScoreRepository(private val context: Context) {
     
     private val HIGH_SCORE_KEY = intPreferencesKey("high_score")
     private val RUN_HISTORY_KEY = stringPreferencesKey("run_history")
+    private val SELECTED_AI_MODEL_KEY = stringPreferencesKey("selected_ai_model")
     
     val highScore: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[HIGH_SCORE_KEY] ?: 0
@@ -35,6 +37,10 @@ class HighScoreRepository(private val context: Context) {
 
     val leaderboard: Flow<List<RunRecord>> = runHistory.map { entries ->
         entries.sortedByDescending { it.score }.take(10)
+    }
+
+    val selectedAiModel: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[SELECTED_AI_MODEL_KEY] ?: BuildConfig.NVIDIA_NIM_MODEL
     }
     
     suspend fun saveHighScore(score: Int) {
@@ -84,6 +90,12 @@ class HighScoreRepository(private val context: Context) {
             )
             existing.add(0, record)
             preferences[RUN_HISTORY_KEY] = encodeRunHistory(existing.take(25))
+        }
+    }
+
+    suspend fun saveSelectedAiModel(modelId: String) {
+        context.dataStore.edit { preferences ->
+            preferences[SELECTED_AI_MODEL_KEY] = modelId
         }
     }
 

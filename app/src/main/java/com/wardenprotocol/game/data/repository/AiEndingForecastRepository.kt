@@ -1,10 +1,10 @@
-package com.wardenprotocol.game.data.repository
+package com.ivarna.wardenprotocol.data.repository
 
-import com.wardenprotocol.game.BuildConfig
-import com.wardenprotocol.game.data.model.AiEndingReport
-import com.wardenprotocol.game.data.model.AiTimelineEntry
-import com.wardenprotocol.game.data.model.ColonyOutcome
-import com.wardenprotocol.game.data.model.OutcomeStats
+import com.ivarna.wardenprotocol.BuildConfig
+import com.ivarna.wardenprotocol.data.model.AiEndingReport
+import com.ivarna.wardenprotocol.data.model.AiTimelineEntry
+import com.ivarna.wardenprotocol.data.model.ColonyOutcome
+import com.ivarna.wardenprotocol.data.model.OutcomeStats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -21,15 +21,21 @@ sealed class AiEndingForecastResult {
 
 class AiEndingForecastRepository {
 
-    suspend fun enhanceOutcome(baseOutcome: ColonyOutcome): AiEndingForecastResult = withContext(Dispatchers.IO) {
+    suspend fun enhanceOutcome(
+        baseOutcome: ColonyOutcome,
+        modelId: String
+    ): AiEndingForecastResult = withContext(Dispatchers.IO) {
         val apiKey = BuildConfig.NVIDIA_NIM_API_KEY
         if (apiKey.isBlank()) {
             return@withContext AiEndingForecastResult.Fallback("Forecast engine offline: missing NVIDIA API key.")
         }
 
+        val resolvedModelId = modelId.ifBlank { BuildConfig.NVIDIA_NIM_MODEL }
+
         val firstAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
+            modelId = resolvedModelId,
             maxTokens = 16_384,
             compactPrompt = false,
             connectTimeoutMs = 8_000,
@@ -42,6 +48,7 @@ class AiEndingForecastRepository {
         val secondAttempt = requestForecast(
             baseOutcome = baseOutcome,
             apiKey = apiKey,
+            modelId = resolvedModelId,
             maxTokens = 16_384,
             compactPrompt = true,
             connectTimeoutMs = 6_000,
@@ -61,13 +68,14 @@ class AiEndingForecastRepository {
     private fun requestForecast(
         baseOutcome: ColonyOutcome,
         apiKey: String,
+        modelId: String,
         maxTokens: Int,
         compactPrompt: Boolean,
         connectTimeoutMs: Int,
         readTimeoutMs: Int
     ): AiEndingForecastResult {
         val requestBody = JSONObject().apply {
-            put("model", BuildConfig.NVIDIA_NIM_MODEL)
+            put("model", modelId)
             put("reasoning_effort", "high")
             put("temperature", 0.10)
             put("top_p", 1.0)
