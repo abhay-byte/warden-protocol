@@ -14,9 +14,10 @@ This file tracks tasks that have been fully completed.
     - Shifted the intro layout toward the established tactical-console structure with a shared background, status breadcrumb, hard-edged terminal body, and fixed bottom command area.
     - Kept the sequential terminal text animation, but removed the gated-button behavior so `Begin Surface Scan` is available immediately while the briefing continues to unfold.
     - Condensed the mission copy into a larger non-scroll layout so the full briefing stays visible in one view, and added stronger CRT grid treatment to the bottom command button so it matches the rest of the interface more closely.
+    - Reduced the fixed chrome footprint further so the story panel itself dominates the intro screen, keeping the status row compact and the bottom command area tight enough for the narrative block to use most of the viewport.
     - Updated `docs/design.md` so the design note now explicitly states that the intro action is visible immediately during the unfolding terminal sequence.
 - Verification: `./gradlew --no-daemon -Dorg.gradle.workers.max=1 -Pandroid.aapt2FromMavenOverride=/opt/android-sdk/build-tools/36.0.0/aapt2 assembleRelease bundleRelease --console=plain` succeeded, the rebuilt release APK installed successfully on device `192.168.137.21:42711` via `adb`, the corrected app launched through `adb shell monkey -p com.ivarna.wardenprotocol -c android.intent.category.LAUNCHER 1`, and the rebuilt AAB was copied to `/sdcard/Download/app-release.aab`.
-- Commit: `ad057fd`
+- Commit: `068f496`
 
 ### 2026-04-02 - Animated Pre-Run Mission Briefing
 
