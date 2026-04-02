@@ -21,7 +21,22 @@ Current content:
 - Latest completed run preview
 - Current top settlement preview
 
-### 2. Gameplay / Surface Scan
+### 2. Pre-Run Briefing
+
+Purpose:
+Bridge the player from menu state into mission state with a narrative terminal briefing before the first surface scan.
+
+Current content:
+
+- Full-screen bunker-terminal presentation
+- Strong scanline and CRT sweep overlay
+- Sequential sentence reveal with terminal cursor behavior
+- Story setup explaining that the player is the AI Warden of the vault
+- Explicit mission directive to find a surface location where civilization can be rebuilt
+- Final `Good luck, Warden.` signoff
+- Continue action that starts the first live scan
+
+### 3. Gameplay / Surface Scan
 
 Purpose:
 Evaluate the current settlement target and choose the next command action.
@@ -36,7 +51,7 @@ Current content:
 - Probe report and anomaly details when revealed
 - Fixed bottom command tray for `Search`, `Probe`, and `Open`
 
-### 3. Event Screen
+### 4. Event Screen
 
 Purpose:
 Resolve a generated vault, surface, cosmic, or apex-threat incident.
@@ -48,7 +63,7 @@ Current content:
 - Visible known effects
 - Explicit unknown-risk warning when applicable
 
-### 4. Event Outcome Screen
+### 5. Event Outcome Screen
 
 Purpose:
 Pause after an event decision so the player can absorb the narrative consequence before returning to scanning.
@@ -58,7 +73,7 @@ Current content:
 - Single report panel with the result narrative
 - One action to continue the mission
 
-### 5. Final Outcome Screen
+### 6. Final Outcome Screen
 
 Purpose:
 Deliver the colony ending, score reveal, and final telemetry.
@@ -75,7 +90,7 @@ Current content:
 - Expandable vault diagnostics
 - Actions to replay, open leaderboard, or open run history
 
-### 6. Leaderboard
+### 7. Leaderboard
 
 Purpose:
 Show the highest-scoring archived colonies.
@@ -87,7 +102,7 @@ Current content:
 - Start new mission shortcut
 - Ranked list with archived location thumbnails, score, site, survivors, years, outcome status, and completion date
 
-### 7. Run History
+### 8. Run History
 
 Purpose:
 Show a chronological archive of previous runs.
@@ -99,7 +114,7 @@ Current content:
 - Start new mission shortcut
 - Reverse-chronological outcome cards with per-run location art, score, survivors, duration, outcome status, and narrative summary
 
-### 8. Quit Confirmation Modal
+### 9. Quit Confirmation Modal
 
 Purpose:
 Handle Android back navigation without dropping the player out of the app abruptly.
@@ -113,6 +128,7 @@ Current content:
 
 - Single visual language built around bunker panels, brass/steel tones, and signal accents
 - Screen transitions handled through `AnimatedContent`
+- The run-start sequence now has a dedicated cinematic terminal handoff instead of jumping directly from home into gameplay
 - Scrollable content areas with a stable action zone on key pages
 - Strong badge usage for compact telemetry
 - Expand/collapse interactions for long narrative or diagnostic content
@@ -127,7 +143,7 @@ Current content:
 
 ## UX Gaps To Address
 
-- There is no onboarding or first-run tutorial for scanners, probes, or archive value.
+- The intro briefing sets the tone, but there is still no true interactive tutorial for scanners, probes, or archive value.
 - The game has no inline explanation for how score is computed.
 - Event choices still depend heavily on text density and could use clearer consequence grouping.
 - Leaderboard and history are still read-only and lack filters, drill-down beyond the saved summary, or comparison tools.
@@ -137,7 +153,7 @@ Current content:
 
 ### Near Term
 
-- Add a first-run briefing that teaches the three primary actions and scanner failure behavior.
+- Add an interactive first-run tutorial that expands on the existing terminal briefing and teaches the three primary actions plus scanner failure behavior.
 - Add a compact score-explanation sheet from the outcome screen.
 - Surface more explicit warnings before opening the vault on lethal sites.
 - Add empty-state illustrations and more contextual copy for archive pages.

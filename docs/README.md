@@ -10,12 +10,13 @@ The Warden Protocol is a post-nuclear bunker management game for Android. The pl
 
 - Android app built with Kotlin and Jetpack Compose
 - Single-run roguelike structure with local progression through score and archives
-- 7 implemented screens
+- 8 implemented screens
 - 16 location archetypes and 300 named site variants
 - Travel-risk modeling before settlement
 - AI-enhanced ending forecasts with deterministic fallback
 - Persistent run history capped at 25 entries
 - Persistent top-10 leaderboard derived from saved runs
+- Animated pre-run terminal mission briefing between home and gameplay
 
 ## Build And Run
 

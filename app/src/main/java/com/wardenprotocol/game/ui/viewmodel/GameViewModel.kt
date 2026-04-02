@@ -15,6 +15,7 @@ import kotlin.random.Random
 
 sealed class GameAction {
     object StartNewGame : GameAction()
+    object ContinueFromBriefing : GameAction()
     object ContinueSearching : GameAction()
     object OpenVault : GameAction()
     object DeployProbe : GameAction()
@@ -35,6 +36,7 @@ sealed class UiState {
     object Leaderboard : UiState()
     object RunHistory : UiState()
     object Settings : UiState()
+    object PreRunBriefing : UiState()
     data class SurfaceScanning(val location: SurfaceLocation, val probeRevealed: Boolean = false) : UiState()
     data class RandomEvent(val event: GameEvent) : UiState()
     data class EventOutcome(val narrative: String) : UiState()
@@ -80,6 +82,7 @@ class GameViewModel(
     fun handleAction(action: GameAction) {
         when (action) {
             is GameAction.StartNewGame -> startNewGame()
+            is GameAction.ContinueFromBriefing -> continueFromBriefing()
             is GameAction.ContinueSearching -> continueSearching()
             is GameAction.OpenVault -> openVault()
             is GameAction.DeployProbe -> deployProbe()
@@ -108,6 +111,14 @@ class GameViewModel(
         _gameState.value = GameState()
         val location = gameEngine.generateSurfaceLocation()
         _gameState.value = _gameState.value.copy(currentLocation = location)
+        _uiState.value = UiState.PreRunBriefing
+    }
+
+    private fun continueFromBriefing() {
+        val existingLocation = _gameState.value.currentLocation
+        val location = existingLocation ?: gameEngine.generateSurfaceLocation().also { generated ->
+            _gameState.value = _gameState.value.copy(currentLocation = generated)
+        }
         _uiState.value = UiState.SurfaceScanning(location)
     }
     

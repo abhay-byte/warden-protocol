@@ -8,18 +8,19 @@ The Warden Protocol is a single-player Android strategy game built with Kotlin a
 - Kotlin + Jetpack Compose + Material 3
 - Single-activity app with `StateFlow`-driven screen state
 - Local persistence for high score, run history, and top-10 leaderboard
-- 7 implemented screens: main menu, gameplay, event, event outcome, final outcome, leaderboard, and run history
+- 8 implemented screens: main menu, pre-run briefing, gameplay, event, event outcome, final outcome, leaderboard, and run history
 
 ## Core Gameplay
 
 Each run starts with 1,000 survivors, 3 probes, and a fully operational vault. The game loop is:
 
-1. Review a generated surface site.
-2. Inspect vault status, scanner output, and travel risk.
-3. Choose to search again, deploy a probe, or open the vault.
-4. If you keep searching, the vault decays and a random event fires.
-5. Resolve the event, absorb the outcome, and scan a new site.
-6. Open the vault when the site quality and bunker condition justify the risk.
+1. Receive the animated Warden mission briefing after a run starts.
+2. Review a generated surface site.
+3. Inspect vault status, scanner output, and travel risk.
+4. Choose to search again, deploy a probe, or open the vault.
+5. If you keep searching, the vault decays and a random event fires.
+6. Resolve the event, absorb the outcome, and scan a new site.
+7. Open the vault when the site quality and bunker condition justify the risk.
 
 The current build includes:
 
@@ -28,6 +29,7 @@ The current build includes:
 - Travel routes with time, risk, attrition, and score penalties
 - Scanner-gated intel for radiation, water, food, shelter, resources, and threats
 - Probe reports with deeper site recommendations
+- Animated terminal-style pre-run mission briefing
 - Expanded encounter catalog with vault, surface, cosmic, and apex-threat events
 - Procedural colony outcome generation with end-of-run telemetry
 

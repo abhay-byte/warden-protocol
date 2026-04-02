@@ -8,8 +8,15 @@ Every run begins with:
 - 3 surface probes
 - 0 years since the war
 - 100% integrity across core systems, scanners, and archives
+- A pre-run Warden terminal briefing before the first site becomes interactive
 
 The player repeats a scan-and-decide loop until the vault opens or the population collapses.
+
+## Mission Briefing
+
+When a run starts, the app now pauses on an animated terminal-style mission intro. That screen frames the player as the AI Warden of the vault, establishes the surface crisis, and restates the objective: find a viable wasteland settlement target where humanity can rebuild civilization.
+
+The run is not interactive until the player confirms the briefing and proceeds to the first generated location.
 
 ## Main Decisions
 

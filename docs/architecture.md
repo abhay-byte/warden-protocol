@@ -41,6 +41,7 @@ Owns content and persistence:
 Full-screen Compose surfaces:
 
 - `MainMenuScreen`
+- `MissionIntroScreen`
 - `GameScreen`
 - `EventScreen`
 - `EventOutcomeScreen`
@@ -66,10 +67,11 @@ The core runtime path is:
 
 1. `MainActivity` builds `GameViewModel`.
 2. `GameApp` collects `gameState`, `uiState`, `highScore`, `leaderboard`, and `runHistory`.
-3. Screen-level callbacks dispatch `GameAction`.
-4. `GameViewModel` calls into `GameEngine` for deterministic game mutations and generated content.
-5. On run completion, the deterministic ending is optionally enhanced by the AI ending forecast pipeline.
-6. The final resolved result is written to DataStore and then reflected back into leaderboard/history flows.
+3. A new run initializes `GameState`, generates the first `SurfaceLocation`, and pauses on `UiState.PreRunBriefing`.
+4. Screen-level callbacks dispatch `GameAction`.
+5. `GameViewModel` calls into `GameEngine` for deterministic game mutations and generated content.
+6. On run completion, the deterministic ending is optionally enhanced by the AI ending forecast pipeline.
+7. The final resolved result is written to DataStore and then reflected back into leaderboard/history flows.
 
 ## Persistence
 
@@ -84,3 +86,10 @@ There is no cloud sync, account system, or multi-slot save state. Progress is lo
 ## Navigation Model
 
 This project does not use a route graph in practice despite having the navigation dependency present. Screen changes are driven directly by the `UiState` sealed class and rendered through `AnimatedContent`.
+
+The main run-start path is now:
+
+1. `MainMenu` / leaderboard / outcome replay dispatches `GameAction.StartNewGame`
+2. `GameViewModel` resets `GameState`, generates the first site, and moves to `UiState.PreRunBriefing`
+3. `MissionIntroScreen` renders the animated terminal briefing
+4. `GameAction.ContinueFromBriefing` moves into `UiState.SurfaceScanning`

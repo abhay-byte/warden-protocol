@@ -1,6 +1,6 @@
-# Home Design
+# Menu And Intro Design
 
-This file documents the current home-screen redesign direction for The Warden Protocol.
+This file documents the current menu and pre-run intro design direction for The Warden Protocol.
 
 ## Source Inputs
 
@@ -12,7 +12,7 @@ The updated home screen follows:
 
 ## Design Intent
 
-The home screen should feel like a bunker command console rather than a generic game menu. The implemented direction is built around:
+The home and mission-intro flow should feel like a bunker command console rather than a generic game menu. The implemented direction is built around:
 
 - hard-edged geometry with effectively zero-radius surfaces
 - amber-first tactical emphasis with phosphor-green status highlights
@@ -20,6 +20,18 @@ The home screen should feel like a bunker command console rather than a generic 
 - CRT scanline atmosphere layered over a dark oxidized-steel background
 - asymmetrical command-console layout on larger screens
 - compact, vertical, dashboard-style composition on mobile
+
+## Pre-Run Briefing Direction
+
+The mission intro screen extends the same visual system but narrows it into one dominant idea: a live terminal directive coming online before the first scan.
+
+That screen should feel like:
+
+- a full-screen phosphor terminal rather than a dashboard of cards
+- stronger scanline and sweep motion than the home screen
+- sequential copy reveal instead of static paragraphs
+- a controlled handoff from archive/meta space into mission space
+- one clear bottom action after the full briefing resolves
 
 ## Implemented Home-Screen Structure
 
@@ -57,8 +69,9 @@ The redesigned Compose home screen is organized into three functional columns on
 ## Implementation Notes
 
 - The redesign is currently localized to the home screen in [`MainMenuScreen.kt`](/home/abhay/repos/thewardenprotocol/app/src/main/java/com/wardenprotocol/game/ui/screen/MainMenuScreen.kt).
+- The pre-run terminal briefing is implemented in [`MissionIntroScreen.kt`](/home/flux/repos/warden-protocol/app/src/main/java/com/wardenprotocol/game/ui/screen/MissionIntroScreen.kt).
 - The layout uses code-native Compose drawing instead of imported image assets.
-- Existing gameplay, leaderboard, and history flows are preserved.
+- Existing gameplay, leaderboard, and history flows are preserved, with the new intro page inserted between run start and the first surface scan.
 - Several values shown on the home screen are derived from available local run data. Where the app does not currently store richer analytics, the UI presents the best current approximation.
 
 ## Follow-Up Design Work

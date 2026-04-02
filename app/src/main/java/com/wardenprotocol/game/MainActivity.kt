@@ -241,6 +241,15 @@ fun GameApp(viewModel: GameViewModel) {
                     )
                 }
 
+                is UiState.PreRunBriefing -> {
+                    MissionIntroScreen(
+                        onContinue = {
+                            audioController.play(UiSound.PRIMARY)
+                            viewModel.handleAction(GameAction.ContinueFromBriefing)
+                        }
+                    )
+                }
+
                 is UiState.Leaderboard -> {
                     LeaderboardScreen(
                         entries = leaderboard,
@@ -378,6 +387,7 @@ private fun musicSceneFor(state: UiState): MusicScene = when (state) {
     UiState.Settings -> MusicScene.HUB
     UiState.Leaderboard -> MusicScene.HUB
     UiState.RunHistory -> MusicScene.HUB
+    UiState.PreRunBriefing -> MusicScene.SURFACE
     is UiState.SurfaceScanning -> MusicScene.SURFACE
     is UiState.RandomEvent -> MusicScene.EVENT
     is UiState.EventOutcome -> MusicScene.EVENT
@@ -389,6 +399,7 @@ private fun screenKey(state: UiState): String = when (state) {
     UiState.Leaderboard -> "leaderboard"
     UiState.RunHistory -> "history"
     UiState.Settings -> "settings"
+    UiState.PreRunBriefing -> "briefing"
     is UiState.SurfaceScanning -> "surface"
     is UiState.RandomEvent -> "event"
     is UiState.EventOutcome -> "event_outcome"
@@ -400,10 +411,11 @@ private fun screenRank(state: UiState): Int = when (state) {
     UiState.Leaderboard -> 1
     UiState.RunHistory -> 1
     UiState.Settings -> 1
-    is UiState.SurfaceScanning -> 2
-    is UiState.RandomEvent -> 3
-    is UiState.EventOutcome -> 4
-    is UiState.GameOutcome -> 5
+    UiState.PreRunBriefing -> 2
+    is UiState.SurfaceScanning -> 3
+    is UiState.RandomEvent -> 4
+    is UiState.EventOutcome -> 5
+    is UiState.GameOutcome -> 6
 }
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
