@@ -54,23 +54,22 @@ fun EventScreen(
 ) {
     val scrollState = rememberScrollState()
     
-    // Emergency Flicker Animation
+    // Subtle emergency pulse overlay — smooth, low-intensity, fixed-timing
     val infiniteTransition = rememberInfiniteTransition()
     val flickerAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.05f,
-        targetValue = 0.2f,
+        initialValue = 0.0f,
+        targetValue = 0.0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
-                durationMillis = 4000
-                0.05f at 0
-                0.05f at 1999
-                0.3f at 2000
-                0.3f at 2199
-                0.05f at 2200
-                0.05f at 6299
-                0.4f at 6300
-                0.4f at 6499
-                0.1f at 6500
+                durationMillis = 7000
+                0.00f at 0
+                0.00f at 1800
+                0.08f at 2100
+                0.00f at 2400
+                0.00f at 6000
+                0.12f at 6300
+                0.00f at 6600
+                0.00f at 7000
             },
             repeatMode = RepeatMode.Restart
         )
