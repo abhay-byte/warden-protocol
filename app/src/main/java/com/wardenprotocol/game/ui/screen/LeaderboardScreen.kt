@@ -73,54 +73,69 @@ fun LeaderboardScreen(
                 }
             )
         }
-    ) { padding: PaddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues = padding)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-            ) {
-                // Header Telemetry Block
-                LeaderboardHeaderTelemetry(totalRuns = entries.size, topScore = entries.firstOrNull()?.score ?: 0)
+    ) { padding ->
+        LeaderboardContent(
+            entries = entries,
+            onNewGame = onNewGame,
+            onOpenRun = onOpenRun,
+            modifier = Modifier.padding(padding)
+        )
+    }
+}
 
-                Spacer(modifier = Modifier.height(32.dp))
+@Composable
+fun LeaderboardContent(
+    entries: List<RunRecord>,
+    onNewGame: () -> Unit,
+    onOpenRun: (RunRecord) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+        ) {
+            // Header Telemetry Block
+            LeaderboardHeaderTelemetry(totalRuns = entries.size, topScore = entries.firstOrNull()?.score ?: 0)
 
-                // Leaderboard List
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    if (entries.isEmpty()) {
-                        Text(
-                            text = "NO RANKED RECORDS DETECTED IN GLOBAL BUFFER.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = WarningAmber.copy(alpha = 0.6f),
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Leaderboard List
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (entries.isEmpty()) {
+                    Text(
+                        text = "NO RANKED RECORDS DETECTED IN GLOBAL BUFFER.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = WarningAmber.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                } else {
+                    entries.forEachIndexed { index, entry ->
+                        CompactRunArchiveRow(
+                            rank = index + 1,
+                            entry = entry,
+                            onClick = { onOpenRun(entry) }
                         )
-                    } else {
-                        entries.forEachIndexed { index, entry ->
-                            CompactRunArchiveRow(
-                                rank = index + 1,
-                                entry = entry,
-                                onClick = { onOpenRun(entry) }
-                            )
-                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Terminal Decor Footer
-                TerminalDecorFooter()
             }
 
-            // Floating Start New Mission FAB
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 24.dp)
-            ) {
-                StartMissionFAB(onClick = onNewGame)
-            }
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Terminal Decor Footer
+            TerminalDecorFooter()
+        }
+
+        // Floating Start New Mission FAB
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 24.dp)
+        ) {
+            StartMissionFAB(onClick = onNewGame)
         }
     }
 }

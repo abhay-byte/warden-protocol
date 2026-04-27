@@ -106,21 +106,6 @@ fun MainMenuScreen(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val successfulRuns = leaderboardPreview.count { it.score > 0 }.coerceAtLeast(if (highScore > 0) 1 else 0)
-    val casualtyRate = if (runCount == 0) {
-        0f
-    } else {
-        val previewRuns = buildList {
-            lastRun?.let(::add)
-            addAll(leaderboardPreview.filterNot { top -> top.id == lastRun?.id })
-        }
-        if (previewRuns.isEmpty()) 0f
-        else {
-            val averageSurvivors = previewRuns.map { it.survivors.coerceIn(0, 1000) }.average()
-            (((1000.0 - averageSurvivors) / 1000.0) * 100.0).toFloat()
-        }
-    }
-
     WardenBackdrop(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -136,8 +121,8 @@ fun MainMenuScreen(
                         WardenTopBar()
                         DesktopHomeContent(
                             highScore = highScore,
-                            successfulRuns = successfulRuns,
-                            casualtyRate = casualtyRate,
+                            successfulRuns = buildSuccessfulRuns(leaderboardPreview, highScore),
+                            casualtyRate = buildCasualtyRate(runCount, lastRun, leaderboardPreview),
                             runCount = runCount,
                             leaderboardPreview = leaderboardPreview,
                             lastRun = lastRun,
@@ -147,22 +132,102 @@ fun MainMenuScreen(
                         )
                     }
                 } else {
-                    MobileHomeContent(
-                        highScore = highScore,
-                        successfulRuns = successfulRuns,
-                        casualtyRate = casualtyRate,
-                        runCount = runCount,
-                        leaderboardPreview = leaderboardPreview,
-                        lastRun = lastRun,
-                        onNewGame = onNewGame,
-                        onOpenLeaderboard = onOpenLeaderboard,
-                        onOpenHistory = onOpenHistory,
-                        onOpenSettings = onOpenSettings
-                    )
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = Color.Transparent,
+                        topBar = { WardenTopBar() },
+                        bottomBar = {
+                            WardenBottomNav(
+                                activeTab = WardenTab.COMMAND,
+                                showSurface = false,
+                                onTabClick = { tab ->
+                                    when(tab) {
+                                        WardenTab.ARCHIVE -> onOpenHistory()
+                                        WardenTab.SYSTEM -> onOpenSettings()
+                                        else -> {}
+                                    }
+                                }
+                            )
+                        }
+                    ) { padding ->
+                        MainMenuContent(
+                            highScore = highScore,
+                            runCount = runCount,
+                            leaderboardPreview = leaderboardPreview,
+                            lastRun = lastRun,
+                            onNewGame = onNewGame,
+                            onOpenLeaderboard = onOpenLeaderboard,
+                            onOpenHistory = onOpenHistory,
+                            modifier = Modifier.padding(padding)
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun MainMenuContent(
+    highScore: Int,
+    runCount: Int,
+    leaderboardPreview: List<RunRecord>,
+    lastRun: RunRecord?,
+    onNewGame: () -> Unit,
+    onOpenLeaderboard: () -> Unit,
+    onOpenHistory: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val successfulRuns = buildSuccessfulRuns(leaderboardPreview, highScore)
+    val casualtyRate = buildCasualtyRate(runCount, lastRun, leaderboardPreview)
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(22.dp)
+    ) {
+        HomeHeroPanel(
+            runCount = runCount,
+            lastRun = lastRun,
+            topRun = leaderboardPreview.firstOrNull()
+        )
+        StartMissionButton(onClick = onNewGame)
+        ArchiveStatsPanel(
+            highScore = highScore,
+            successfulRuns = successfulRuns,
+            casualtyRate = casualtyRate
+        )
+        SideCommandButton(
+            title = "Run History",
+            icon = Icons.Filled.History,
+            onClick = onOpenHistory
+        )
+        SideCommandButton(
+            title = "Global Leaderboard",
+            icon = Icons.Filled.EmojiEvents,
+            onClick = onOpenLeaderboard
+        )
+        DiagnosticsPanel()
+        BroadcastInterceptPanel()
+        TacticalOverlayPanel()
+    }
+}
+
+private fun buildSuccessfulRuns(leaderboardPreview: List<RunRecord>, highScore: Int): Int {
+    return leaderboardPreview.count { it.score > 0 }.coerceAtLeast(if (highScore > 0) 1 else 0)
+}
+
+private fun buildCasualtyRate(runCount: Int, lastRun: RunRecord?, leaderboardPreview: List<RunRecord>): Float {
+    if (runCount == 0) return 0f
+    val previewRuns = buildList {
+        lastRun?.let(::add)
+        addAll(leaderboardPreview.filterNot { top -> top.id == lastRun?.id })
+    }
+    if (previewRuns.isEmpty()) return 0f
+    val averageSurvivors = previewRuns.map { it.survivors.coerceIn(0, 1000) }.average()
+    return (((1000.0 - averageSurvivors) / 1000.0) * 100.0).toFloat()
 }
 
 @Composable
@@ -220,73 +285,6 @@ private fun DesktopHomeContent(
             modifier = Modifier.weight(0.9f),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            DiagnosticsPanel()
-            BroadcastInterceptPanel()
-            TacticalOverlayPanel()
-        }
-    }
-}
-
-@Composable
-private fun MobileHomeContent(
-    highScore: Int,
-    successfulRuns: Int,
-    casualtyRate: Float,
-    runCount: Int,
-    leaderboardPreview: List<RunRecord>,
-    lastRun: RunRecord?,
-    onNewGame: () -> Unit,
-    onOpenLeaderboard: () -> Unit,
-    onOpenHistory: () -> Unit,
-    onOpenSettings: () -> Unit
-) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        topBar = { WardenTopBar() },
-        bottomBar = {
-            WardenBottomNav(
-                activeTab = WardenTab.COMMAND,
-                showSurface = false,
-                onTabClick = { tab ->
-                    when(tab) {
-                        WardenTab.ARCHIVE -> onOpenHistory()
-                        WardenTab.SYSTEM -> onOpenSettings()
-                        else -> {}
-                    }
-                }
-            )
-        }
-    ) { padding: PaddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(paddingValues = padding)
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(22.dp)
-        ) {
-            HomeHeroPanel(
-                runCount = runCount,
-                lastRun = lastRun,
-                topRun = leaderboardPreview.firstOrNull()
-            )
-            StartMissionButton(onClick = onNewGame)
-            ArchiveStatsPanel(
-                highScore = highScore,
-                successfulRuns = successfulRuns,
-                casualtyRate = casualtyRate
-            )
-            SideCommandButton(
-                title = "Run History",
-                icon = Icons.Filled.History,
-                onClick = onOpenHistory
-            )
-            SideCommandButton(
-                title = "Global Leaderboard",
-                icon = Icons.Filled.EmojiEvents,
-                onClick = onOpenLeaderboard
-            )
             DiagnosticsPanel()
             BroadcastInterceptPanel()
             TacticalOverlayPanel()

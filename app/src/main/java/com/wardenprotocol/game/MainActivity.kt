@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -55,10 +57,13 @@ import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
 import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
 import com.ivarna.wardenprotocol.domain.engine.GameEngine
 import com.ivarna.wardenprotocol.ui.component.ActionButton
+import com.ivarna.wardenprotocol.ui.component.StatusBadge
 import com.ivarna.wardenprotocol.ui.screen.*
 import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
 import com.ivarna.wardenprotocol.ui.theme.PanelStroke
+import com.ivarna.wardenprotocol.ui.theme.SignalCyan
 import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
+import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
 import com.ivarna.wardenprotocol.ui.theme.TextPrimary
 import com.ivarna.wardenprotocol.ui.theme.TextSecondary
 import com.ivarna.wardenprotocol.ui.theme.VaultGreen
@@ -67,6 +72,8 @@ import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 import com.ivarna.wardenprotocol.ui.viewmodel.GameViewModel
 import com.ivarna.wardenprotocol.ui.viewmodel.GameAction
 import com.ivarna.wardenprotocol.ui.viewmodel.UiState
+import com.ivarna.wardenprotocol.ui.viewmodel.HubTab
+import com.ivarna.wardenprotocol.ui.viewmodel.EndingForecastState
 
 class MainActivity : ComponentActivity() {
     
@@ -144,7 +151,7 @@ fun GameApp(viewModel: GameViewModel) {
     BackHandler {
         when {
             showQuitDialog -> showQuitDialog = false
-            uiState != UiState.MainMenu -> {
+            uiState !is UiState.MainHub || (uiState as UiState.MainHub).tab != HubTab.MENU -> {
                 audioController.play(UiSound.NAV)
                 viewModel.handleAction(GameAction.GoToMainMenu)
             }
@@ -175,37 +182,33 @@ fun GameApp(viewModel: GameViewModel) {
             label = "screen_transition"
         ) { state ->
             when (state) {
-                is UiState.MainMenu -> {
-                    MainMenuScreen(
+                is UiState.MainHub -> {
+                    MainHubScreen(
+                        currentTab = state.tab,
                         highScore = highScore,
                         runCount = runHistory.size,
-                        leaderboardPreview = leaderboard,
-                        lastRun = runHistory.firstOrNull(),
+                        leaderboardEntries = leaderboard,
+                        runHistory = runHistory,
+                        musicEnabled = musicEnabled,
+                        sfxEnabled = sfxEnabled,
+                        selectedAiModel = selectedAiModel,
+                        availableAiModels = viewModel.availableAiModels,
+                        onTabSelected = { tab ->
+                            when (tab) {
+                                HubTab.MENU -> viewModel.handleAction(GameAction.GoToMainMenu)
+                                HubTab.LEADERBOARD -> viewModel.handleAction(GameAction.ShowLeaderboard)
+                                HubTab.HISTORY -> viewModel.handleAction(GameAction.ShowRunHistory)
+                                HubTab.SETTINGS -> viewModel.handleAction(GameAction.ShowSettings)
+                            }
+                        },
                         onNewGame = {
                             audioController.play(UiSound.PRIMARY)
                             viewModel.handleAction(GameAction.StartNewGame)
                         },
-                        onOpenLeaderboard = {
+                        onOpenRun = { entry ->
                             audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowLeaderboard)
+                            viewModel.handleAction(GameAction.OpenArchivedOutcome(entry))
                         },
-                        onOpenHistory = {
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowRunHistory)
-                        },
-                        onOpenSettings = {
-                            audioController.play(UiSound.NAV)
-                            viewModel.handleAction(GameAction.ShowSettings)
-                        }
-                    )
-                }
-
-                is UiState.Settings -> {
-                    SettingsScreen(
-                        musicEnabled = musicEnabled,
-                        sfxEnabled = sfxEnabled,
-                        selectedModelId = selectedAiModel,
-                        modelOptions = viewModel.availableAiModels,
                         onToggleMusic = {
                             val enabling = !musicEnabled
                             audioController.setMusicEnabled(enabling)
@@ -222,21 +225,13 @@ fun GameApp(viewModel: GameViewModel) {
                                 audioController.play(UiSound.TOGGLE, force = true)
                             }
                         },
-                        onSelectModel = { modelId ->
+                        onSelectAiModel = { modelId ->
                             audioController.play(UiSound.SECONDARY, force = true)
                             viewModel.handleAction(GameAction.SelectAiModel(modelId))
                         },
                         onBack = {
                             audioController.play(UiSound.NAV)
                             viewModel.handleAction(GameAction.GoToMainMenu)
-                        },
-                        onOpenHistory = {
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowRunHistory)
-                        },
-                        onOpenLeaderboard = {
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowLeaderboard)
                         }
                     )
                 }
@@ -246,54 +241,6 @@ fun GameApp(viewModel: GameViewModel) {
                         onContinue = {
                             audioController.play(UiSound.PRIMARY)
                             viewModel.handleAction(GameAction.ContinueFromBriefing)
-                        }
-                    )
-                }
-
-                is UiState.Leaderboard -> {
-                    LeaderboardScreen(
-                        entries = leaderboard,
-                        onBack = {
-                            audioController.play(UiSound.NAV)
-                            viewModel.handleAction(GameAction.GoToMainMenu)
-                        },
-                        onNewGame = {
-                            audioController.play(UiSound.PRIMARY)
-                            viewModel.handleAction(GameAction.StartNewGame)
-                        },
-                        onOpenSettings = {
-                            audioController.play(UiSound.NAV)
-                            viewModel.handleAction(GameAction.ShowSettings)
-                        },
-                        onOpenHistory = {
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowRunHistory)
-                        },
-                        onOpenRun = { entry ->
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.OpenArchivedOutcome(entry))
-                        }
-                    )
-                }
-
-                is UiState.RunHistory -> {
-                    HistoryScreen(
-                        entries = runHistory,
-                        onBack = {
-                            audioController.play(UiSound.NAV)
-                            viewModel.handleAction(GameAction.GoToMainMenu)
-                        },
-                        onOpenSettings = {
-                            audioController.play(UiSound.NAV)
-                            viewModel.handleAction(GameAction.ShowSettings)
-                        },
-                        onOpenLeaderboard = {
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.ShowLeaderboard)
-                        },
-                        onOpenRun = { entry ->
-                            audioController.play(UiSound.SECONDARY)
-                            viewModel.handleAction(GameAction.OpenArchivedOutcome(entry))
                         }
                     )
                 }
@@ -339,7 +286,7 @@ fun GameApp(viewModel: GameViewModel) {
                 }
 
                 is UiState.GameOutcome -> {
-                    if (state.analysisState is com.ivarna.wardenprotocol.ui.viewmodel.EndingForecastState.Loading) {
+                    if (state.analysisState is EndingForecastState.Loading) {
                         EndingProcessingScreen(outcome = state.outcome)
                     } else {
                         OutcomeScreen(
@@ -383,10 +330,7 @@ fun GameApp(viewModel: GameViewModel) {
 }
 
 private fun musicSceneFor(state: UiState): MusicScene = when (state) {
-    UiState.MainMenu -> MusicScene.HUB
-    UiState.Settings -> MusicScene.HUB
-    UiState.Leaderboard -> MusicScene.HUB
-    UiState.RunHistory -> MusicScene.HUB
+    is UiState.MainHub -> MusicScene.HUB
     UiState.PreRunBriefing -> MusicScene.SURFACE
     is UiState.SurfaceScanning -> MusicScene.SURFACE
     is UiState.RandomEvent -> MusicScene.EVENT
@@ -395,10 +339,7 @@ private fun musicSceneFor(state: UiState): MusicScene = when (state) {
 }
 
 private fun screenKey(state: UiState): String = when (state) {
-    UiState.MainMenu -> "menu"
-    UiState.Leaderboard -> "leaderboard"
-    UiState.RunHistory -> "history"
-    UiState.Settings -> "settings"
+    is UiState.MainHub -> "hub"
     UiState.PreRunBriefing -> "briefing"
     is UiState.SurfaceScanning -> "surface"
     is UiState.RandomEvent -> "event"
@@ -407,10 +348,7 @@ private fun screenKey(state: UiState): String = when (state) {
 }
 
 private fun screenRank(state: UiState): Int = when (state) {
-    UiState.MainMenu -> 0
-    UiState.Leaderboard -> 1
-    UiState.RunHistory -> 1
-    UiState.Settings -> 1
+    is UiState.MainHub -> 0
     UiState.PreRunBriefing -> 2
     is UiState.SurfaceScanning -> 3
     is UiState.RandomEvent -> 4
@@ -440,63 +378,28 @@ private fun QuitGameDialog(
                 .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(SurfaceBlack.copy(alpha = 0.98f))
-                    .border(1.dp, PanelStroke)
+                    .border(1.dp, PanelStroke),
+                colors = CardDefaults.cardColors(containerColor = SurfaceBlack.copy(alpha = 0.98f))
             ) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF1A1C1C))
-                        .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 4.dp, height = 48.dp)
-                            .background(WarningAmber)
-                    )
-                    Column {
-                        Text(
-                            "EXIT PROTOCOL",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = WarningAmber,
-                            fontSize = 10.sp,
-                            letterSpacing = 2.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        Text(
-                            "COMMAND_ABORT",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = WarningAmber,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = (-1).sp
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF1A1C1C))
-                            .border(1.dp, Color(0xFF333535).copy(alpha = 0.2f))
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
-                                .background(WarningAmber.copy(alpha = 0.10f))
-                                .border(1.dp, WarningAmber.copy(alpha = 0.55f)),
+                                .size(54.dp)
+                                .background(WarningAmber.copy(alpha = 0.14f))
+                                .border(1.dp, WarningAmber.copy(alpha = 0.28f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -507,68 +410,49 @@ private fun QuitGameDialog(
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "LEAVE THE BUNKER",
-                                style = MaterialTheme.typography.titleMedium,
+                                text = "Leave The Bunker?",
+                                style = MaterialTheme.typography.titleLarge,
                                 color = TextPrimary,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = (-0.5).sp
+                                fontWeight = FontWeight.Black
                             )
                             Text(
-                                text = "The command feed will go dark if you terminate the current session.",
-                                style = MaterialTheme.typography.bodySmall,
+                                text = "The command feed will go dark if you exit now.",
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = TextSecondary
                             )
                         }
                     }
 
-                    QuitDialogRow(label = "EXIT_MODE", value = "FULL SHUTDOWN")
-                    QuitDialogRow(label = "ACTIVE_SESSION", value = "COMMAND DECK ONLINE")
-                    QuitDialogRow(label = "FAILSAFE", value = "RETURN TO HUB AVAILABLE")
+                    StatusBadge(
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
+                        label = "Command Prompt",
+                        value = "Do you want to quit?",
+                        accent = WarningAmber
+                    )
 
                     Text(
-                        text = "Stay keeps the current bunker session alive. Quit closes the app immediately.",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
+                        style = MaterialTheme.typography.bodyLarge,
                         color = TextSecondary
                     )
 
                     ActionButton(
                         title = "Stay In The Vault",
-                        subtitle = "Return to the home deck and keep the command feed online.",
+                        subtitle = "Return to the home page and keep command online.",
                         icon = Icons.Filled.Home,
                         accent = VaultGreen,
                         onClick = onDismiss
                     )
 
                     ActionButton(
-                        title = "Execute Shutdown",
-                        subtitle = "Close the application and terminate the bunker session.",
+                        title = "Quit Game",
+                        subtitle = "Close the app and leave the bunker interface.",
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        accent = WarningAmber,
+                        accent = SignalCyan,
                         onClick = onQuit
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun QuitDialogRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
-            fontSize = 11.sp
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.labelSmall,
-            color = WarningAmber,
-            fontSize = 11.sp
-        )
     }
 }

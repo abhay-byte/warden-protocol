@@ -69,44 +69,57 @@ fun HistoryScreen(
                 }
             )
         }
-    ) { padding: PaddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues = padding)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-            ) {
-                // Header Telemetry Block
-                ArchiveHeaderTelemetry(totalRuns = entries.size)
+    ) { padding ->
+        HistoryContent(
+            entries = entries,
+            onOpenRun = onOpenRun,
+            modifier = Modifier.padding(padding)
+        )
+    }
+}
 
-                Spacer(modifier = Modifier.height(32.dp))
+@Composable
+fun HistoryContent(
+    entries: List<RunRecord>,
+    onOpenRun: (RunRecord) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+        ) {
+            // Header Telemetry Block
+            ArchiveHeaderTelemetry(totalRuns = entries.size)
 
-                // History List
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    if (entries.isEmpty()) {
-                        Text(
-                            text = "NO ARCHIVED RECORDS DETECTED IN STORAGE BUFFER.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = WarningAmber.copy(alpha = 0.6f),
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // History List
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (entries.isEmpty()) {
+                    Text(
+                        text = "NO ARCHIVED RECORDS DETECTED IN STORAGE BUFFER.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = WarningAmber.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                } else {
+                    entries.forEach { entry ->
+                        RunArchiveCard(
+                            entry = entry,
+                            onClick = { onOpenRun(entry) }
                         )
-                    } else {
-                        entries.forEach { entry ->
-                            RunArchiveCard(
-                                entry = entry,
-                                onClick = { onOpenRun(entry) }
-                            )
-                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Terminal Decor Footer
-                TerminalDecorFooter()
             }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Terminal Decor Footer
+            TerminalDecorFooter()
         }
     }
 }

@@ -49,10 +49,6 @@ fun SettingsScreen(
     onOpenLeaderboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedModel = remember(selectedModelId, modelOptions) {
-        modelOptions.firstOrNull { it.id == selectedModelId } ?: NvidiaModelCatalog.resolve(selectedModelId)
-    }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color(0xFF121414),
@@ -70,72 +66,98 @@ fun SettingsScreen(
                 }
             )
         }
-    ) { padding: PaddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // Header
-            SettingsHeader()
+    ) { padding ->
+        SettingsContent(
+            musicEnabled = musicEnabled,
+            sfxEnabled = sfxEnabled,
+            selectedModelId = selectedModelId,
+            modelOptions = modelOptions,
+            onToggleMusic = onToggleMusic,
+            onToggleSfx = onToggleSfx,
+            onSelectModel = onSelectModel,
+            modifier = Modifier.padding(padding)
+        )
+    }
+}
 
-            // Audio Configuration
-            SettingsCategory(title = "AUDIO_MATRICES") {
-                IndustrialToggle(
-                    label = "MUSIC_FEED",
-                    description = "Atmospheric background frequency modulation.",
-                    isActive = musicEnabled,
-                    onIcon = Icons.Filled.MusicNote,
-                    offIcon = Icons.Filled.MusicOff,
-                    onToggle = onToggleMusic
-                )
-                
-                IndustrialToggle(
-                    label = "SFX_REVERB",
-                    description = "Tactical audio feedback and terminal alerts.",
-                    isActive = sfxEnabled,
-                    onIcon = Icons.Filled.VolumeUp,
-                    offIcon = Icons.Filled.VolumeOff,
-                    onToggle = onToggleSfx
-                )
-            }
+@Composable
+fun SettingsContent(
+    musicEnabled: Boolean,
+    sfxEnabled: Boolean,
+    selectedModelId: String,
+    modelOptions: List<NvidiaModelOption>,
+    onToggleMusic: () -> Unit,
+    onToggleSfx: () -> Unit,
+    onSelectModel: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectedModel = remember(selectedModelId, modelOptions) {
+        modelOptions.firstOrNull { it.id == selectedModelId } ?: NvidiaModelCatalog.resolve(selectedModelId)
+    }
 
-            SettingsCategory(title = "FORECAST_MATRIX") {
-                ModelSelectorCard(
-                    selectedModel = selectedModel,
-                    options = modelOptions,
-                    onSelectModel = onSelectModel
-                )
-                DiagnosticRow("ACTIVE_MODEL", selectedModel.label.uppercase())
-                DiagnosticRow(
-                    "DEFAULT_PROFILE",
-                    NvidiaModelCatalog.resolve(NvidiaModelCatalog.DEFAULT_MODEL_ID).label.uppercase()
-                )
-            }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Header
+        SettingsHeader()
 
-            // System Diagnostics
-            SettingsCategory(title = "CORE_TELEMETRY") {
-                DiagnosticRow("OS_VERSION", "WARDEN_OS 1.0.4")
-                DiagnosticRow("KERNEL_STATUS", "OPTIMAL")
-                DiagnosticRow("HARDWARE_ID", "WP-8812-BUNKER")
-                DiagnosticRow("ENCRYPTION", "AES-256-WARDEN")
-            }
+        // Audio Configuration
+        SettingsCategory(title = "AUDIO_MATRICES") {
+            IndustrialToggle(
+                label = "MUSIC_FEED",
+                description = "Atmospheric background frequency modulation.",
+                isActive = musicEnabled,
+                onIcon = Icons.Filled.MusicNote,
+                offIcon = Icons.Filled.MusicOff,
+                onToggle = onToggleMusic
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Footer
-            TerminalDecorFooter(
-                lines = listOf(
-                    "> ACCESSING SYSTEM CONFIGURATION...",
-                    "> LOADING AUDIO DRIVERS...",
-                    "> HARDWARE_CHECK: COMPLIANT",
-                    "> SETTINGS_BUFFER_READY"
-                )
+            IndustrialToggle(
+                label = "SFX_REVERB",
+                description = "Tactical audio feedback and terminal alerts.",
+                isActive = sfxEnabled,
+                onIcon = Icons.Filled.VolumeUp,
+                offIcon = Icons.Filled.VolumeOff,
+                onToggle = onToggleSfx
             )
         }
+
+        SettingsCategory(title = "FORECAST_MATRIX") {
+            ModelSelectorCard(
+                selectedModel = selectedModel,
+                options = modelOptions,
+                onSelectModel = onSelectModel
+            )
+            DiagnosticRow("ACTIVE_MODEL", selectedModel.label.uppercase())
+            DiagnosticRow(
+                "DEFAULT_PROFILE",
+                NvidiaModelCatalog.resolve(NvidiaModelCatalog.DEFAULT_MODEL_ID).label.uppercase()
+            )
+        }
+
+        // System Diagnostics
+        SettingsCategory(title = "CORE_TELEMETRY") {
+            DiagnosticRow("OS_VERSION", "WARDEN_OS 1.0.4")
+            DiagnosticRow("KERNEL_STATUS", "OPTIMAL")
+            DiagnosticRow("HARDWARE_ID", "WP-8812-BUNKER")
+            DiagnosticRow("ENCRYPTION", "AES-256-WARDEN")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Footer
+        TerminalDecorFooter(
+            lines = listOf(
+                "> ACCESSING SYSTEM CONFIGURATION...",
+                "> LOADING AUDIO DRIVERS...",
+                "> HARDWARE_CHECK: COMPLIANT",
+                "> SETTINGS_BUFFER_READY"
+            )
+        )
     }
 }
 

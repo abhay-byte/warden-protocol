@@ -31,11 +31,12 @@ sealed class GameAction {
     object ToggleSfx : GameAction()
 }
 
+enum class HubTab {
+    MENU, LEADERBOARD, HISTORY, SETTINGS
+}
+
 sealed class UiState {
-    object MainMenu : UiState()
-    object Leaderboard : UiState()
-    object RunHistory : UiState()
-    object Settings : UiState()
+    data class MainHub(val tab: HubTab = HubTab.MENU) : UiState()
     object PreRunBriefing : UiState()
     data class SurfaceScanning(val location: SurfaceLocation, val probeRevealed: Boolean = false) : UiState()
     data class RandomEvent(val event: GameEvent) : UiState()
@@ -62,7 +63,7 @@ class GameViewModel(
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
     
-    private val _uiState = MutableStateFlow<UiState>(UiState.MainMenu)
+    private val _uiState = MutableStateFlow<UiState>(UiState.MainHub(HubTab.MENU))
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
     
     val highScore: StateFlow<Int> = highScoreRepository.highScore
@@ -86,10 +87,10 @@ class GameViewModel(
             is GameAction.ContinueSearching -> continueSearching()
             is GameAction.OpenVault -> openVault()
             is GameAction.DeployProbe -> deployProbe()
-            is GameAction.ShowLeaderboard -> _uiState.value = UiState.Leaderboard
-            is GameAction.ShowRunHistory -> _uiState.value = UiState.RunHistory
-            is GameAction.ShowSettings -> _uiState.value = UiState.Settings
-            is GameAction.GoToMainMenu -> _uiState.value = UiState.MainMenu
+            is GameAction.ShowLeaderboard -> _uiState.value = UiState.MainHub(HubTab.LEADERBOARD)
+            is GameAction.ShowRunHistory -> _uiState.value = UiState.MainHub(HubTab.HISTORY)
+            is GameAction.ShowSettings -> _uiState.value = UiState.MainHub(HubTab.SETTINGS)
+            is GameAction.GoToMainMenu -> _uiState.value = UiState.MainHub(HubTab.MENU)
             is GameAction.OpenArchivedOutcome -> openArchivedOutcome(action.entry)
             is GameAction.SelectEventChoice -> selectEventChoice(action.choice)
             is GameAction.SelectAiModel -> viewModelScope.launch {
