@@ -26,7 +26,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
@@ -48,7 +49,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -174,86 +173,91 @@ fun MissionIntroScreen(
         briefingComplete = true
     }
 
+    val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Bg)
     ) {
-        // Heavy atmospheric overlays
         EerieScanlineOverlay(sweepProgress = sweepProgress)
         FlickerWarningOverlay()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 16.dp + bottomInset)
         ) {
-            // Vault Door Animation (eerie, heavy, responsible)
-            VaultSealAnimation(
-                pulse = vaultPulse,
-                alpha = vaultAlpha,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 8.dp)
-            )
-
-            // Status breadcrumb
-            MissionStatusBreadcrumb(briefingComplete = briefingComplete)
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Main briefing terminal panel
+            // ═══════════════════════════════════════════════════════
+            // OUTER MAIN PANEL — contains EVERYTHING
+            // ═══════════════════════════════════════════════════════
             Column(
                 modifier = Modifier
-                    .weight(1f, fill = true)
                     .fillMaxWidth()
                     .background(Panel)
                     .border(1.dp, PanelHighest)
-                    .tacticalGrid(alpha = 0.07f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
-                    .drawBehind {
-                        drawLine(
-                            color = Color.White.copy(alpha = 0.05f),
-                            start = Offset.Zero,
-                            end = Offset(size.width, 0f),
-                            strokeWidth = 1.dp.toPx()
+                    .tacticalGrid(alpha = 0.06f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
+                    .panelBevelEdges()
+                    .padding(16.dp)
+            ) {
+                // ── HEADER ROW ──
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "WARDEN PROTOCOL",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Amber.copy(alpha = 0.72f),
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(if (briefingComplete) Green else DangerRed)
+                                .drawBehind {
+                                    val c = if (briefingComplete) Green else DangerRed
+                                    drawCircle(
+                                        color = c.copy(alpha = 0.4f),
+                                        radius = 5.dp.toPx(),
+                                        center = center
+                                    )
+                                }
                         )
-                        drawLine(
-                            color = Color.White.copy(alpha = 0.05f),
-                            start = Offset.Zero,
-                            end = Offset(0f, size.height),
-                            strokeWidth = 1.dp.toPx()
-                        )
-                        drawLine(
-                            color = Color.Black.copy(alpha = 0.3f),
-                            start = Offset(0f, size.height),
-                            end = Offset(size.width, size.height),
-                            strokeWidth = 1.dp.toPx()
-                        )
-                        drawLine(
-                            color = Color.Black.copy(alpha = 0.3f),
-                            start = Offset(size.width, 0f),
-                            end = Offset(size.width, size.height),
-                            strokeWidth = 1.dp.toPx()
+                        Text(
+                            text = if (briefingComplete) "ONLINE" else "BROADCASTING",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (briefingComplete) Green else DangerRed,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
                         )
                     }
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = "MISSION PREFACE",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Amber.copy(alpha = 0.72f),
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
-                )
+                }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
+                // ── TITLE ──
                 Text(
-                    text = "WARDEN INITIATION PROTOCOL",
+                    text = "MISSION BRIEFING",
                     style = MaterialTheme.typography.displaySmall,
                     color = OnSurface,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-1).sp
+                )
+                Text(
+                    text = "YEAR 0  //  SUBLEVEL 01  //  CLASSIFIED",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = OnSurfaceMuted,
+                    letterSpacing = 1.5.sp
                 )
 
                 Spacer(
@@ -264,11 +268,73 @@ fun MissionIntroScreen(
                         .background(PanelHighest)
                 )
 
+                // ═══════════════════════════════════════════════════════
+                // INNER PANEL — Vault Seal
+                // ═══════════════════════════════════════════════════════
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(170.dp)
+                        .background(BgDeeper)
+                        .border(1.dp, PanelHighest)
+                        .padding(12.dp)
+                ) {
+                    VaultSealAnimation(
+                        pulse = vaultPulse,
+                        alpha = vaultAlpha,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // ── VAULT STATUS BAR ──
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(BgDeeper)
+                        .border(1.dp, PanelHighest)
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(DangerRed)
+                        )
+                        Text(
+                            text = "VAULT SEALED",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DangerRed.copy(alpha = 0.85f),
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.5.sp
+                        )
+                    }
+                    Text(
+                        text = "1,000 LIVES INSIDE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceMuted,
+                        letterSpacing = 1.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // ═══════════════════════════════════════════════════════
+                // INNER PANEL — Terminal Lines
+                // ═══════════════════════════════════════════════════════
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                        .fillMaxWidth()
+                        .background(BgDeeper)
+                        .border(1.dp, PanelHighest)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     missionBriefing.forEachIndexed { index, line ->
                         when {
@@ -281,7 +347,6 @@ fun MissionIntroScreen(
                                     showCursor = false
                                 )
                             }
-
                             index == activeLineIndex -> {
                                 TerminalLine(
                                     channel = line.channel,
@@ -297,22 +362,41 @@ fun MissionIntroScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text(
-                    text = if (briefingComplete) {
-                        "BRIEFING COMPLETE // CONTINUE WHEN READY"
-                    } else {
-                        "BRIEFING STREAM ACTIVE // AWAITING ACKNOWLEDGMENT"
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (briefingComplete) Green else Cyan,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.6.sp
-                )
+                // ── FOOTER STATUS ──
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            drawRect(
+                                color = if (briefingComplete) Green else Cyan,
+                                size = size.copy(width = 4.dp.toPx())
+                            )
+                        }
+                        .padding(start = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (briefingComplete) "BRIEFING COMPLETE" else "BRIEFING STREAM ACTIVE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (briefingComplete) Green else Cyan,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.5.sp
+                    )
+                    Text(
+                        text = if (briefingComplete) "CONTINUE WHEN READY" else "AWAITING ACKNOWLEDGMENT",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceMuted,
+                        letterSpacing = 1.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Action button — matches StartMissionButton brutalist style
+            // ═══════════════════════════════════════════════════════
+            // ACTION BUTTON — outside main panel, full width
+            // ═══════════════════════════════════════════════════════
             BeginScanButton(
                 briefingComplete = briefingComplete,
                 onContinue = onContinue
@@ -348,10 +432,9 @@ private fun VaultSealAnimation(
     )
 
     Box(
-        modifier = modifier.height(160.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // Outer ominous ring
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2f
             val centerY = size.height / 2f
@@ -449,78 +532,6 @@ private fun VaultSealAnimation(
                 cap = StrokeCap.Round
             )
         }
-
-        // Warning label at bottom
-        Row(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .background(DangerRed)
-            )
-            Text(
-                text = "VAULT SEALED // 1,000 LIVES",
-                style = MaterialTheme.typography.labelSmall,
-                color = DangerRed.copy(alpha = 0.85f),
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun MissionStatusBreadcrumb(briefingComplete: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .drawBehind {
-                drawRect(
-                    color = if (briefingComplete) Green else Cyan,
-                    size = size.copy(width = 4.dp.toPx())
-                )
-            }
-            .padding(start = 14.dp, end = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "MISSION BRIEF ACTIVE",
-            style = MaterialTheme.typography.labelSmall,
-            color = Amber.copy(alpha = 0.72f),
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.8.sp,
-            maxLines = 1
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .background(if (briefingComplete) Green else Cyan)
-                    .drawBehind {
-                        val color = if (briefingComplete) Green else Cyan
-                        drawCircle(
-                            color = color.copy(alpha = 0.4f),
-                            radius = 6.dp.toPx(),
-                            center = center
-                        )
-                    }
-            )
-            Text(
-                text = if (briefingComplete) "BRIEF_READY" else "AWAITING_ACK",
-                style = MaterialTheme.typography.labelSmall,
-                color = if (briefingComplete) Green else Cyan,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
-        }
     }
 }
 
@@ -583,8 +594,6 @@ private fun BeginScanButton(
     val translateY = if (isPressed) 4.dp else 0.dp
     val scale = if (isPressed) 0.98f else 1.0f
 
-    val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -642,8 +651,6 @@ private fun BeginScanButton(
             }
         }
     }
-
-    Spacer(modifier = Modifier.height(bottomInset))
 }
 
 @Composable
@@ -656,7 +663,6 @@ private fun EerieScanlineOverlay(sweepProgress: Float) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val sweepY = size.height * sweepProgress
 
-            // Blue-green phosphor sweep
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -671,7 +677,6 @@ private fun EerieScanlineOverlay(sweepProgress: Float) {
                 size = size
             )
 
-            // Occasional red danger sweep
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -686,7 +691,6 @@ private fun EerieScanlineOverlay(sweepProgress: Float) {
                 size = size
             )
 
-            // Heavy horizontal vignette
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -740,4 +744,33 @@ private fun Modifier.tacticalGrid(
         )
         x += verticalPx
     }
+}
+
+private fun Modifier.panelBevelEdges(): Modifier = this.drawBehind {
+    // Top-left light edge
+    drawLine(
+        color = Color.White.copy(alpha = 0.05f),
+        start = Offset.Zero,
+        end = Offset(size.width, 0f),
+        strokeWidth = 1.dp.toPx()
+    )
+    drawLine(
+        color = Color.White.copy(alpha = 0.05f),
+        start = Offset.Zero,
+        end = Offset(0f, size.height),
+        strokeWidth = 1.dp.toPx()
+    )
+    // Bottom-right dark edge
+    drawLine(
+        color = Color.Black.copy(alpha = 0.3f),
+        start = Offset(0f, size.height),
+        end = Offset(size.width, size.height),
+        strokeWidth = 1.dp.toPx()
+    )
+    drawLine(
+        color = Color.Black.copy(alpha = 0.3f),
+        start = Offset(size.width, 0f),
+        end = Offset(size.width, size.height),
+        strokeWidth = 1.dp.toPx()
+    )
 }
