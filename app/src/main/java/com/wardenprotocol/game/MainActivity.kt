@@ -27,12 +27,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,7 +43,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.Lifecycle
@@ -56,19 +65,10 @@ import com.ivarna.wardenprotocol.data.repository.EventRepository
 import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
 import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
 import com.ivarna.wardenprotocol.domain.engine.GameEngine
-import com.ivarna.wardenprotocol.ui.component.ActionButton
-import com.ivarna.wardenprotocol.ui.component.StatusBadge
+
 import com.ivarna.wardenprotocol.ui.screen.*
-import com.ivarna.wardenprotocol.ui.theme.BackgroundBlack
-import com.ivarna.wardenprotocol.ui.theme.PanelStroke
-import com.ivarna.wardenprotocol.ui.theme.SignalCyan
-import com.ivarna.wardenprotocol.ui.theme.SurfaceBlack
-import com.ivarna.wardenprotocol.ui.theme.SurfaceElevated
-import com.ivarna.wardenprotocol.ui.theme.TextPrimary
-import com.ivarna.wardenprotocol.ui.theme.TextSecondary
-import com.ivarna.wardenprotocol.ui.theme.VaultGreen
+
 import com.ivarna.wardenprotocol.ui.theme.WardenProtocolTheme
-import com.ivarna.wardenprotocol.ui.theme.WarningAmber
 import com.ivarna.wardenprotocol.ui.viewmodel.GameViewModel
 import com.ivarna.wardenprotocol.ui.viewmodel.GameAction
 import com.ivarna.wardenprotocol.ui.viewmodel.UiState
@@ -367,6 +367,14 @@ private fun QuitGameDialog(
     onDismiss: () -> Unit,
     onQuit: () -> Unit
 ) {
+    val Bg = Color(0xFF121414)
+    val Panel = Color(0xFF1E2020)
+    val PanelHigh = Color(0xFF282A2A)
+    val Error = Color(0xFFFFB4AB)
+    val OnSurface = Color(0xFFE2E2E2)
+    val OnSurfaceMuted = Color(0xFFB9B19E)
+    val Cyan = Color(0xFF71E6FF)
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -374,85 +382,291 @@ private fun QuitGameDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundBlack.copy(alpha = 0.82f))
+                .background(Bg.copy(alpha = 0.92f))
+                .tacticalGrid(alpha = 0.08f)
                 .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, PanelStroke),
-                colors = CardDefaults.cardColors(containerColor = SurfaceBlack.copy(alpha = 0.98f))
+                    .background(Panel)
+                    .tacticalGrid(alpha = 0.07f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
+                    .drawBehind {
+                        drawLine(
+                            color = Color.White.copy(alpha = 0.05f),
+                            start = Offset.Zero,
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            color = Color.White.copy(alpha = 0.05f),
+                            start = Offset.Zero,
+                            end = Offset(0f, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            start = Offset(size.width, 0f),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Column(
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(PanelHigh)
+                            .border(1.dp, Error.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = null,
+                            tint = Error
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "LEAVE THE BUNKER?",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = OnSurface,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = (-0.5).sp
+                        )
+                        Text(
+                            text = "The command feed will go dark if you exit now.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = OnSurfaceMuted
+                        )
+                    }
+                }
+
+                // Warning broadcast panel
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(22.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                        .background(Color(0xFF0D0F0F))
+                        .border(1.dp, Error.copy(alpha = 0.15f))
+                        .tacticalGrid(alpha = 0.08f)
+                        .padding(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.Top
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(54.dp)
-                                .background(WarningAmber.copy(alpha = 0.14f))
-                                .border(1.dp, WarningAmber.copy(alpha = 0.28f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                contentDescription = null,
-                                tint = WarningAmber
-                            )
-                        }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Leave The Bunker?",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(
-                                text = "The command feed will go dark if you exit now.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary
-                            )
-                        }
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Error)
+                            .drawBehind {
+                                drawCircle(
+                                    color = Error.copy(alpha = 0.4f),
+                                    radius = 6.dp.toPx(),
+                                    center = center
+                                )
+                            }
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "COMMAND PROMPT",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Error,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 2.sp
+                        )
+                        Text(
+                            text = "Do you want to quit?",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceMuted
+                        )
                     }
-
-                    StatusBadge(
-                        icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        label = "Command Prompt",
-                        value = "Do you want to quit?",
-                        accent = WarningAmber
-                    )
-
-                    Text(
-                        text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextSecondary
-                    )
-
-                    ActionButton(
-                        title = "Stay In The Vault",
-                        subtitle = "Return to the home page and keep command online.",
-                        icon = Icons.Filled.Home,
-                        accent = VaultGreen,
-                        onClick = onDismiss
-                    )
-
-                    ActionButton(
-                        title = "Quit Game",
-                        subtitle = "Close the app and leave the bunker interface.",
-                        icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        accent = SignalCyan,
-                        onClick = onQuit
-                    )
                 }
+
+                Text(
+                    text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceMuted
+                )
+
+                // Stay button (amber primary)
+                QuitDialogPrimaryButton(
+                    title = "STAY IN THE VAULT",
+                    subtitle = "Return to the home page and keep command online.",
+                    icon = Icons.Filled.Home,
+                    onClick = onDismiss
+                )
+
+                // Quit button (dark panel with cyan accent)
+                QuitDialogSecondaryButton(
+                    title = "QUIT GAME",
+                    subtitle = "Close the app and leave the bunker interface.",
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    accent = Cyan,
+                    onClick = onQuit
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun QuitDialogPrimaryButton(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val shadowHeight = if (isPressed) 4.dp else 10.dp
+    val translateY = if (isPressed) 4.dp else 0.dp
+    val scale = if (isPressed) 0.98f else 1.0f
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .graphicsLayer {
+                translationY = translateY.toPx()
+                scaleX = scale
+                scaleY = scale
+            }
+            .background(Color(0xFFFFB000))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .tacticalGrid(alpha = 0.18f, horizontalSpacing = 3.dp, verticalSpacing = 4.dp)
+            .drawBehind {
+                drawRect(
+                    color = Color(0xFF9C6A00),
+                    topLeft = Offset(0f, size.height),
+                    size = Size(size.width, shadowHeight.toPx())
+                )
+            }
+            .padding(horizontal = 18.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color(0xFF121414),
+                modifier = Modifier.size(28.dp)
+            )
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFF121414),
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF121414).copy(alpha = 0.8f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuitDialogSecondaryButton(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    accent: Color,
+    onClick: () -> Unit
+) {
+    val PanelHigh = Color(0xFF282A2A)
+    val OnSurface = Color(0xFFE2E2E2)
+    val OnSurfaceMuted = Color(0xFFB9B19E)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PanelHigh)
+            .border(1.dp, accent.copy(alpha = 0.25f))
+            .clickable(onClick = onClick)
+            .tacticalGrid(alpha = 0.12f, horizontalSpacing = 4.dp, verticalSpacing = 6.dp)
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(24.dp)
+            )
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = OnSurface,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceMuted
+                )
+            }
+        }
+        Icon(
+            imageVector = Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+private fun Modifier.tacticalGrid(
+    alpha: Float = 0.15f,
+    horizontalSpacing: androidx.compose.ui.unit.Dp = 3.dp,
+    verticalSpacing: androidx.compose.ui.unit.Dp = 4.dp
+): Modifier = this.drawBehind {
+    val horizontalPx = horizontalSpacing.toPx()
+    val verticalPx = verticalSpacing.toPx()
+    var y = 0f
+    while (y < size.height) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha),
+            topLeft = Offset(0f, y),
+            size = Size(size.width, 1.dp.toPx())
+        )
+        y += horizontalPx
+    }
+    var x = 0f
+    while (x < size.width) {
+        drawRect(
+            color = Color.Black.copy(alpha = alpha * 0.25f),
+            topLeft = Offset(x, 0f),
+            size = Size(1.dp.toPx(), size.height)
+        )
+        x += verticalPx
     }
 }
