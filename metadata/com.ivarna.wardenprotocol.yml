@@ -1,0 +1,26 @@
+Categories:
+  - Games
+  - Strategy
+License: GPL-3.0-or-later
+AuthorName: Abhay Raj
+AuthorWebSite: https://github.com/abhay-byte
+SourceCode: https://github.com/abhay-byte/warden-protocol
+IssueTracker: https://github.com/abhay-byte/warden-protocol/issues
+
+AutoName: The Warden Protocol
+
+RepoType: git
+Repo: https://github.com/abhay-byte/warden-protocol
+
+Builds:
+  - versionName: '1.0'
+    versionCode: 1
+    commit: d055b6c0c410f22e1896e9d6fced534d36537477
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.0'
+CurrentVersionCode: 1

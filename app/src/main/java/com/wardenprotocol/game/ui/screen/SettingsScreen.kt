@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,10 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Intent
+import android.net.Uri
 import com.ivarna.wardenprotocol.data.model.NvidiaModelCatalog
 import com.ivarna.wardenprotocol.data.model.NvidiaModelOption
 import com.ivarna.wardenprotocol.ui.component.TerminalDecorFooter
@@ -145,6 +150,10 @@ fun SettingsContent(
             DiagnosticRow("KERNEL_STATUS", "OPTIMAL")
             DiagnosticRow("HARDWARE_ID", "WP-8812-BUNKER")
             DiagnosticRow("ENCRYPTION", "AES-256-WARDEN")
+        }
+
+        SettingsCategory(title = "EXTERNAL_RELAY") {
+            StarRepoCard()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -413,6 +422,63 @@ private fun DiagnosticRow(label: String, value: String) {
             color = WarningAmber,
             fontWeight = FontWeight.Bold,
             fontSize = 11.sp
+        )
+    }
+}
+
+@Composable
+private fun StarRepoCard() {
+    val context = LocalContext.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1A1C1C))
+            .border(1.dp, Color(0xFF333535).copy(alpha = 0.2f))
+            .clickable {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/abhay-byte/warden-protocol"))
+                context.startActivity(intent)
+            }
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(WarningAmber.copy(alpha = 0.08f))
+                .border(1.dp, WarningAmber.copy(alpha = 0.6f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = WarningAmber,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "STAR_REPOSITORY",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-0.5).sp
+            )
+            Text(
+                text = "Support development on GitHub.",
+                style = MaterialTheme.typography.labelSmall,
+                color = TextSecondary,
+                fontSize = 10.sp
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = WarningAmber,
+            modifier = Modifier.size(24.dp)
         )
     }
 }
