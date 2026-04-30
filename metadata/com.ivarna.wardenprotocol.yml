@@ -15,7 +15,7 @@ Repo: https://github.com/abhay-byte/warden-protocol
 Builds:
   - versionName: '1.0'
     versionCode: 1
-    commit: d055b6c0c410f22e1896e9d6fced534d36537477
+    commit: 543401f472c31c9fb0df87e8f825607839f05b4b
     subdir: app
     gradle:
       - yes
