@@ -11,11 +11,12 @@ AutoName: The Warden Protocol
 
 RepoType: git
 Repo: https://github.com/abhay-byte/warden-protocol
+Signer: bd49ae918b858fb22481335c2c63880138d35bacf821ffb195c4a6a1bd443db3
 
 Builds:
   - versionName: '1.0'
     versionCode: 1
-    commit: 543401f472c31c9fb0df87e8f825607839f05b4b
+    commit: abf735b90475d50c8a2c7be84438fe59c12f210b
     subdir: app
     gradle:
       - yes
