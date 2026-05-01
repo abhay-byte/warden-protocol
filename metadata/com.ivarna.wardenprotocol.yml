@@ -1,6 +1,5 @@
 Categories:
   - Games
-  - Strategy
 License: GPL-3.0-or-later
 AuthorName: Abhay Raj
 AuthorWebSite: https://github.com/abhay-byte
@@ -11,7 +10,6 @@ AutoName: The Warden Protocol
 
 RepoType: git
 Repo: https://github.com/abhay-byte/warden-protocol
-AllowedAPKSigningKeys: bd49ae918b858fb22481335c2c63880138d35bacf821ffb195c4a6a1bd443db3
 
 Builds:
   - versionName: '1.0'
@@ -20,6 +18,8 @@ Builds:
     subdir: app
     gradle:
       - yes
+
+AllowedAPKSigningKeys: bd49ae918b858fb22481335c2c63880138d35bacf821ffb195c4a6a1bd443db3
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
