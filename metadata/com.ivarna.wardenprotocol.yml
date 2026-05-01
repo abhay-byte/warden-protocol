@@ -5,12 +5,9 @@ AuthorName: Abhay Raj
 AuthorWebSite: https://github.com/abhay-byte
 SourceCode: https://github.com/abhay-byte/warden-protocol
 IssueTracker: https://github.com/abhay-byte/warden-protocol/issues
-
 AutoName: The Warden Protocol
-
 RepoType: git
 Repo: https://github.com/abhay-byte/warden-protocol
-
 Builds:
   - versionName: '1.0'
     versionCode: 1
@@ -18,9 +15,7 @@ Builds:
     subdir: app
     gradle:
       - yes
-
 AllowedAPKSigningKeys: bd49ae918b858fb22481335c2c63880138d35bacf821ffb195c4a6a1bd443db3
-
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
 CurrentVersion: '1.0'
