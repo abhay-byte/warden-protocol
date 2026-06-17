@@ -1,40 +1,44 @@
 package com.ivarna.wardenprotocol.data.repository
 
+import android.content.Context
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.EventChoice
 import com.ivarna.wardenprotocol.data.model.EventOutcome
 import com.ivarna.wardenprotocol.data.model.GameEvent
 
-internal object ExpandedEventCatalog {
+internal class ExpandedEventCatalog(private val context: Context? = null) {
     val vaultEvents: List<GameEvent> by lazy {
-        buildVaultSystemCrises() + buildVaultTabooEvents() + buildVaultWindfalls() + buildVaultDoomEvents()
+        buildVaultSystemCrises(context) + buildVaultTabooEvents(context) + buildVaultWindfalls(context) + buildVaultDoomEvents(context)
     }
 
     val surfaceEvents: List<GameEvent> by lazy {
-        buildSurfaceHazards() + buildSurfaceWindfalls() + buildSurfaceContacts() + buildSurfaceCatastrophes()
+        buildSurfaceHazards(context) + buildSurfaceWindfalls(context) + buildSurfaceContacts(context) + buildSurfaceCatastrophes(context)
     }
 
     val cosmicEvents: List<GameEvent> by lazy {
-        buildCosmicDreadEvents() + buildCosmicBoonEvents()
+        buildCosmicDreadEvents(context) + buildCosmicBoonEvents(context)
     }
 
     val apexThreatEvents: List<GameEvent> by lazy {
-        buildApexThreatEvents()
+        buildApexThreatEvents(context)
     }
 
-    val vaultWindfallIds: Set<String> by lazy {
-        buildVaultWindfalls().mapTo(linkedSetOf()) { it.id }
-    }
+    companion object {
+        val vaultWindfallIds: Set<String> by lazy {
+            buildVaultWindfalls(null).mapTo(linkedSetOf()) { it.id }
+        }
 
-    val vaultDoomIds: Set<String> by lazy {
-        buildVaultDoomEvents().mapTo(linkedSetOf()) { it.id }
-    }
+        val vaultDoomIds: Set<String> by lazy {
+            buildVaultDoomEvents(null).mapTo(linkedSetOf()) { it.id }
+        }
 
-    val surfaceWindfallIds: Set<String> by lazy {
-        buildSurfaceWindfalls().mapTo(linkedSetOf()) { it.id }
-    }
+        val surfaceWindfallIds: Set<String> by lazy {
+            buildSurfaceWindfalls(null).mapTo(linkedSetOf()) { it.id }
+        }
 
-    val surfaceCatastropheIds: Set<String> by lazy {
-        buildSurfaceCatastrophes().mapTo(linkedSetOf()) { it.id }
+        val surfaceCatastropheIds: Set<String> by lazy {
+            buildSurfaceCatastrophes(null).mapTo(linkedSetOf()) { it.id }
+        }
     }
 }
 
@@ -131,7 +135,7 @@ private fun expandCosmicBoonDescription(spec: ArchiveSpec): String =
 private fun expandApexThreatDescription(spec: ExtremeSpec): String =
     "${spec.description} Any response will be measured in losses to ${eventAreaLabel(spec.primarySystem)}, ${eventAreaLabel(spec.secondarySystem)}, and the ${archiveLabel(spec.archiveTrack)} rather than in anything resembling a clean win."
 
-private fun buildVaultSystemCrises(): List<GameEvent> {
+private fun buildVaultSystemCrises(context: Context?): List<GameEvent> {
     val specs = listOf(
         TwoSystemSpec("vault_exp_bone_dust_filters", "Bone Dust Filters", "The air scrubbers are choking on a fine white powder drifting up from the cremation chute. Nobody signed off on that much ash. Nobody wants to say where it really came from.", "atmosphereScrubbers", "constructionGear"),
         TwoSystemSpec("vault_exp_slurry_line_failure", "Slurry Line Failure", "Protein slurry is backing up through the service ducts. The smell is rank, sweet, and unmistakably human enough to start rumors that don't need proof.", "foodStores", "waterScanner"),
@@ -156,41 +160,41 @@ private fun buildVaultSystemCrises(): List<GameEvent> {
             title = spec.title,
             description = expandVaultSystemCrisisDescription(spec),
             choiceA = EventChoice(
-                label = "Seal it and study it",
-                description = "Lock the problem behind steel and buy time for analysis.",
+                label = context?.getString(R.string.event_vault_exp_command_static_choice_a_label) ?: "Seal it and study it",
+                description = context?.getString(R.string.event_vault_exp_command_static_choice_a_desc) ?: "Lock the problem behind steel and buy time for analysis.",
                 knownEffect = "Fewer deaths. ${systemLabel(spec.primarySystem)} degrades.",
                 hiddenRisk = 0.15f,
                 outcome = EventOutcome(
                     survivorDelta = -2,
                     systemDeltas = mapOf(spec.primarySystem to -12, spec.secondarySystem to -4),
-                    narrativeText = "You lock the sector down and let the screams, hissing, or pounding spend themselves behind the bulkheads. It works. The vault survives another night by sacrificing time and hardware."
+                    narrativeText = context?.getString(R.string.event_vault_exp_command_static_choice_a_outcome) ?: "You lock the sector down and let the screams, hissing, or pounding spend themselves behind the bulkheads. It works. The vault survives another night by sacrificing time and hardware."
                 )
             ),
             choiceB = EventChoice(
-                label = "Send a repair gang",
-                description = "Throw tools, bodies, and nerve directly at the failure.",
+                label = context?.getString(R.string.event_vault_exp_command_static_choice_b_label) ?: "Send a repair gang",
+                description = context?.getString(R.string.event_vault_exp_command_static_choice_b_desc) ?: "Throw tools, bodies, and nerve directly at the failure.",
                 knownEffect = "Best chance to recover ${systemLabel(spec.primarySystem)}. Casualties likely.",
                 hiddenRisk = 0.35f,
                 outcome = EventOutcome(
                     survivorDelta = -5,
                     systemDeltas = mapOf(spec.primarySystem to 14, spec.secondarySystem to -6),
-                    narrativeText = "The repair gang goes in fast and loses people almost immediately, but the job gets done. The system steadies. The blood on the deck plates is the cost of competence."
+                    narrativeText = context?.getString(R.string.event_vault_exp_command_static_choice_b_outcome) ?: "The repair gang goes in fast and loses people almost immediately, but the job gets done. The system steadies. The blood on the deck plates is the cost of competence."
                 )
             ),
             choiceC = EventChoice(
-                label = "Strip another wing for parts",
-                description = "Cannibalize a secondary system and keep the critical failure from spreading.",
+                label = context?.getString(R.string.event_vault_exp_command_static_choice_c_label) ?: "Strip another wing for parts",
+                description = context?.getString(R.string.event_vault_exp_command_static_choice_c_desc) ?: "Cannibalize a secondary system and keep the critical failure from spreading.",
                 knownEffect = "Repairs ${systemLabel(spec.primarySystem)}. Harms ${systemLabel(spec.secondarySystem)}.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.primarySystem to 20, spec.secondarySystem to -18),
-                    narrativeText = "You tear intact machinery out of a still-living wing and bolt it into the dying one. The crisis ends. Another part of the vault goes dark in silence."
+                    narrativeText = context?.getString(R.string.event_vault_exp_command_static_choice_c_outcome) ?: "You tear intact machinery out of a still-living wing and bolt it into the dying one. The crisis ends. Another part of the vault goes dark in silence."
                 )
             )
         )
     }
 }
 
-private fun buildVaultTabooEvents(): List<GameEvent> {
+private fun buildVaultTabooEvents(context: Context?): List<GameEvent> {
     val specs = listOf(
         ArchiveSpec("vault_exp_corpse_yeast", "Corpse Yeast", "Someone in food processing has been culturing protein yeast on rendered human remains from the cremation backlog. The growth vats are healthy. Morality is not.", "foodStores", "culturalArchive", "scientificArchive"),
         ArchiveSpec("vault_exp_organ_tithe", "Organ Tithe", "A quiet network inside the medical bay has begun harvesting 'voluntary donations' from the terminally ill before they die. Their recipients are recovering fast.", "medicalBay", "culturalArchive", "scientificArchive"),
@@ -215,44 +219,44 @@ private fun buildVaultTabooEvents(): List<GameEvent> {
             title = spec.title,
             description = expandVaultTabooDescription(spec),
             choiceA = EventChoice(
-                label = "Authorize it quietly",
-                description = "Keep the practice hidden and harvest the immediate benefit.",
+                label = context?.getString(R.string.event_vault_exp_dying_shift_choice_a_label) ?: "Authorize it quietly",
+                description = context?.getString(R.string.event_vault_exp_dying_shift_choice_a_desc) ?: "Keep the practice hidden and harvest the immediate benefit.",
                 knownEffect = "Improves ${systemLabel(spec.primarySystem)}. Erodes the ${archiveLabel(spec.secondarySystem)}.",
                 hiddenRisk = 0.2f,
                 outcome = EventOutcome(
                     survivorDelta = -4,
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) emptyMap() else mapOf(spec.primarySystem to 12),
                     databaseDeltas = if (spec.secondarySystem.endsWith("Archive")) mapOf(spec.secondarySystem to -10, spec.archiveTrack to 6) else mapOf(spec.archiveTrack to 6),
-                    narrativeText = "You let the ugliness continue behind closed doors. It works. Efficiency climbs. So does the quiet knowledge that the vault is eating itself in ways a maintenance chart will never show."
+                    narrativeText = context?.getString(R.string.event_vault_exp_dying_shift_choice_a_outcome) ?: "You let the ugliness continue behind closed doors. It works. Efficiency climbs. So does the quiet knowledge that the vault is eating itself in ways a maintenance chart will never show."
                 )
             ),
             choiceB = EventChoice(
-                label = "Make it voluntary",
-                description = "Open the practice to paid participants, witnesses, and rules thin enough to be called humane.",
-                knownEffect = "Bigger gains. Greater chance of deaths and backlash.",
+                label = context?.getString(R.string.event_vault_exp_dying_shift_choice_b_label) ?: "Make it voluntary",
+                description = context?.getString(R.string.event_vault_exp_dying_shift_choice_b_desc) ?: "Open the practice to paid participants, witnesses, and rules thin enough to be called humane.",
+                knownEffect = context?.getString(R.string.event_vault_exp_dying_shift_choice_b_effect) ?: "Bigger gains. Greater chance of deaths and backlash.",
                 hiddenRisk = 0.35f,
                 outcome = EventOutcome(
                     survivorDelta = -8,
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) emptyMap() else mapOf(spec.primarySystem to 18),
                     databaseDeltas = mapOf(spec.archiveTrack to 10),
-                    narrativeText = "You put forms, shifts, and compensation around something monstrous and call that order. More people take part than anyone admits in public. The gains are real. So is the stain."
+                    narrativeText = context?.getString(R.string.event_vault_exp_dying_shift_choice_b_outcome) ?: "You put forms, shifts, and compensation around something monstrous and call that order. More people take part than anyone admits in public. The gains are real. So is the stain."
                 )
             ),
             choiceC = EventChoice(
-                label = "Burn it out completely",
-                description = "Crush the network, expose the organizers, and destroy the material.",
-                knownEffect = "Stops the taboo. Hurts output, but protects the vault's remaining soul.",
+                label = context?.getString(R.string.event_vault_exp_dying_shift_choice_c_label) ?: "Burn it out completely",
+                description = context?.getString(R.string.event_vault_exp_dying_shift_choice_c_desc) ?: "Crush the network, expose the organizers, and destroy the material.",
+                knownEffect = context?.getString(R.string.event_vault_exp_dying_shift_choice_c_effect) ?: "Stops the taboo. Hurts output, but protects the vault's remaining soul.",
                 outcome = EventOutcome(
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf("securitySystem" to 8) else mapOf(spec.primarySystem to -10, "securitySystem" to 8),
                     databaseDeltas = if (spec.secondarySystem.endsWith("Archive")) mapOf(spec.secondarySystem to 8) else emptyMap(),
-                    narrativeText = "You drag the hidden practice into the light and crush it in front of everyone. Productivity falls. A few people hate you forever. More importantly, they remember there are still lines, even here."
+                    narrativeText = context?.getString(R.string.event_vault_exp_dying_shift_choice_c_outcome) ?: "You drag the hidden practice into the light and crush it in front of everyone. Productivity falls. A few people hate you forever. More importantly, they remember there are still lines, even here."
                 )
             )
         )
     }
 }
 
-private fun buildVaultWindfalls(): List<GameEvent> {
+private fun buildVaultWindfalls(context: Context?): List<GameEvent> {
     val specs = listOf(
         ArchiveSpec("vault_exp_sealed_freezer", "The Sealed Freezer", "A welded storage room behind the old commissary has been opened for the first time since the vault sealed. Inside are pallets of nutrient bricks still in cold suspension.", "foodStores", "powerGrid", "culturalArchive"),
         ArchiveSpec("vault_exp_repair_drones", "Repair Drones In The Dust", "A maintenance alcove has yielded six dormant service drones under a tarp of insulation foam and dead vermin. Their batteries still hold a whisper of charge.", "constructionGear", "powerGrid", "scientificArchive"),
@@ -277,46 +281,46 @@ private fun buildVaultWindfalls(): List<GameEvent> {
             title = spec.title,
             description = expandVaultWindfallDescription(spec),
             choiceA = EventChoice(
-                label = "Crack it open now",
-                description = "Exploit the find immediately while everyone can still feel lucky.",
-                knownEffect = "Strong immediate gains. Risk of waste or sabotage.",
+                label = context?.getString(R.string.event_vault_exp_prototype_probe_choice_a_label) ?: "Crack it open now",
+                description = context?.getString(R.string.event_vault_exp_prototype_probe_choice_a_desc) ?: "Exploit the find immediately while everyone can still feel lucky.",
+                knownEffect = context?.getString(R.string.event_vault_exp_prototype_probe_choice_a_effect) ?: "Strong immediate gains. Risk of waste or sabotage.",
                 hiddenRisk = 0.25f,
                 outcome = EventOutcome(
                     survivorDelta = 2,
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf(spec.secondarySystem to 6) else mapOf(spec.primarySystem to 18, spec.secondarySystem to 6),
                     databaseDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf(spec.primarySystem to 16) else emptyMap(),
                     probesDelta = if (spec.id.contains("probe")) 1 else 0,
-                    narrativeText = "You move fast, take inventory later, and let the vault taste sudden abundance. The gamble mostly pays off. People smile like they're committing a crime."
+                    narrativeText = context?.getString(R.string.event_vault_exp_prototype_probe_choice_a_outcome) ?: "You move fast, take inventory later, and let the vault taste sudden abundance. The gamble mostly pays off. People smile like they're committing a crime."
                 )
             ),
             choiceB = EventChoice(
-                label = "Catalog it first",
-                description = "Document every item, route, and serial before anyone touches a crate.",
-                knownEffect = "Safer and smarter. Slightly smaller reward now.",
+                label = context?.getString(R.string.event_vault_exp_prototype_probe_choice_b_label) ?: "Catalog it first",
+                description = context?.getString(R.string.event_vault_exp_prototype_probe_choice_b_desc) ?: "Document every item, route, and serial before anyone touches a crate.",
+                knownEffect = context?.getString(R.string.event_vault_exp_prototype_probe_choice_b_effect) ?: "Safer and smarter. Slightly smaller reward now.",
                 outcome = EventOutcome(
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf(spec.secondarySystem to 4) else mapOf(spec.primarySystem to 10, spec.secondarySystem to 4),
                     databaseDeltas = mapOf(spec.archiveTrack to 12) + if (spec.primarySystem.endsWith("Archive")) mapOf(spec.primarySystem to 10) else emptyMap(),
                     probesDelta = if (spec.id.contains("probe")) 1 else 0,
-                    narrativeText = "The quartermasters hate your restraint. The archivists adore it. By the time the goods are distributed, you've squeezed knowledge out of the find as well as material value."
+                    narrativeText = context?.getString(R.string.event_vault_exp_prototype_probe_choice_b_outcome) ?: "The quartermasters hate your restraint. The archivists adore it. By the time the goods are distributed, you've squeezed knowledge out of the find as well as material value."
                 )
             ),
             choiceC = EventChoice(
-                label = "Distribute it carefully",
-                description = "Spread the benefit across multiple sectors instead of maximizing one department.",
-                knownEffect = "Broad but moderate repairs and relief.",
+                label = context?.getString(R.string.event_vault_exp_prototype_probe_choice_c_label) ?: "Distribute it carefully",
+                description = context?.getString(R.string.event_vault_exp_prototype_probe_choice_c_desc) ?: "Spread the benefit across multiple sectors instead of maximizing one department.",
+                knownEffect = context?.getString(R.string.event_vault_exp_prototype_probe_choice_c_effect) ?: "Broad but moderate repairs and relief.",
                 outcome = EventOutcome(
                     survivorDelta = 4,
                     systemDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf("foodStores" to 6, spec.secondarySystem to 6) else mapOf(spec.primarySystem to 8, spec.secondarySystem to 8),
                     databaseDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf(spec.primarySystem to 8) else mapOf(spec.archiveTrack to 6),
                     probesDelta = if (spec.id.contains("probe")) 1 else 0,
-                    narrativeText = "You ration the windfall instead of worshipping it. No one department gets everything it wants, but the whole vault feels the pressure ease for once."
+                    narrativeText = context?.getString(R.string.event_vault_exp_prototype_probe_choice_c_outcome) ?: "You ration the windfall instead of worshipping it. No one department gets everything it wants, but the whole vault feels the pressure ease for once."
                 )
             )
         )
     }
 }
 
-private fun buildVaultDoomEvents(): List<GameEvent> {
+private fun buildVaultDoomEvents(context: Context?): List<GameEvent> {
     val specs = listOf(
         TwoSystemSpec("vault_exp_total_flood", "Total Flood", "A buried water main above the vault shell has ruptured and is forcing black floodwater through maintenance seams faster than pumps can clear it.", "waterScanner", "powerGrid"),
         TwoSystemSpec("vault_exp_scrubber_inversion", "Scrubber Inversion", "The atmosphere plant has started cycling poison back into habitable air. People are blacking out in place and waking up violent.", "atmosphereScrubbers", "medicalBay"),
@@ -341,41 +345,41 @@ private fun buildVaultDoomEvents(): List<GameEvent> {
             title = spec.title,
             description = expandVaultDoomDescription(spec),
             choiceA = EventChoice(
-                label = "Hard containment",
-                description = "Lock down the failing area and save what can be saved elsewhere.",
-                knownEffect = "Heavy damage, but casualties stay lower.",
+                label = context?.getString(R.string.event_vault_exp_door_war_choice_a_label) ?: "Hard containment",
+                description = context?.getString(R.string.event_vault_exp_door_war_choice_a_desc) ?: "Lock down the failing area and save what can be saved elsewhere.",
+                knownEffect = context?.getString(R.string.event_vault_exp_door_war_choice_a_effect) ?: "Heavy damage, but casualties stay lower.",
                 outcome = EventOutcome(
                     survivorDelta = -12,
                     systemDeltas = mapOf(spec.primarySystem to -18, spec.secondarySystem to -10),
-                    narrativeText = "You close blast doors, cut sections loose, and let parts of the vault die so the rest might continue. It is command at its coldest and most necessary."
+                    narrativeText = context?.getString(R.string.event_vault_exp_door_war_choice_a_outcome) ?: "You close blast doors, cut sections loose, and let parts of the vault die so the rest might continue. It is command at its coldest and most necessary."
                 )
             ),
             choiceB = EventChoice(
-                label = "Bet everything on a fix",
-                description = "Throw the whole command stack into a direct solution before the crisis snowballs.",
-                knownEffect = "Possible recovery. Massive deaths if it fails to stabilize fast enough.",
+                label = context?.getString(R.string.event_vault_exp_door_war_choice_b_label) ?: "Bet everything on a fix",
+                description = context?.getString(R.string.event_vault_exp_door_war_choice_b_desc) ?: "Throw the whole command stack into a direct solution before the crisis snowballs.",
+                knownEffect = context?.getString(R.string.event_vault_exp_door_war_choice_b_effect) ?: "Possible recovery. Massive deaths if it fails to stabilize fast enough.",
                 hiddenRisk = 0.45f,
                 outcome = EventOutcome(
                     survivorDelta = -45,
                     systemDeltas = mapOf(spec.primarySystem to 16, spec.secondarySystem to -16),
-                    narrativeText = "You commit hard, fast, and without reserve. The vault survives the edge of extinction by spending people faster than it spends parts."
+                    narrativeText = context?.getString(R.string.event_vault_exp_door_war_choice_b_outcome) ?: "You commit hard, fast, and without reserve. The vault survives the edge of extinction by spending people faster than it spends parts."
                 )
             ),
             choiceC = EventChoice(
-                label = "Abandon the sector",
-                description = "Write off the entire zone and keep the core population breathing.",
-                knownEffect = "Severe casualties. Best chance to keep core systems alive.",
+                label = context?.getString(R.string.event_vault_exp_door_war_choice_c_label) ?: "Abandon the sector",
+                description = context?.getString(R.string.event_vault_exp_door_war_choice_c_desc) ?: "Write off the entire zone and keep the core population breathing.",
+                knownEffect = context?.getString(R.string.event_vault_exp_door_war_choice_c_effect) ?: "Severe casualties. Best chance to keep core systems alive.",
                 outcome = EventOutcome(
                     survivorDelta = -90,
                     systemDeltas = mapOf(spec.primarySystem to 8, spec.secondarySystem to 6),
-                    narrativeText = "You leave a district of the vault to its own end and hold the remaining line elsewhere. Survivors call it survival. The abandoned call it betrayal, briefly."
+                    narrativeText = context?.getString(R.string.event_vault_exp_door_war_choice_c_outcome) ?: "You leave a district of the vault to its own end and hold the remaining line elsewhere. Survivors call it survival. The abandoned call it betrayal, briefly."
                 )
             )
         )
     }
 }
 
-private fun buildSurfaceHazards(): List<GameEvent> {
+private fun buildSurfaceHazards(context: Context?): List<GameEvent> {
     val specs = listOf(
         TwoSystemSpec("surface_exp_ash_tornado", "Ash Tornado", "A probe feed catches a rotating black wall of ash and hot grit moving across the valley, shredding abandoned structures and skin with equal indifference.", "structureScanner", "resourceScanner"),
         TwoSystemSpec("surface_exp_live_mine_bloom", "Mine Bloom", "Rain has washed anti-personnel mines up from an old defensive belt. The ground clicks in places where no ground should click.", "threatAssessment", "constructionGear"),
@@ -400,43 +404,43 @@ private fun buildSurfaceHazards(): List<GameEvent> {
             title = spec.title,
             description = expandSurfaceHazardDescription(spec),
             choiceA = EventChoice(
-                label = "Pull back and map it",
-                description = "Choose patience over heroics and chart the threat first.",
-                knownEffect = "Safer. Slower. Scanner damage likely.",
+                label = context?.getString(R.string.event_surface_exp_raider_decoys_choice_a_label) ?: "Pull back and map it",
+                description = context?.getString(R.string.event_surface_exp_raider_decoys_choice_a_desc) ?: "Choose patience over heroics and chart the threat first.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_decoys_choice_a_effect) ?: "Safer. Slower. Scanner damage likely.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.primarySystem to -8, spec.secondarySystem to 4),
                     probesDelta = -1,
-                    narrativeText = "You step back, lose time, and learn something useful. The hazard remains, but now it has contours instead of mystery."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_decoys_choice_a_outcome) ?: "You step back, lose time, and learn something useful. The hazard remains, but now it has contours instead of mystery."
                 )
             ),
             choiceB = EventChoice(
-                label = "Push straight through",
-                description = "Accept casualties to seize the route, cache, or timing window immediately.",
-                knownEffect = "Fast progress. Heavy losses possible.",
+                label = context?.getString(R.string.event_surface_exp_raider_decoys_choice_b_label) ?: "Push straight through",
+                description = context?.getString(R.string.event_surface_exp_raider_decoys_choice_b_desc) ?: "Accept casualties to seize the route, cache, or timing window immediately.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_decoys_choice_b_effect) ?: "Fast progress. Heavy losses possible.",
                 hiddenRisk = 0.4f,
                 outcome = EventOutcome(
                     survivorDelta = -14,
                     systemDeltas = mapOf(spec.secondarySystem to -10),
-                    narrativeText = "You go hard and fast. It works the way brutality often works: too costly to call success, too effective to call failure."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_decoys_choice_b_outcome) ?: "You go hard and fast. It works the way brutality often works: too costly to call success, too effective to call failure."
                 )
             ),
             choiceC = EventChoice(
-                label = "Turn it into a weapon",
-                description = "Reroute, bait, or time the hazard so it hits someone else instead of you.",
-                knownEffect = "Clever play. Dangerous to set up.",
+                label = context?.getString(R.string.event_surface_exp_raider_decoys_choice_c_label) ?: "Turn it into a weapon",
+                description = context?.getString(R.string.event_surface_exp_raider_decoys_choice_c_desc) ?: "Reroute, bait, or time the hazard so it hits someone else instead of you.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_decoys_choice_c_effect) ?: "Clever play. Dangerous to set up.",
                 hiddenRisk = 0.25f,
                 outcome = EventOutcome(
                     survivorDelta = -4,
                     systemDeltas = mapOf(spec.primarySystem to 10, spec.secondarySystem to -6),
                     databaseDeltas = mapOf("scientificArchive" to 4),
-                    narrativeText = "You use the world as a blade. The trap works, mostly. A few of your own are cut during the setup, but the route opens and the logs learn from the cruelty."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_decoys_choice_c_outcome) ?: "You use the world as a blade. The trap works, mostly. A few of your own are cut during the setup, but the route opens and the logs learn from the cruelty."
                 )
             )
         )
     }
 }
 
-private fun buildSurfaceWindfalls(): List<GameEvent> {
+private fun buildSurfaceWindfalls(context: Context?): List<GameEvent> {
     val specs = listOf(
         ArchiveSpec("surface_exp_repair_depot", "Repair Depot 11", "Beneath a collapsed roofline sits a municipal repair depot packed with sealed tools, lifts, replacement bearings, and manuals nobody expected to survive the war.", "constructionGear", "resourceScanner", "scientificArchive"),
         ArchiveSpec("surface_exp_refugee_bunker", "Refugee Bunker", "A buried shelter responds to your call-sign with old emergency code phrases. Inside are frightened survivors, canned food, and working air filters.", "foodStores", "medicalBay", "culturalArchive"),
@@ -461,45 +465,45 @@ private fun buildSurfaceWindfalls(): List<GameEvent> {
             title = spec.title,
             description = expandSurfaceWindfallDescription(spec),
             choiceA = EventChoice(
-                label = "Recover everything",
-                description = "Commit a serious operation and strip the site hard.",
-                knownEffect = "Largest reward. Higher exposure and labor cost.",
+                label = context?.getString(R.string.event_surface_exp_road_cache_choice_a_label) ?: "Recover everything",
+                description = context?.getString(R.string.event_surface_exp_road_cache_choice_a_desc) ?: "Commit a serious operation and strip the site hard.",
+                knownEffect = context?.getString(R.string.event_surface_exp_road_cache_choice_a_effect) ?: "Largest reward. Higher exposure and labor cost.",
                 hiddenRisk = 0.3f,
                 outcome = EventOutcome(
                     survivorDelta = 6,
                     systemDeltas = mapOf(spec.primarySystem to 16, spec.secondarySystem to 8),
                     databaseDeltas = mapOf(spec.archiveTrack to 8),
-                    narrativeText = "You run the site like conquerors and come back laden with more value than caution would ever allow. It is a good day to remember how greed and survival often look identical."
+                    narrativeText = context?.getString(R.string.event_surface_exp_road_cache_choice_a_outcome) ?: "You run the site like conquerors and come back laden with more value than caution would ever allow. It is a good day to remember how greed and survival often look identical."
                 )
             ),
             choiceB = EventChoice(
-                label = "Take the smartest part",
-                description = "Extract the most useful component and leave the rest for another day.",
-                knownEffect = "Solid gain. Better odds and cleaner logistics.",
+                label = context?.getString(R.string.event_surface_exp_road_cache_choice_b_label) ?: "Take the smartest part",
+                description = context?.getString(R.string.event_surface_exp_road_cache_choice_b_desc) ?: "Extract the most useful component and leave the rest for another day.",
+                knownEffect = context?.getString(R.string.event_surface_exp_road_cache_choice_b_effect) ?: "Solid gain. Better odds and cleaner logistics.",
                 outcome = EventOutcome(
                     survivorDelta = 2,
                     systemDeltas = mapOf(spec.primarySystem to 10, spec.secondarySystem to 4),
                     databaseDeltas = mapOf(spec.archiveTrack to 10),
-                    narrativeText = "You resist the urge to carry the whole world home at once. The team returns lighter, safer, and smarter, with exactly what mattered most."
+                    narrativeText = context?.getString(R.string.event_surface_exp_road_cache_choice_b_outcome) ?: "You resist the urge to carry the whole world home at once. The team returns lighter, safer, and smarter, with exactly what mattered most."
                 )
             ),
             choiceC = EventChoice(
-                label = "Mark it and bargain around it",
-                description = "Secure the location, take a little, and use the rest as leverage with outsiders.",
-                knownEffect = "Smaller immediate gain. Strong long-term utility.",
+                label = context?.getString(R.string.event_surface_exp_road_cache_choice_c_label) ?: "Mark it and bargain around it",
+                description = context?.getString(R.string.event_surface_exp_road_cache_choice_c_desc) ?: "Secure the location, take a little, and use the rest as leverage with outsiders.",
+                knownEffect = context?.getString(R.string.event_surface_exp_road_cache_choice_c_effect) ?: "Smaller immediate gain. Strong long-term utility.",
                 outcome = EventOutcome(
                     survivorDelta = 4,
                     systemDeltas = mapOf(spec.secondarySystem to 10),
                     databaseDeltas = mapOf("culturalArchive" to 8),
                     probesDelta = 1,
-                    narrativeText = "You leave value in place on purpose and build a future around it. It's less satisfying than emptying the shelves, but far more useful to a civilization trying not to die in one generation."
+                    narrativeText = context?.getString(R.string.event_surface_exp_road_cache_choice_c_outcome) ?: "You leave value in place on purpose and build a future around it. It's less satisfying than emptying the shelves, but far more useful to a civilization trying not to die in one generation."
                 )
             )
         )
     }
 }
 
-private fun buildSurfaceContacts(): List<GameEvent> {
+private fun buildSurfaceContacts(context: Context?): List<GameEvent> {
     val specs = listOf(
         ContactSpec("surface_exp_raider_trade", "Raiders With Receipts", "A highway gang offers to sell you information about every ambush route in the region. Their price is ammunition and one prisoner they insist is already as good as dead.", "threatAssessment", "securitySystem", "culturalArchive"),
         ContactSpec("surface_exp_plague_monks", "Plague Monks", "A masked monastic order tends a diseased camp with terrifying tenderness. They know how to treat the sick and when to burn them.", "medicalBay", "securitySystem", "scientificArchive"),
@@ -524,44 +528,44 @@ private fun buildSurfaceContacts(): List<GameEvent> {
             title = spec.title,
             description = expandSurfaceContactDescription(spec),
             choiceA = EventChoice(
-                label = "Trade carefully",
-                description = "Deal with them on terms you can survive and document later.",
-                knownEffect = "Moderate gains. Leaves everyone alive for now.",
+                label = context?.getString(R.string.event_surface_exp_blood_dealers_choice_a_label) ?: "Trade carefully",
+                description = context?.getString(R.string.event_surface_exp_blood_dealers_choice_a_desc) ?: "Deal with them on terms you can survive and document later.",
+                knownEffect = context?.getString(R.string.event_surface_exp_blood_dealers_choice_a_effect) ?: "Moderate gains. Leaves everyone alive for now.",
                 outcome = EventOutcome(
                     survivorDelta = 5,
                     systemDeltas = mapOf(spec.rewardSystem to 10),
                     databaseDeltas = mapOf(spec.archiveTrack to 6),
-                    narrativeText = "You keep the bargain narrow, ugly, and useful. No one walks away clean, which is how you know it was a real negotiation."
+                    narrativeText = context?.getString(R.string.event_surface_exp_blood_dealers_choice_a_outcome) ?: "You keep the bargain narrow, ugly, and useful. No one walks away clean, which is how you know it was a real negotiation."
                 )
             ),
             choiceB = EventChoice(
-                label = "Take control by force",
-                description = "Seize their people, tools, or stockpile before they can decide against you.",
-                knownEffect = "Bigger reward. Violence and reprisals likely.",
+                label = context?.getString(R.string.event_surface_exp_blood_dealers_choice_b_label) ?: "Take control by force",
+                description = context?.getString(R.string.event_surface_exp_blood_dealers_choice_b_desc) ?: "Seize their people, tools, or stockpile before they can decide against you.",
+                knownEffect = context?.getString(R.string.event_surface_exp_blood_dealers_choice_b_effect) ?: "Bigger reward. Violence and reprisals likely.",
                 hiddenRisk = 0.4f,
                 outcome = EventOutcome(
                     survivorDelta = -10,
                     systemDeltas = mapOf(spec.rewardSystem to 16, spec.riskSystem to -10),
                     databaseDeltas = mapOf("culturalArchive" to -6),
-                    narrativeText = "You decide that conquest is clearer than diplomacy. It works immediately and poisons everything that follows. The vault grows stronger. Its reputation grows teeth."
+                    narrativeText = context?.getString(R.string.event_surface_exp_blood_dealers_choice_b_outcome) ?: "You decide that conquest is clearer than diplomacy. It works immediately and poisons everything that follows. The vault grows stronger. Its reputation grows teeth."
                 )
             ),
             choiceC = EventChoice(
-                label = "Shadow them first",
-                description = "Study their routes, habits, and hidden leverage before choosing a side.",
-                knownEffect = "Smart play. Slower return, better intelligence.",
+                label = context?.getString(R.string.event_surface_exp_blood_dealers_choice_c_label) ?: "Shadow them first",
+                description = context?.getString(R.string.event_surface_exp_blood_dealers_choice_c_desc) ?: "Study their routes, habits, and hidden leverage before choosing a side.",
+                knownEffect = context?.getString(R.string.event_surface_exp_blood_dealers_choice_c_effect) ?: "Smart play. Slower return, better intelligence.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.riskSystem to 10),
                     databaseDeltas = mapOf(spec.archiveTrack to 10, "scientificArchive" to 4),
                     probesDelta = -1,
-                    narrativeText = "You wait, watch, and learn who they really are when they think no one sees them. The short-term reward slips away. The long-term advantage does not."
+                    narrativeText = context?.getString(R.string.event_surface_exp_blood_dealers_choice_c_outcome) ?: "You wait, watch, and learn who they really are when they think no one sees them. The short-term reward slips away. The long-term advantage does not."
                 )
             )
         )
     }
 }
 
-private fun buildSurfaceCatastrophes(): List<GameEvent> {
+private fun buildSurfaceCatastrophes(context: Context?): List<GameEvent> {
     val specs = listOf(
         TwoSystemSpec("surface_exp_dam_burst", "Dam Burst", "A cracked hydro dam finally gives way and sends a wall of black industrial water through half the mapped lowlands.", "waterScanner", "structureScanner"),
         TwoSystemSpec("surface_exp_orbital_fall", "Orbital Fall", "A burning string of orbital debris is breaking up overhead and punching fresh craters through the survey region.", "threatAssessment", "resourceScanner"),
@@ -586,42 +590,42 @@ private fun buildSurfaceCatastrophes(): List<GameEvent> {
             title = spec.title,
             description = expandSurfaceCatastropheDescription(spec),
             choiceA = EventChoice(
-                label = "Retreat underground",
-                description = "Preserve the vault and let the surface burn itself out.",
-                knownEffect = "Smaller losses. Strategic setback.",
+                label = context?.getString(R.string.event_surface_exp_raider_war_choice_a_label) ?: "Retreat underground",
+                description = context?.getString(R.string.event_surface_exp_raider_war_choice_a_desc) ?: "Preserve the vault and let the surface burn itself out.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_war_choice_a_effect) ?: "Smaller losses. Strategic setback.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.primarySystem to -12, spec.secondarySystem to -8),
-                    narrativeText = "You pull back and let the apocalypse keep the ground for a while longer. It is smart. It feels like surrender anyway."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_war_choice_a_outcome) ?: "You pull back and let the apocalypse keep the ground for a while longer. It is smart. It feels like surrender anyway."
                 )
             ),
             choiceB = EventChoice(
-                label = "Counter it immediately",
-                description = "Commit hard before the disaster or enemy closes the window entirely.",
-                knownEffect = "Chance at momentum. Very high casualties.",
+                label = context?.getString(R.string.event_surface_exp_raider_war_choice_b_label) ?: "Counter it immediately",
+                description = context?.getString(R.string.event_surface_exp_raider_war_choice_b_desc) ?: "Commit hard before the disaster or enemy closes the window entirely.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_war_choice_b_effect) ?: "Chance at momentum. Very high casualties.",
                 hiddenRisk = 0.45f,
                 outcome = EventOutcome(
                     survivorDelta = -28,
                     systemDeltas = mapOf(spec.primarySystem to 12, spec.secondarySystem to -14),
-                    narrativeText = "You hit the catastrophe while it is still taking shape. Enough of the plan works to matter. Enough of it fails to leave bodies behind."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_war_choice_b_outcome) ?: "You hit the catastrophe while it is still taking shape. Enough of the plan works to matter. Enough of it fails to leave bodies behind."
                 )
             ),
             choiceC = EventChoice(
-                label = "Exploit the chaos",
-                description = "Use the catastrophe to strike enemies, salvage value, or shift regional power.",
-                knownEffect = "Cruel, clever, and risky.",
+                label = context?.getString(R.string.event_surface_exp_raider_war_choice_c_label) ?: "Exploit the chaos",
+                description = context?.getString(R.string.event_surface_exp_raider_war_choice_c_desc) ?: "Use the catastrophe to strike enemies, salvage value, or shift regional power.",
+                knownEffect = context?.getString(R.string.event_surface_exp_raider_war_choice_c_effect) ?: "Cruel, clever, and risky.",
                 hiddenRisk = 0.3f,
                 outcome = EventOutcome(
                     survivorDelta = -12,
                     systemDeltas = mapOf(spec.secondarySystem to 10, "securitySystem" to 8),
                     databaseDeltas = mapOf("scientificArchive" to 6),
-                    narrativeText = "You step into the disaster sideways and come out carrying advantage. It is not a noble strategy. It is an effective one."
+                    narrativeText = context?.getString(R.string.event_surface_exp_raider_war_choice_c_outcome) ?: "You step into the disaster sideways and come out carrying advantage. It is not a noble strategy. It is an effective one."
                 )
             )
         )
     }
 }
 
-private fun buildCosmicDreadEvents(): List<GameEvent> {
+private fun buildCosmicDreadEvents(context: Context?): List<GameEvent> {
     val specs = listOf(
         ArchiveSpec("cosmic_exp_false_sunrise", "False Sunrise", "At 03:14 every camera in the vault shows daylight above ground for exactly eight seconds. The surface monitors then return to night. The sun outside did not move.", "threatAssessment", "powerGrid", "scientificArchive"),
         ArchiveSpec("cosmic_exp_reversed_shadows", "Reversed Shadows", "People are casting shadows toward the nearest bulkhead lamp, not away from it. The shadows twitch a half-second late.", "securitySystem", "culturalArchive", "scientificArchive"),
@@ -651,44 +655,44 @@ private fun buildCosmicDreadEvents(): List<GameEvent> {
             title = spec.title,
             description = expandCosmicDreadDescription(spec),
             choiceA = EventChoice(
-                label = "Shield the vault",
-                description = "Treat the phenomenon as hostile and harden systems against it.",
-                knownEffect = "Safer. Expensive. Knowledge loss likely.",
+                label = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_a_label) ?: "Shield the vault",
+                description = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_a_desc) ?: "Treat the phenomenon as hostile and harden systems against it.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_a_effect) ?: "Safer. Expensive. Knowledge loss likely.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.primarySystem to -6, spec.secondarySystem to 10),
                     databaseDeltas = mapOf(spec.archiveTrack to -4),
-                    narrativeText = "You shut shutters, ground lines, salt doors, and call it prudence. Whatever this thing is, it presses at the edges and fails to get in cleanly."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_a_outcome) ?: "You shut shutters, ground lines, salt doors, and call it prudence. Whatever this thing is, it presses at the edges and fails to get in cleanly."
                 )
             ),
             choiceB = EventChoice(
-                label = "Study the anomaly",
-                description = "Lean in with instruments, volunteers, and a reckless respect for truth.",
-                knownEffect = "High knowledge gain. Moderate casualties or system damage.",
+                label = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_b_label) ?: "Study the anomaly",
+                description = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_b_desc) ?: "Lean in with instruments, volunteers, and a reckless respect for truth.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_b_effect) ?: "High knowledge gain. Moderate casualties or system damage.",
                 hiddenRisk = 0.35f,
                 outcome = EventOutcome(
                     survivorDelta = -8,
                     systemDeltas = mapOf(spec.primarySystem to -8),
                     databaseDeltas = mapOf(spec.archiveTrack to 16),
-                    narrativeText = "You harvest data from the impossible and pay for it with headaches, seizures, burns, or missing time. The archive grows fat on terror."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_b_outcome) ?: "You harvest data from the impossible and pay for it with headaches, seizures, burns, or missing time. The archive grows fat on terror."
                 )
             ),
             choiceC = EventChoice(
-                label = "Answer it",
-                description = "Broadcast, open, descend, or otherwise reciprocate.",
-                knownEffect = "Could yield power or doom. Expect severe instability.",
+                label = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_c_label) ?: "Answer it",
+                description = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_c_desc) ?: "Broadcast, open, descend, or otherwise reciprocate.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_c_effect) ?: "Could yield power or doom. Expect severe instability.",
                 hiddenRisk = 0.45f,
                 outcome = EventOutcome(
                     survivorDelta = -18,
                     systemDeltas = mapOf(spec.primarySystem to 14, spec.secondarySystem to -12),
                     databaseDeltas = mapOf("scientificArchive" to 10, "culturalArchive" to -8),
-                    narrativeText = "You answer the thing and it answers back. The vault comes away changed, stronger in one measurable way and weaker in several human ones."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_pulse_below_choice_c_outcome) ?: "You answer the thing and it answers back. The vault comes away changed, stronger in one measurable way and weaker in several human ones."
                 )
             )
         )
     }
 }
 
-private fun buildCosmicBoonEvents(): List<GameEvent> {
+private fun buildCosmicBoonEvents(context: Context?): List<GameEvent> {
     val specs = listOf(
         ArchiveSpec("cosmic_exp_impossible_seeds", "Impossible Seeds", "A sealed tray of seeds appears in the archive vault with no access log and growth profiles that suggest they prefer radiation over sunlight.", "foodStores", "agriculturalScanner", "scientificArchive"),
         ArchiveSpec("cosmic_exp_warm_rain", "Warm Rain", "For one hour the surface receives a clean, warm rain that strips salt and ash off collection tarps without leaving contamination behind.", "waterScanner", "foodStores", "scientificArchive"),
@@ -718,43 +722,43 @@ private fun buildCosmicBoonEvents(): List<GameEvent> {
             title = spec.title,
             description = expandCosmicBoonDescription(spec),
             choiceA = EventChoice(
-                label = "Accept the gift",
-                description = "Use the miracle before the universe remembers to retract it.",
-                knownEffect = "Strong immediate reward. Unclear long-term cost.",
+                label = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_a_label) ?: "Accept the gift",
+                description = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_a_desc) ?: "Use the miracle before the universe remembers to retract it.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_a_effect) ?: "Strong immediate reward. Unclear long-term cost.",
                 hiddenRisk = 0.2f,
                 outcome = EventOutcome(
                     survivorDelta = 6,
                     systemDeltas = mapOf(spec.primarySystem to 14, spec.secondarySystem to 8),
                     databaseDeltas = if (spec.primarySystem.endsWith("Archive")) mapOf(spec.primarySystem to 12) else mapOf(spec.archiveTrack to 6),
-                    narrativeText = "You take the blessing without pretending to deserve it. The vault improves overnight and nobody can explain why, which only makes the gratitude more desperate."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_a_outcome) ?: "You take the blessing without pretending to deserve it. The vault improves overnight and nobody can explain why, which only makes the gratitude more desperate."
                 )
             ),
             choiceB = EventChoice(
-                label = "Test it first",
-                description = "Run the miracle through procedure, instruments, and volunteers before it becomes policy.",
-                knownEffect = "Safer and smarter. Slightly reduced gain.",
+                label = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_b_label) ?: "Test it first",
+                description = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_b_desc) ?: "Run the miracle through procedure, instruments, and volunteers before it becomes policy.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_b_effect) ?: "Safer and smarter. Slightly reduced gain.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.primarySystem to 8, spec.secondarySystem to 4),
                     databaseDeltas = mapOf(spec.archiveTrack to 12),
-                    narrativeText = "You subject wonder to paperwork and extract knowledge from it before comfort. The scientists call it discipline. Everyone else calls it making miracles wait in line."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_b_outcome) ?: "You subject wonder to paperwork and extract knowledge from it before comfort. The scientists call it discipline. Everyone else calls it making miracles wait in line."
                 )
             ),
             choiceC = EventChoice(
-                label = "Hide it from the vault",
-                description = "Keep the phenomenon inside a small trusted circle until you know who might weaponize it.",
-                knownEffect = "Lower public benefit. Strong strategic control.",
+                label = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_c_label) ?: "Hide it from the vault",
+                description = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_c_desc) ?: "Keep the phenomenon inside a small trusted circle until you know who might weaponize it.",
+                knownEffect = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_c_effect) ?: "Lower public benefit. Strong strategic control.",
                 outcome = EventOutcome(
                     systemDeltas = mapOf(spec.secondarySystem to 10, "securitySystem" to 6),
                     databaseDeltas = mapOf("culturalArchive" to -4, spec.archiveTrack to 8),
                     probesDelta = 1,
-                    narrativeText = "You bury the miracle under secrecy and protocol. Fewer people benefit immediately, but command keeps the first move and the last explanation."
+                    narrativeText = context?.getString(R.string.event_cosmic_exp_weather_gap_choice_c_outcome) ?: "You bury the miracle under secrecy and protocol. Fewer people benefit immediately, but command keeps the first move and the last explanation."
                 )
             )
         )
     }
 }
 
-private fun buildApexThreatEvents(): List<GameEvent> {
+private fun buildApexThreatEvents(context: Context?): List<GameEvent> {
     val specs = listOf(
         ExtremeSpec("apex_human_siege_train", "The Siege Train", "A warlord has assembled an armored locomotive from welded tank hulls and prison cars. It is rolling settlement to settlement demanding tribute, breeding stock, and fuel. Your vault entrance is now on its map.", "securitySystem", "powerGrid", "culturalArchive"),
         ExtremeSpec("apex_human_harvest_clan", "Harvest Clan", "A disciplined cannibal clan has learned to smoke flesh, preserve organs, and raid bunkers by following vent heat in the night. They call vaults 'winter orchards.'", "securitySystem", "foodStores", "culturalArchive"),
@@ -786,38 +790,38 @@ private fun buildApexThreatEvents(): List<GameEvent> {
             title = spec.title,
             description = expandApexThreatDescription(spec),
             choiceA = EventChoice(
-                label = "Fortify and endure",
-                description = "Treat the threat as larger than pride and try to survive the first contact.",
-                knownEffect = "Heavy system damage. Fewer deaths than open war.",
+                label = context?.getString(R.string.event_apex_alien_glass_worms_choice_a_label) ?: "Fortify and endure",
+                description = context?.getString(R.string.event_apex_alien_glass_worms_choice_a_desc) ?: "Treat the threat as larger than pride and try to survive the first contact.",
+                knownEffect = context?.getString(R.string.event_apex_alien_glass_worms_choice_a_effect) ?: "Heavy system damage. Fewer deaths than open war.",
                 outcome = EventOutcome(
                     survivorDelta = -18,
                     systemDeltas = mapOf(spec.primarySystem to -16, spec.secondarySystem to -12),
                     databaseDeltas = mapOf(spec.archiveTrack to 4),
-                    narrativeText = "You harden the vault, lock every hatch, and spend machines like blood. The threat does not break you immediately. The fact that this counts as success says everything."
+                    narrativeText = context?.getString(R.string.event_apex_alien_glass_worms_choice_a_outcome) ?: "You harden the vault, lock every hatch, and spend machines like blood. The threat does not break you immediately. The fact that this counts as success says everything."
                 )
             ),
             choiceB = EventChoice(
-                label = "Counterstrike with everything",
-                description = "Commit to a decisive offensive before the enemy fully fixes on the vault.",
-                knownEffect = "Potential major win. Catastrophic losses if the blow stalls.",
+                label = context?.getString(R.string.event_apex_alien_glass_worms_choice_b_label) ?: "Counterstrike with everything",
+                description = context?.getString(R.string.event_apex_alien_glass_worms_choice_b_desc) ?: "Commit to a decisive offensive before the enemy fully fixes on the vault.",
+                knownEffect = context?.getString(R.string.event_apex_alien_glass_worms_choice_b_effect) ?: "Potential major win. Catastrophic losses if the blow stalls.",
                 hiddenRisk = 0.45f,
                 outcome = EventOutcome(
                     survivorDelta = -75,
                     systemDeltas = mapOf(spec.primarySystem to 10, spec.secondarySystem to -18),
                     databaseDeltas = mapOf("scientificArchive" to 8),
-                    narrativeText = "You strike first and hard enough to matter. Enough of the plan lands to buy time, territory, or fear. Enough of it fails to fill morgues and maintenance shafts with your own."
+                    narrativeText = context?.getString(R.string.event_apex_alien_glass_worms_choice_b_outcome) ?: "You strike first and hard enough to matter. Enough of the plan lands to buy time, territory, or fear. Enough of it fails to fill morgues and maintenance shafts with your own."
                 )
             ),
             choiceC = EventChoice(
-                label = "Take the impossible bargain",
-                description = "Parley, submit, offer bodies, open the gate, or otherwise gamble everything on terms no sane world would accept.",
-                knownEffect = "Could avert annihilation. Could end the run outright.",
+                label = context?.getString(R.string.event_apex_alien_glass_worms_choice_c_label) ?: "Take the impossible bargain",
+                description = context?.getString(R.string.event_apex_alien_glass_worms_choice_c_desc) ?: "Parley, submit, offer bodies, open the gate, or otherwise gamble everything on terms no sane world would accept.",
+                knownEffect = context?.getString(R.string.event_apex_alien_glass_worms_choice_c_effect) ?: "Could avert annihilation. Could end the run outright.",
                 hiddenRisk = 0.6f,
                 outcome = EventOutcome(
                     survivorDelta = -260,
                     systemDeltas = mapOf(spec.primarySystem to -24, spec.secondarySystem to -20),
                     databaseDeltas = mapOf("culturalArchive" to -14, spec.archiveTrack to 10),
-                    narrativeText = "You choose the path people will whisper about for generations if there are generations left to whisper. Sometimes the bargain buys a future. Sometimes it simply changes the shape of extinction."
+                    narrativeText = context?.getString(R.string.event_apex_alien_glass_worms_choice_c_outcome) ?: "You choose the path people will whisper about for generations if there are generations left to whisper. Sometimes the bargain buys a future. Sometimes it simply changes the shape of extinction."
                 )
             )
         )

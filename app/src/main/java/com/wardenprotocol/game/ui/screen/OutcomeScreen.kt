@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -145,7 +146,7 @@ private fun TacticalMissionHeader() {
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                "WARDEN_PROTOCOL_V1.0.4",
+                stringResource(R.string.outcome_top_bar),
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
                 fontWeight = FontWeight.Black,
@@ -208,7 +209,7 @@ private fun OutcomeHeroSection(
                 ) {
                     Box(modifier = Modifier.size(8.dp).background(Secondary))
                     Text(
-                        "MISSION_COMPLETE",
+                        stringResource(R.string.outcome_mission_complete),
                         style = MaterialTheme.typography.labelSmall,
                         color = Secondary,
                         fontWeight = FontWeight.Bold
@@ -225,7 +226,7 @@ private fun OutcomeHeroSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        "${outcome.score} PTS",
+                        stringResource(R.string.outcome_score_format, outcome.score),
                         style = MaterialTheme.typography.labelSmall,
                         color = Primary,
                         fontWeight = FontWeight.Bold
@@ -239,7 +240,7 @@ private fun OutcomeHeroSection(
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            "NEW HIGH SCORE!",
+                            stringResource(R.string.outcome_new_high_score),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Black,
                             fontWeight = FontWeight.Black
@@ -260,14 +261,14 @@ private fun OutcomeHeroSection(
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
-                    "Classification: ${outcome.classification}",
+                    stringResource(R.string.outcome_classification_format, outcome.classification),
                     style = MaterialTheme.typography.labelLarge,
                     color = Primary.copy(alpha = 0.8f),
                     letterSpacing = 1.sp
                 )
                 Box(modifier = Modifier.height(1.dp).weight(1f).background(Primary.copy(alpha = 0.2f)))
                 Text(
-                    outcome.detailedStats?.locationName?.uppercase() ?: "SETTLEMENT RECORD",
+                    outcome.detailedStats?.locationName?.uppercase() ?: stringResource(R.string.outcome_settlement_record),
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary,
                     fontSize = 10.sp
@@ -301,7 +302,7 @@ private fun PostSettlementChronicles(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(Icons.Filled.HistoryEdu, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
             Text(
-                if (hasExtendedForecast) "LONG-RANGE CHRONICLE" else "POST-SETTLEMENT CHRONICLES",
+                if (hasExtendedForecast) stringResource(R.string.outcome_long_chronicle) else stringResource(R.string.outcome_post_chronicle),
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
                 fontWeight = FontWeight.Bold
@@ -327,7 +328,7 @@ private fun ForecastTimelineSection(report: AiEndingReport) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "10 / 50 / 100 YEAR OUTLOOK",
+            text = stringResource(R.string.outcome_outlook_title),
             style = MaterialTheme.typography.titleMedium,
             color = SignalBlue,
             fontWeight = FontWeight.Bold
@@ -341,14 +342,14 @@ private fun ForecastTimelineSection(report: AiEndingReport) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "${entry.marker}  |  ${entry.title.uppercase()}",
+                    text = stringResource(R.string.outcome_timeline_marker_format, entry.marker, entry.title.uppercase()),
                     style = MaterialTheme.typography.labelLarge,
                     color = Primary,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp
                 )
                 Text(
-                    text = "${entry.status}  |  ${entry.populationEstimate}",
+                    text = stringResource(R.string.outcome_timeline_status_format, entry.status, entry.populationEstimate),
                     style = MaterialTheme.typography.bodySmall,
                     color = SignalBlue
                 )
@@ -371,15 +372,15 @@ private fun ForecastDriversSection(report: AiEndingReport) {
     ) {
         OutcomeListPanel(
             modifier = Modifier.weight(1f),
-            title = "FAILURE CAUSES",
+            title = stringResource(R.string.outcome_failure_causes),
             accent = DangerRed,
-            entries = report.failureCauses.ifEmpty { listOf("No explicit failure causes returned.") }
+            entries = report.failureCauses.ifEmpty { listOf(stringResource(R.string.outcome_failure_causes_empty)) }
         )
         OutcomeListPanel(
             modifier = Modifier.weight(1f),
-            title = "WHAT KEPT THEM ALIVE",
+            title = stringResource(R.string.outcome_survival_drivers),
             accent = Secondary,
-            entries = report.survivalDrivers.ifEmpty { listOf("No explicit survival drivers returned.") }
+            entries = report.survivalDrivers.ifEmpty { listOf(stringResource(R.string.outcome_survival_drivers_empty)) }
         )
     }
 }
@@ -406,7 +407,7 @@ private fun OutcomeListPanel(
         )
         entries.take(4).forEach { line ->
             Text(
-                text = "• $line",
+                text = stringResource(R.string.outcome_bullet_format, line),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextPrimary,
                 lineHeight = 22.sp
@@ -429,7 +430,7 @@ private fun RunBreakdownSection(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Text(
-            "RUN_BREAKDOWN_v04",
+            stringResource(R.string.outcome_run_breakdown),
             style = MaterialTheme.typography.labelSmall,
             color = TextSecondary,
             fontWeight = FontWeight.Bold,
@@ -437,13 +438,13 @@ private fun RunBreakdownSection(
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            BreakdownRow("Final Score", score.toString(), Primary)
-            BreakdownRow("Travel Route", stats?.travelRoute ?: "Unavailable", Primary)
-            BreakdownRow("Travel Time", stats?.travelTime ?: "Unavailable", Secondary)
-            BreakdownRow("Travel Risk", stats?.travelRisk ?: "Unknown", dangerTone(stats?.travelRisk), compact = true)
-            BreakdownRow("Travel Deaths", stats?.travelDeaths?.toString() ?: "0", DangerRed, compact = true)
-            BreakdownRow("Surface Conditions", buildConditionLine(stats), SignalBlue)
-            BreakdownRow("Vault Systems", buildVaultLine(stats), PrimaryContainer)
+            BreakdownRow(stringResource(R.string.outcome_row_final_score), score.toString(), Primary)
+            BreakdownRow(stringResource(R.string.outcome_row_travel_route), stats?.travelRoute ?: "Unavailable", Primary)
+            BreakdownRow(stringResource(R.string.outcome_row_travel_time), stats?.travelTime ?: "Unavailable", Secondary)
+            BreakdownRow(stringResource(R.string.outcome_row_travel_risk), stats?.travelRisk ?: stringResource(R.string.outcome_row_travel_risk_unknown), dangerTone(stats?.travelRisk), compact = true)
+            BreakdownRow(stringResource(R.string.outcome_row_travel_deaths), stats?.travelDeaths?.toString() ?: "0", DangerRed, compact = true)
+            BreakdownRow(stringResource(R.string.outcome_row_surface_conditions), buildConditionLine(stats), SignalBlue)
+            BreakdownRow(stringResource(R.string.outcome_row_vault_systems), buildVaultLine(stats), PrimaryContainer)
         }
     }
 }
@@ -499,13 +500,13 @@ private fun VaultStatusSection(stats: OutcomeStats?) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(Icons.Filled.Memory, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
-                Text("VAULT DIAGNOSTICS", style = MaterialTheme.typography.labelSmall, color = DangerRed, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.outcome_vault_diagnostics), style = MaterialTheme.typography.labelSmall, color = DangerRed, fontWeight = FontWeight.Bold)
             }
             Icon(Icons.Filled.ExpandMore, contentDescription = null, tint = TextSecondary)
         }
 
-        MetricBar("Hull Integrity", stats?.securitySystem ?: 42, DangerRed)
-        MetricBar("Core Temp", stats?.powerGrid ?: 78, Primary)
+        MetricBar(stringResource(R.string.outcome_metric_hull), stats?.securitySystem ?: 42, DangerRed)
+        MetricBar(stringResource(R.string.outcome_metric_core_temp), stats?.powerGrid ?: 78, Primary)
     }
 }
 
@@ -515,7 +516,7 @@ private fun MetricBar(label: String, value: Int, color: Color) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = TextPrimary.copy(alpha = 0.7f))
             Text(
-                if (value < 50) "$value% (CRITICAL)" else "OPTIMAL",
+                if (value < 50) stringResource(R.string.pct_format_with_integrity, value) else "OPTIMAL",
                 style = MaterialTheme.typography.labelSmall,
                 color = if (value < 50) DangerRed else Primary
             )
@@ -546,7 +547,7 @@ private fun GlobalActionSection(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(Icons.Filled.Refresh, contentDescription = null, tint = Color.Black)
                 Text(
-                    "RESTART MISSION",
+                    stringResource(R.string.outcome_action_restart),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     fontWeight = FontWeight.Black,
@@ -563,7 +564,7 @@ private fun GlobalActionSection(
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
-                Text("LEADERBOARD", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.outcome_action_leaderboard), style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
             }
             OutlinedButton(
                 onClick = onHistory,
@@ -572,7 +573,7 @@ private fun GlobalActionSection(
                 shape = RoundedCornerShape(0.dp),
                 border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
             ) {
-                Text("RUN HISTORY", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.outcome_action_history), style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -583,7 +584,7 @@ private fun GlobalActionSection(
             shape = RoundedCornerShape(0.dp),
             border = borderStroke(1.dp, Primary.copy(alpha = 0.3f))
         ) {
-            Text("MAIN MENU", style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.outcome_action_main_menu), style = MaterialTheme.typography.labelLarge, color = Primary, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -595,8 +596,9 @@ private fun resolveOutcomeLocationArt(stats: OutcomeStats?): Int {
     return locationArtworkRes(type)
 }
 
+@Composable
 private fun buildConditionLine(stats: OutcomeStats?): String {
-    if (stats == null) return "No surface telemetry available."
+    if (stats == null) return stringResource(R.string.outcome_no_surface_telemetry)
     return listOf(
         "Rad ${stats.radiation}",
         "Water ${stats.water}",
@@ -607,8 +609,9 @@ private fun buildConditionLine(stats: OutcomeStats?): String {
     ).joinToString(" | ")
 }
 
+@Composable
 private fun buildVaultLine(stats: OutcomeStats?): String {
-    if (stats == null) return "No vault telemetry available."
+    if (stats == null) return stringResource(R.string.outcome_no_vault_telemetry)
     return listOf(
         "Power ${stats.powerGrid}%",
         "Food ${stats.foodStores}%",

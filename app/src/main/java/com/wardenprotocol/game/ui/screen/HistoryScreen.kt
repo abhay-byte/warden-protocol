@@ -34,9 +34,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.PaddingValues
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.RunRecord
 import com.ivarna.wardenprotocol.ui.component.*
 import com.ivarna.wardenprotocol.ui.theme.TextSecondary
@@ -55,7 +57,7 @@ fun HistoryScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color(0xFF121414),
-        topBar = { WardenTopBar(title = "ARCHIVE_LOGS_v1.0.4") },
+        topBar = { WardenTopBar(title = stringResource(R.string.history_top_bar)) },
         bottomBar = {
             WardenBottomNav(
                 activeTab = WardenTab.ARCHIVE,
@@ -100,7 +102,7 @@ fun HistoryContent(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (entries.isEmpty()) {
                     Text(
-                        text = "NO ARCHIVED RECORDS DETECTED IN STORAGE BUFFER.",
+                        text = stringResource(R.string.history_empty),
                         style = MaterialTheme.typography.bodySmall,
                         color = WarningAmber.copy(alpha = 0.6f),
                         fontWeight = FontWeight.Bold,
@@ -142,7 +144,7 @@ private fun ArchiveHeaderTelemetry(totalRuns: Int) {
     ) {
         Column {
             Text(
-                "DATA RECOVERY STATUS",
+                stringResource(R.string.history_index_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = WarningAmber,
                 fontSize = 10.sp,
@@ -151,7 +153,7 @@ private fun ArchiveHeaderTelemetry(totalRuns: Int) {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                "ARCHIVE LOGS",
+                stringResource(R.string.history_index_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = WarningAmber,
                 fontWeight = FontWeight.Black,
@@ -166,7 +168,7 @@ private fun ArchiveHeaderTelemetry(totalRuns: Int) {
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    "AUTH: WARDEN_IDENT",
+                    stringResource(R.string.history_auth),
                     style = MaterialTheme.typography.labelSmall,
                     color = WarningAmber,
                     fontSize = 9.sp,
@@ -175,7 +177,7 @@ private fun ArchiveHeaderTelemetry(totalRuns: Int) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "RECORDS: $totalRuns",
+                stringResource(R.string.history_records_format, totalRuns),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 fontSize = 10.sp,
@@ -196,10 +198,10 @@ private fun TerminalDecorFooter() {
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         val lines = listOf(
-            "> INITIALIZING ARCHIVE RETRIEVAL...",
-            "> CRC CHECK: OK",
-            "> LOADING SECTOR_MAP_DELTA",
-            "> END OF LOGS REACHED"
+            stringResource(R.string.history_footer_line_1),
+            stringResource(R.string.history_footer_line_2),
+            stringResource(R.string.history_footer_line_3),
+            stringResource(R.string.history_footer_line_4)
         )
         lines.forEach { line ->
             Text(

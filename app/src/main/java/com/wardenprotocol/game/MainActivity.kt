@@ -4,10 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -61,11 +62,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.ivarna.wardenprotocol.audio.MusicScene
 import com.ivarna.wardenprotocol.audio.UiSound
 import com.ivarna.wardenprotocol.audio.WardenAudioController
+import com.wardenprotocol.game.data.locale.LocaleApplier
+import com.wardenprotocol.game.data.locale.LocaleStore
 import com.ivarna.wardenprotocol.data.repository.EventRepository
 import com.ivarna.wardenprotocol.data.repository.AiEndingForecastRepository
 import com.ivarna.wardenprotocol.data.repository.HighScoreRepository
 import com.ivarna.wardenprotocol.domain.engine.GameEngine
 
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.ui.screen.*
 
 import com.ivarna.wardenprotocol.ui.theme.WardenProtocolTheme
@@ -75,7 +79,7 @@ import com.ivarna.wardenprotocol.ui.viewmodel.UiState
 import com.ivarna.wardenprotocol.ui.viewmodel.HubTab
 import com.ivarna.wardenprotocol.ui.viewmodel.EndingForecastState
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     
     private lateinit var viewModel: GameViewModel
     
@@ -84,8 +88,8 @@ class MainActivity : ComponentActivity() {
         
         enableEdgeToEdge()
         
-        val eventRepository = EventRepository()
-        val gameEngine = GameEngine(eventRepository)
+        val eventRepository = EventRepository(applicationContext)
+        val gameEngine = GameEngine(eventRepository, applicationContext)
         val highScoreRepository = HighScoreRepository(applicationContext)
         val aiEndingForecastRepository = AiEndingForecastRepository()
         viewModel = GameViewModel(gameEngine, highScoreRepository, aiEndingForecastRepository)
@@ -118,6 +122,11 @@ fun GameApp(viewModel: GameViewModel) {
     val audioController = remember(context.applicationContext) {
         WardenAudioController(context.applicationContext)
     }
+    var currentLocaleTag by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        currentLocaleTag = LocaleStore.getSavedLocaleTag(context)
+    }
+
     var showQuitDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(audioController) {
@@ -192,6 +201,7 @@ fun GameApp(viewModel: GameViewModel) {
                         musicEnabled = musicEnabled,
                         sfxEnabled = sfxEnabled,
                         selectedAiModel = selectedAiModel,
+                        currentLocaleTag = currentLocaleTag,
                         availableAiModels = viewModel.availableAiModels,
                         onTabSelected = { tab ->
                             when (tab) {
@@ -228,6 +238,9 @@ fun GameApp(viewModel: GameViewModel) {
                         onSelectAiModel = { modelId ->
                             audioController.play(UiSound.SECONDARY, force = true)
                             viewModel.handleAction(GameAction.SelectAiModel(modelId))
+                        },
+                        onSelectLocale = { tag ->
+                            currentLocaleTag = tag
                         },
                         onBack = {
                             audioController.play(UiSound.NAV)
@@ -442,14 +455,14 @@ private fun QuitGameDialog(
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "LEAVE THE BUNKER?",
+                            text = stringResource(R.string.quit_title),
                             style = MaterialTheme.typography.titleLarge,
                             color = OnSurface,
                             fontWeight = FontWeight.Black,
                             letterSpacing = (-0.5).sp
                         )
                         Text(
-                            text = "The command feed will go dark if you exit now.",
+                            text = stringResource(R.string.quit_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
                             color = OnSurfaceMuted
                         )
@@ -481,14 +494,14 @@ private fun QuitGameDialog(
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
-                            text = "COMMAND PROMPT",
+                            text = stringResource(R.string.quit_prompt_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = Error,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 2.sp
                         )
                         Text(
-                            text = "Do you want to quit?",
+                            text = stringResource(R.string.quit_prompt_text),
                             style = MaterialTheme.typography.bodySmall,
                             color = OnSurfaceMuted
                         )
@@ -496,23 +509,23 @@ private fun QuitGameDialog(
                 }
 
                 Text(
-                    text = "Press Stay to remain on the home deck, or Quit to shut down the current session.",
+                    text = stringResource(R.string.quit_prompt_explanation),
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnSurfaceMuted
                 )
 
                 // Stay button (amber primary)
                 QuitDialogPrimaryButton(
-                    title = "STAY IN THE VAULT",
-                    subtitle = "Return to the home page and keep command online.",
+                    title = stringResource(R.string.quit_stay_title),
+                    subtitle = stringResource(R.string.quit_stay_subtitle),
                     icon = Icons.Filled.Home,
                     onClick = onDismiss
                 )
 
                 // Quit button (dark panel with cyan accent)
                 QuitDialogSecondaryButton(
-                    title = "QUIT GAME",
-                    subtitle = "Close the app and leave the bunker interface.",
+                    title = stringResource(R.string.quit_quit_title),
+                    subtitle = stringResource(R.string.quit_quit_subtitle),
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
                     accent = Cyan,
                     onClick = onQuit

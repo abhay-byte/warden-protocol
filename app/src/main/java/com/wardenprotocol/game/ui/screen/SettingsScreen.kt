@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MusicOff
@@ -24,14 +25,20 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.NvidiaModelCatalog
 import com.ivarna.wardenprotocol.data.model.NvidiaModelOption
+import com.wardenprotocol.game.data.locale.LocaleApplier
+import com.wardenprotocol.game.data.locale.LocaleOption
+import com.wardenprotocol.game.data.locale.LocaleStore
 import com.ivarna.wardenprotocol.ui.component.TerminalDecorFooter
 import com.ivarna.wardenprotocol.ui.component.WardenBottomNav
 import com.ivarna.wardenprotocol.ui.component.WardenTab
@@ -46,9 +53,11 @@ fun SettingsScreen(
     sfxEnabled: Boolean,
     selectedModelId: String,
     modelOptions: List<NvidiaModelOption>,
+    currentLocaleTag: String,
     onToggleMusic: () -> Unit,
     onToggleSfx: () -> Unit,
     onSelectModel: (String) -> Unit,
+    onSelectLocale: (String) -> Unit,
     onBack: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenLeaderboard: () -> Unit,
@@ -77,9 +86,11 @@ fun SettingsScreen(
             sfxEnabled = sfxEnabled,
             selectedModelId = selectedModelId,
             modelOptions = modelOptions,
+            currentLocaleTag = currentLocaleTag,
             onToggleMusic = onToggleMusic,
             onToggleSfx = onToggleSfx,
             onSelectModel = onSelectModel,
+            onSelectLocale = onSelectLocale,
             modifier = Modifier.padding(padding)
         )
     }
@@ -91,9 +102,11 @@ fun SettingsContent(
     sfxEnabled: Boolean,
     selectedModelId: String,
     modelOptions: List<NvidiaModelOption>,
+    currentLocaleTag: String,
     onToggleMusic: () -> Unit,
     onToggleSfx: () -> Unit,
     onSelectModel: (String) -> Unit,
+    onSelectLocale: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val selectedModel = remember(selectedModelId, modelOptions) {
@@ -107,14 +120,12 @@ fun SettingsContent(
             .padding(horizontal = 16.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Header
         SettingsHeader()
 
-        // Audio Configuration
-        SettingsCategory(title = "AUDIO_MATRICES") {
+        SettingsCategory(title = stringResource(R.string.settings_section_audio)) {
             IndustrialToggle(
-                label = "MUSIC_FEED",
-                description = "Atmospheric background frequency modulation.",
+                label = stringResource(R.string.settings_audio_music_label),
+                description = stringResource(R.string.settings_audio_music_desc),
                 isActive = musicEnabled,
                 onIcon = Icons.Filled.MusicNote,
                 offIcon = Icons.Filled.MusicOff,
@@ -122,8 +133,8 @@ fun SettingsContent(
             )
 
             IndustrialToggle(
-                label = "SFX_REVERB",
-                description = "Tactical audio feedback and terminal alerts.",
+                label = stringResource(R.string.settings_audio_sfx_label),
+                description = stringResource(R.string.settings_audio_sfx_desc),
                 isActive = sfxEnabled,
                 onIcon = Icons.Filled.VolumeUp,
                 offIcon = Icons.Filled.VolumeOff,
@@ -131,40 +142,45 @@ fun SettingsContent(
             )
         }
 
-        SettingsCategory(title = "FORECAST_MATRIX") {
+        SettingsCategory(title = stringResource(R.string.settings_section_forecast)) {
             ModelSelectorCard(
                 selectedModel = selectedModel,
                 options = modelOptions,
                 onSelectModel = onSelectModel
             )
-            DiagnosticRow("ACTIVE_MODEL", selectedModel.label.uppercase())
+            DiagnosticRow(stringResource(R.string.settings_active_model), selectedModel.label.uppercase())
             DiagnosticRow(
-                "DEFAULT_PROFILE",
+                stringResource(R.string.settings_default_profile),
                 NvidiaModelCatalog.resolve(NvidiaModelCatalog.DEFAULT_MODEL_ID).label.uppercase()
             )
         }
 
-        // System Diagnostics
-        SettingsCategory(title = "CORE_TELEMETRY") {
-            DiagnosticRow("OS_VERSION", "WARDEN_OS 1.0.4")
-            DiagnosticRow("KERNEL_STATUS", "OPTIMAL")
-            DiagnosticRow("HARDWARE_ID", "WP-8812-BUNKER")
-            DiagnosticRow("ENCRYPTION", "AES-256-WARDEN")
+        SettingsCategory(title = stringResource(R.string.settings_section_locale)) {
+            LanguageSelectorCard(
+                currentTag = currentLocaleTag,
+                onSelectLocale = onSelectLocale
+            )
         }
 
-        SettingsCategory(title = "EXTERNAL_RELAY") {
+        SettingsCategory(title = stringResource(R.string.settings_section_telemetry)) {
+            DiagnosticRow(stringResource(R.string.settings_diag_os), stringResource(R.string.settings_diag_os_value))
+            DiagnosticRow(stringResource(R.string.settings_diag_kernel), stringResource(R.string.settings_diag_kernel_value))
+            DiagnosticRow(stringResource(R.string.settings_diag_hardware), stringResource(R.string.settings_diag_hardware_value))
+            DiagnosticRow(stringResource(R.string.settings_diag_encryption), stringResource(R.string.settings_diag_encryption_value))
+        }
+
+        SettingsCategory(title = stringResource(R.string.settings_section_external)) {
             StarRepoCard()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Footer
         TerminalDecorFooter(
             lines = listOf(
-                "> ACCESSING SYSTEM CONFIGURATION...",
-                "> LOADING AUDIO DRIVERS...",
-                "> HARDWARE_CHECK: COMPLIANT",
-                "> SETTINGS_BUFFER_READY"
+                stringResource(R.string.settings_footer_line_1),
+                stringResource(R.string.settings_footer_line_2),
+                stringResource(R.string.settings_footer_line_3),
+                stringResource(R.string.settings_footer_line_4)
             )
         )
     }
@@ -206,7 +222,7 @@ private fun ModelSelectorCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "FORECAST MODEL",
+                    text = stringResource(R.string.settings_forecast_label),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Black,
@@ -249,10 +265,10 @@ private fun ModelSelectorCard(
                     text = {
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(
-                                text = buildString {
-                                    append(option.label)
-                                    if (option.recommended) append("  [RECOMMENDED]")
-                                },
+                                    text = buildString {
+                                        append(option.label)
+                                        if (option.recommended) append("  " + stringResource(R.string.recommended_tag))
+                                    },
                                 color = if (option.id == selectedModel.id) WarningAmber else Color.White,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
@@ -298,7 +314,7 @@ private fun SettingsHeader() {
     ) {
         Column {
             Text(
-                "SYSTEM PARAMETERS",
+                stringResource(R.string.settings_header_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = WarningAmber,
                 fontSize = 10.sp,
@@ -307,12 +323,121 @@ private fun SettingsHeader() {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                "CONFIG_DECK",
+                stringResource(R.string.settings_header_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = WarningAmber,
                 fontWeight = FontWeight.Black,
                 letterSpacing = (-1).sp
             )
+        }
+    }
+}
+
+@Composable
+private fun LanguageSelectorCard(
+    currentTag: String,
+    onSelectLocale: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = LocaleStore.supportedLocales
+    val currentOpt = options.firstOrNull { it.tag == currentTag } ?: options.first()
+    val context = LocalContext.current
+
+    fun localeDisplayName(context: android.content.Context, opt: LocaleOption): String = when (opt.displayKey) {
+        "system" -> context.getString(R.string.locale_system)
+        "english" -> context.getString(R.string.locale_english)
+        "russian" -> context.getString(R.string.locale_russian)
+        else -> opt.displayKey
+    }
+
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF1A1C1C))
+                .border(1.dp, Color(0xFF333535).copy(alpha = 0.2f))
+                .clickable { expanded = true }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(VaultGreen.copy(alpha = 0.08f))
+                    .border(1.dp, VaultGreen.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Language,
+                    contentDescription = null,
+                    tint = VaultGreen,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.settings_locale_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
+                )
+                Text(
+                    text = localeDisplayName(context, currentOpt),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = VaultGreen,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = stringResource(R.string.settings_locale_desc),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+                tint = VaultGreen,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.96f)
+                .background(Color(0xFF1A1C1C))
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = localeDisplayName(context, option),
+                            color = if (option.tag == currentTag) VaultGreen else Color.White,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        if (option.tag != currentTag) {
+                            LocaleApplier.applyAndPersist(context, option.tag)
+                            onSelectLocale(option.tag)
+                            (context as? Activity)?.recreate()
+                        }
+                    },
+                    colors = MenuDefaults.itemColors(textColor = Color.White)
+                )
+            }
         }
     }
 }
@@ -460,14 +585,14 @@ private fun StarRepoCard() {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "STAR_REPOSITORY",
+                text = stringResource(R.string.settings_repo_label),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Black,
                 letterSpacing = (-0.5).sp
             )
             Text(
-                text = "Support development on GitHub.",
+                text = stringResource(R.string.settings_repo_desc),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 fontSize = 10.sp

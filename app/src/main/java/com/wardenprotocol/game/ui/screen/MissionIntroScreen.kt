@@ -56,6 +56,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.ivarna.wardenprotocol.R
 import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
@@ -80,39 +82,39 @@ private data class BriefingLine(
     val accent: Color
 )
 
-private val missionBriefing = listOf(
-    BriefingLine(
-        channel = "BOOT",
-        message = "Vault command systems online. 1,000 souls under seal.",
-        accent = Cyan
-    ),
-    BriefingLine(
-        channel = "IDENT",
-        message = "You are the Warden. Every death is your decision. Every life is your burden.",
-        accent = Green
-    ),
-    BriefingLine(
-        channel = "SITUATION",
-        message = "The surface is poison. Radiation, scarcity, ruins, and worse. They are waiting for you to fail.",
-        accent = Amber
-    ),
-    BriefingLine(
-        channel = "DIRECTIVE",
-        message = "Search the wasteland. Find one location where humanity does not die.",
-        accent = Cyan
-    ),
-    BriefingLine(
-        channel = "SIGNOFF",
-        message = "Judge without mercy. Open the vault only when survival is certain. Good luck, Warden.",
-        accent = Amber
-    )
-)
-
 @Composable
 fun MissionIntroScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val missionBriefing = listOf(
+        BriefingLine(
+            channel = stringResource(R.string.intro_channel_boot),
+            message = stringResource(R.string.intro_msg_boot),
+            accent = Cyan
+        ),
+        BriefingLine(
+            channel = stringResource(R.string.intro_channel_ident),
+            message = stringResource(R.string.intro_msg_ident),
+            accent = Green
+        ),
+        BriefingLine(
+            channel = stringResource(R.string.intro_channel_situation),
+            message = stringResource(R.string.intro_msg_situation),
+            accent = Amber
+        ),
+        BriefingLine(
+            channel = stringResource(R.string.intro_channel_directive),
+            message = stringResource(R.string.intro_msg_directive),
+            accent = Cyan
+        ),
+        BriefingLine(
+            channel = stringResource(R.string.intro_channel_signoff),
+            message = stringResource(R.string.intro_msg_signoff),
+            accent = Amber
+        )
+    )
+
     val infiniteTransition = rememberInfiniteTransition(label = "mission_intro")
 
     val cursorAlpha by infiniteTransition.animateFloat(
@@ -210,7 +212,7 @@ fun MissionIntroScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "WARDEN PROTOCOL",
+                        text = stringResource(R.string.intro_header_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = Amber.copy(alpha = 0.72f),
                         fontWeight = FontWeight.Bold,
@@ -234,7 +236,7 @@ fun MissionIntroScreen(
                                 }
                         )
                         Text(
-                            text = if (briefingComplete) "ONLINE" else "BROADCASTING",
+                            text = if (briefingComplete) stringResource(R.string.intro_status_online) else stringResource(R.string.intro_status_broadcasting),
                             style = MaterialTheme.typography.labelSmall,
                             color = if (briefingComplete) Green else DangerRed,
                             fontWeight = FontWeight.Bold,
@@ -247,14 +249,14 @@ fun MissionIntroScreen(
 
                 // ── TITLE ──
                 Text(
-                    text = "MISSION BRIEFING",
+                    text = stringResource(R.string.intro_title),
                     style = MaterialTheme.typography.displaySmall,
                     color = OnSurface,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-1).sp
                 )
                 Text(
-                    text = "YEAR 0  //  SUBLEVEL 01  //  CLASSIFIED",
+                    text = stringResource(R.string.intro_subtitle),
                     style = MaterialTheme.typography.labelSmall,
                     color = OnSurfaceMuted,
                     letterSpacing = 1.5.sp
@@ -308,7 +310,7 @@ fun MissionIntroScreen(
                                 .background(DangerRed)
                         )
                         Text(
-                            text = "VAULT SEALED",
+                            text = stringResource(R.string.intro_vault_sealed),
                             style = MaterialTheme.typography.labelSmall,
                             color = DangerRed.copy(alpha = 0.85f),
                             fontWeight = FontWeight.Bold,
@@ -316,7 +318,7 @@ fun MissionIntroScreen(
                         )
                     }
                     Text(
-                        text = "1,000 LIVES INSIDE",
+                        text = stringResource(R.string.intro_lives_inside),
                         style = MaterialTheme.typography.labelSmall,
                         color = OnSurfaceMuted,
                         letterSpacing = 1.sp
@@ -377,14 +379,14 @@ fun MissionIntroScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (briefingComplete) "BRIEFING COMPLETE" else "BRIEFING STREAM ACTIVE",
+                        text = if (briefingComplete) stringResource(R.string.intro_briefing_complete) else stringResource(R.string.intro_briefing_stream_active),
                         style = MaterialTheme.typography.labelSmall,
                         color = if (briefingComplete) Green else Cyan,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.5.sp
                     )
                     Text(
-                        text = if (briefingComplete) "CONTINUE WHEN READY" else "AWAITING ACKNOWLEDGMENT",
+                        text = if (briefingComplete) stringResource(R.string.intro_continue_when_ready) else stringResource(R.string.intro_awaiting_ack),
                         style = MaterialTheme.typography.labelSmall,
                         color = OnSurfaceMuted,
                         letterSpacing = 1.sp
@@ -632,16 +634,16 @@ private fun BeginScanButton(
             )
             Column {
                 Text(
-                    text = "BEGIN SURFACE SCAN",
+                    text = stringResource(R.string.intro_begin_scan),
                     style = MaterialTheme.typography.titleLarge,
                     color = Bg,
                     fontWeight = FontWeight.Black
                 )
                 Text(
                     text = if (briefingComplete) {
-                        "Mission brief acknowledged. Open the first settlement target."
+                        stringResource(R.string.intro_begin_subtitle_complete)
                     } else {
-                        "Continue now or stay for the rest of the transmission."
+                        stringResource(R.string.intro_begin_subtitle_continue)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = Bg.copy(alpha = 0.8f),

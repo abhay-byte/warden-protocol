@@ -22,7 +22,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.Databases
 import com.ivarna.wardenprotocol.data.model.VaultSystems
 import com.ivarna.wardenprotocol.ui.theme.DangerRed
@@ -60,8 +62,8 @@ fun VaultStatusPanel(
     val criticalCount = (systemValues + archiveValues).count { it < 35 }
 
     CommandPanel(
-        title = "Vault Status",
-        subtitle = if (expanded) "Full bunker diagnostics" else null,
+        title = stringResource(R.string.vault_status_title),
+        subtitle = if (expanded) stringResource(R.string.vault_status_subtitle) else null,
         icon = Icons.Filled.Memory,
         accent = VaultGreen,
         modifier = modifier
@@ -71,19 +73,19 @@ fun VaultStatusPanel(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             CompactVaultMetric(
-                label = "Core",
-                value = "$averageCore%",
+                label = stringResource(R.string.vault_metric_core),
+                value = stringResource(R.string.vault_pct_format, averageCore),
                 tone = healthAccent(averageCore),
                 modifier = Modifier.weight(1f)
             )
             CompactVaultMetric(
-                label = "Archives",
-                value = "$averageArchives%",
+                label = stringResource(R.string.vault_metric_archives),
+                value = stringResource(R.string.vault_pct_format, averageArchives),
                 tone = healthAccent(averageArchives),
                 modifier = Modifier.weight(1f)
             )
             CompactVaultMetric(
-                label = "Critical",
+                label = stringResource(R.string.vault_metric_critical),
                 value = criticalCount.toString(),
                 tone = if (criticalCount == 0) VaultGreen else DangerRed,
                 modifier = Modifier.weight(1f)
@@ -106,7 +108,7 @@ fun VaultStatusPanel(
                 tint = SignalCyan
             )
             Text(
-                text = if (expanded) "Hide details" else "Show details",
+                text = if (expanded) stringResource(R.string.vault_hide_details) else stringResource(R.string.vault_show_details),
                 color = SignalCyan
             )
         }
@@ -117,20 +119,20 @@ fun VaultStatusPanel(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SystemStatusBar("Power Grid", systems.powerGrid)
-                SystemStatusBar("Food Stores", systems.foodStores)
-                SystemStatusBar("Medical Bay", systems.medicalBay)
-                SystemStatusBar("Security System", systems.securitySystem)
-                SystemStatusBar("Construction Gear", systems.constructionGear)
-                SystemStatusBar("Atmosphere Scrubbers", systems.atmosphereScrubbers)
+                SystemStatusBar(stringResource(R.string.vault_system_power_grid), systems.powerGrid)
+                SystemStatusBar(stringResource(R.string.vault_system_food_stores), systems.foodStores)
+                SystemStatusBar(stringResource(R.string.vault_system_medical_bay), systems.medicalBay)
+                SystemStatusBar(stringResource(R.string.vault_system_security_system), systems.securitySystem)
+                SystemStatusBar(stringResource(R.string.vault_system_construction_gear), systems.constructionGear)
+                SystemStatusBar(stringResource(R.string.vault_system_atmosphere_scrubbers), systems.atmosphereScrubbers)
 
                 Text(
-                    text = "DATABASE ARCHIVES",
+                    text = stringResource(R.string.vault_section_databases),
                     style = MaterialTheme.typography.labelLarge,
                     color = SignalCyan
                 )
-                SystemStatusBar("Cultural Archive", databases.culturalArchive)
-                SystemStatusBar("Scientific Archive", databases.scientificArchive)
+                SystemStatusBar(stringResource(R.string.vault_system_cultural_archive), databases.culturalArchive)
+                SystemStatusBar(stringResource(R.string.vault_system_scientific_archive), databases.scientificArchive)
             }
         }
     }
@@ -167,16 +169,17 @@ private fun CompactVaultMetric(
     }
 }
 
+@Composable
 private fun conciseVaultStatusLine(
     averageCore: Int,
     unstableCount: Int,
     criticalCount: Int
 ): String {
     return when {
-        criticalCount > 0 -> "$criticalCount critical systems need command attention."
-        unstableCount > 0 -> "$unstableCount systems are unstable, but the bunker is holding."
-        averageCore >= 85 -> "Vault stable and ready for surface action."
-        else -> "Vault functional, but resilience is slipping."
+        criticalCount > 0 -> stringResource(R.string.vault_status_critical_format, criticalCount)
+        unstableCount > 0 -> stringResource(R.string.vault_status_unstable_format, unstableCount)
+        averageCore >= 85 -> stringResource(R.string.vault_status_stable)
+        else -> stringResource(R.string.vault_status_functional)
     }
 }
 

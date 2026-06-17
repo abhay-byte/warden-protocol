@@ -1,14 +1,38 @@
 package com.ivarna.wardenprotocol.domain.engine
 
+import android.content.Context
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.*
 import com.ivarna.wardenprotocol.data.repository.EventRepository
 import kotlin.random.Random
 
-class GameEngine(private val eventRepository: EventRepository) {
+class GameEngine(
+    private val eventRepository: EventRepository,
+    private val context: Context? = null
+) {
 
     private companion object {
         private const val FOLLOW_UP_EVENT_BASE_CHANCE = 0.4f
         private const val FOLLOW_UP_EVENT_DECAY = 0.3f
+
+        private fun locationNameArrayId(type: LocationType): Int = when (type) {
+            LocationType.RUINED_CITY -> R.array.location_names_ruined_city
+            LocationType.FOREST -> R.array.location_names_forest
+            LocationType.MILITARY_BASE -> R.array.location_names_military_base
+            LocationType.FARMLAND -> R.array.location_names_farmland
+            LocationType.UNDERGROUND_RIVER -> R.array.location_names_underground_river
+            LocationType.MOUNTAIN_PASS -> R.array.location_names_mountain_pass
+            LocationType.COASTAL_TOWN -> R.array.location_names_coastal_town
+            LocationType.RESEARCH_FACILITY -> R.array.location_names_research_facility
+            LocationType.RADIOACTIVE_SWAMP -> R.array.location_names_radioactive_swamp
+            LocationType.MEGACRATER -> R.array.location_names_megacrater
+            LocationType.PLAGUE_ZONE -> R.array.location_names_plague_zone
+            LocationType.SCRAP_HEAP -> R.array.location_names_scrap_heap
+            LocationType.ABANDONED_SUBWAY -> R.array.location_names_abandoned_subway
+            LocationType.FUNGAL_WASTES -> R.array.location_names_fungal_wastes
+            LocationType.GLASS_DESERT -> R.array.location_names_glass_desert
+            LocationType.CULT_TERRITORY -> R.array.location_names_cult_territory
+        }
     }
 
     private data class LocationIntel(
@@ -25,121 +49,18 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scorePenalty: Int
     )
 
-    private val locationNameGenerators = mapOf(
-        LocationType.RUINED_CITY to listOf(
-            "Flooded Detroit", "Silent Chicago Ruins", "Ash-Covered Boston", "Broken Los Angeles",
-            "Shattered New York", "Hollow Philadelphia", "Scorched Phoenix", "Frozen Minneapolis",
-            "Crumbling Seattle", "Dead Miami", "Ghost Atlanta", "Buried Denver",
-            "Ashen St. Louis", "Blasted Newark", "Sunken Baltimore", "Husk of Houston",
-            "Static Las Vegas", "Melted Cleveland", "Bonewhite Dallas", "Collapsed Sacramento",
-            "Dread Memphis", "Shiver Portland"
-        ),
-        LocationType.FOREST to listOf(
-            "Ash-Grey Pinelands", "Recovering Oak Valley", "Mutant Redwood Grove", "Dead Birch Forest",
-            "Twisted Maple Woods", "Blackened Cedar Stand", "Poisoned Willow Marsh", "Charred Sequoia Basin",
-            "Spore-Choked Timberline", "Hanging Moss Hollow", "Rotfen Grove", "Pale Fungus Thicket"
-        ),
-        LocationType.MILITARY_BASE to listOf(
-            "Fort Zulu", "Outpost Kilo-7", "Fort Alpha Ruins", "Base Tango-9", "Fort Whiskey",
-            "Outpost Delta", "Fort November", "Base Echo-3", "Fort Sierra", "Outpost Bravo-6",
-            "Missile Silo Raven", "Checkpoint Mordred", "Fort Blackglass", "Outpost Widow",
-            "Battery Helix", "Silo Jericho", "Camp Raptor", "Redoubt Cain",
-            "Ordnance Yard 14", "Fort Harrow", "Launch Complex M", "Garrison Hollow"
-        ),
-        LocationType.FARMLAND to listOf(
-            "Withered Corn Belt", "Salted Wheat Fields", "Toxic Vineyard", "Barren Pastures",
-            "Irradiated Orchards", "Dead Soybean Plains", "Poisoned Rice Paddies", "Scorched Cropland",
-            "Maggot Orchard", "Ash Harvest Flats", "Rotted Cattle Range", "Grey Millet Basin"
-        ),
-        LocationType.UNDERGROUND_RIVER to listOf(
-            "Subterranean Flow", "Hidden Aquifer", "Deep Water Vein", "Buried Stream",
-            "Cavern Springs", "Underground Lake", "Limestone River", "Crystal Waters Below",
-            "Blackwater Shaft", "Echo Flood Galleries", "Stalagmite Channel", "Sunless Delta"
-        ),
-        LocationType.MOUNTAIN_PASS to listOf(
-            "Frozen Summit Trail", "Rockslide Pass", "Avalanche Corridor", "High Ridge Path",
-            "Shattered Peak Route", "Windswept Col", "Glacier Pass", "Stone Gate Mountains",
-            "Bleak Horn Divide", "Bonewind Ascent", "Needle Ridge", "Frostbite Traverse",
-            "Widowmaker Notch", "Ashcliff Traverse", "Hollow Fang Pass", "Razor Scree Ascent",
-            "Crowstep Ridge", "The Ice Maw", "Black Flag Switchback", "Deadfall Crest",
-            "Stormblind Gap", "Hanging Rock Ladder"
-        ),
-        LocationType.COASTAL_TOWN to listOf(
-            "Drowned Harbor", "Tsunami-Swept Bay", "Radioactive Shoreline", "Flooded Pier Town",
-            "Toxic Beach Settlement", "Submerged Port", "Poisoned Fishing Village", "Dead Seaside",
-            "Barnacle Mile", "Oil-Black Cove", "Rotted Marina", "Saltgrave Inlet",
-            "Corpse Tide Wharf", "Deadlight Breakwater", "Anchor Grave", "Blightwater Quay",
-            "The Black Jetty", "Foamrot Village", "Harpoon Wreck", "Tideburn Reach",
-            "Siltlung Coast", "Mildew Pier"
-        ),
-        LocationType.RESEARCH_FACILITY to listOf(
-            "Blacksite Omega", "Research Station 7", "Laboratory Complex Alpha", "Science Outpost Theta",
-            "Experimental Facility", "Biotech Center Ruins", "Weapons Lab Delta", "Particle Accelerator Site",
-            "Cryolab Epsilon", "Containment Annex 4", "Geneforge Campus", "Telemetry Yard Nine"
-        ),
-        LocationType.RADIOACTIVE_SWAMP to listOf(
-            "Glowmire Basin", "Irradiated Fen", "Neon Bog", "Rotwater Marsh", "Cinder Reed Flats",
-            "Luminous Peat", "Fever Swale", "Sourwater Hollow", "Mire Delta 6", "Blister Marsh",
-            "Yellow Silt Wetland", "Dead Lantern Bog", "Hotmist Fen", "Boilroot Marsh",
-            "Greenfire Mire", "Sludge Bloom Wetlands", "Mutter Fen", "The Leech Beds",
-            "Glowrot Backwater", "Ashswell Marsh", "Canker Reed Delta", "Slimewake Basin",
-            "Bilewater Sump"
-        ),
-        LocationType.MEGACRATER to listOf(
-            "Impact Cradle", "Saint Helix Crater", "Obsidian Bowl", "Ashfall Caldera", "Broken Horizon Pit",
-            "Red Mile Crater", "Thunder Glass Basin", "Meteor Hollow", "Char Basin Prime", "The Long Scar",
-            "Sulfur Crown", "Shatter Rim", "Gravesmoke Crater", "The Ember Throat",
-            "Widow's Caldera", "Ashwheel Pit", "Meltline Crater", "Skullglass Hollow",
-            "Black Echo Basin", "The Fallen Eye", "Shrapnel Crown", "Breach Bowl",
-            "Smokeveil Impact"
-        ),
-        LocationType.PLAGUE_ZONE to listOf(
-            "Quarantine Block K", "The Fever District", "Carrion Ward", "Mourning Blocks", "Bleachline Sector",
-            "Triage Ruins", "Bodyburn Square", "Red Mask Borough", "Sickhouse Row", "Isolation Parish",
-            "Pestilent Commons", "Grief Market", "The Coughing Mile", "Septic Avenue",
-            "Vomit Gate", "Last Breath Quarter", "Pall Street", "Ashen Infirmary",
-            "Needle Market", "Woundbridge", "The Weeping Blocks", "Mortuary Circle",
-            "Contagion Court"
-        ),
-        LocationType.SCRAP_HEAP to listOf(
-            "Titan Scrap Fields", "The Iron Mound", "Crushed Freight Sea", "Rust Cathedral", "Wrecker's Spine",
-            "Machine Grave", "Tangle Yard", "The Broken Conveyor", "Magnet Hill", "Smelter Bones",
-            "Derelict Stack", "Copper Teeth", "Junkspire", "The Razor Yard",
-            "Crankshaft Ridge", "Broken Axle Plain", "Shearwall Heap", "Rustwake Valley",
-            "The Shredder Fields", "Wiregut Dump", "Bleeding Foundry", "Gearstorm Mound",
-            "Hacksaw Terrace"
-        ),
-        LocationType.ABANDONED_SUBWAY to listOf(
-            "Line Zero", "Collapsed Metro Arc", "Tunnel 19", "Ghost Platform", "Station Mercy",
-            "Flooded Transfer", "Black Rail Junction", "Sublevel Delta", "Terminal Ash", "Signal Pit",
-            "Platform Thirteen", "Rat King Interchange", "Last Stop Hollow", "Blind Switch Nine",
-            "Mold Rail Annex", "Red Signal Tunnel", "The Hollow Concourse", "Dripshaft Terminal",
-            "Grime Loop", "Third Rail Catacomb", "Station Dread", "The Choking Underpass",
-            "Trackbed Ossuary"
-        ),
-        LocationType.FUNGAL_WASTES to listOf(
-            "Mycelium Flats", "Spore Bloom Expanse", "The Mold Barrens", "Fungal Drift", "Puffball Valley",
-            "Velvet Rot Fields", "Stalk Forest", "Capgrave Plain", "Lichen Storm Reach", "Softbone Hollow",
-            "White Veil Steppe", "Toadstool Shelf", "Dustcap Expanse"
-        ),
-        LocationType.GLASS_DESERT to listOf(
-            "Vitrified Sea", "Mirror Dunes", "Shard Horizon", "Glasswind Expanse", "Sunburn Flats",
-            "Cracked Silica Basin", "Knife Sand Reach", "The Bright Waste", "Fused Tide Plain", "Burnglass Coast",
-            "Heat Mirage Yard", "Scorched Prism Fields", "The Singing Dunes"
-        ),
-        LocationType.CULT_TERRITORY to listOf(
-            "Pilgrim's Ash", "Shrine Belt", "The Chanting Vale", "Icon Graveyard", "Ash Sermon Camp",
-            "Red Banner Reach", "Temple of Static", "Bellfire Steppe", "Sacrament Ditch", "Prophet's Crossing",
-            "The Tithe Roads", "Oracle Stockade", "Martyr's Gate", "Bone Reliquary Plains",
-            "The Witness Roads", "Ash Halo Station", "Sermon Basin", "The Burning Choir",
-            "Ritual Fence", "Censer Hollow", "Static Gospel Camp", "Saintwire Encampment",
-            "The Kneeling Mile"
-        )
-    )
+    private fun locationNames(type: LocationType): List<String> {
+        if (context == null) return emptyList()
+        return try {
+            context.resources.getStringArray(locationNameArrayId(type)).toList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     fun generateSurfaceLocation(): SurfaceLocation {
         val type = LocationType.entries.random()
-        val name = locationNameGenerators[type]?.random() ?: "Unknown Location"
+        val name = locationNames(type).randomOrNull() ?: "Unknown Location"
 
         val radiation = RadiationLevel.entries.random()
         val water = WaterAvailability.entries.random()
@@ -725,62 +646,62 @@ class GameEngine(private val eventRepository: EventRepository) {
         anomaly: SurfaceAnomaly?
     ): LocationIntel {
         val terrainLine = when (type) {
-            LocationType.RUINED_CITY -> "A dead urban basin of collapsed towers, blocked avenues, and exposed utility corridors."
-            LocationType.FOREST -> "A regrown wilderness where the old world is disappearing under roots, spores, and standing water."
-            LocationType.MILITARY_BASE -> "A hardened military footprint with blast walls, depot yards, and half-buried command structures."
-            LocationType.FARMLAND -> "A broad agricultural zone of broken irrigation, skeletal silos, and long open sightlines."
-            LocationType.UNDERGROUND_RIVER -> "A subterranean water network threaded through caverns, shafts, and unstable access tunnels."
-            LocationType.MOUNTAIN_PASS -> "A steep highland route of exposed ridges, rockfall choke points, and narrow defensible ground."
-            LocationType.COASTAL_TOWN -> "A drowned shoreline settlement where salt, flood damage, and broken harbor works define the landscape."
-            LocationType.RESEARCH_FACILITY -> "A sealed research compound ringed with service tunnels, labs, and damaged containment systems."
-            LocationType.RADIOACTIVE_SWAMP -> "A glowing wetland of chemical muck, irradiated reeds, and sinkholes that swallow equipment whole."
-            LocationType.MEGACRATER -> "A colossal impact scar of shattered earth, sulfur vents, unstable rims, and strange mineral exposure."
-            LocationType.PLAGUE_ZONE -> "A disease-haunted urban quarantine belt littered with burned checkpoints, triage ruins, and biohazard pits."
-            LocationType.SCRAP_HEAP -> "A metallic wasteland of crushed vehicles, twisted cranes, collapsing heaps, and razor-edged salvage corridors."
-            LocationType.ABANDONED_SUBWAY -> "A buried transit labyrinth of dark platforms, flooded tunnels, collapsed passages, and blind choke points."
-            LocationType.FUNGAL_WASTES -> "A spore-heavy biome where mutated fungal growth blankets the ground, structures, and even the air itself."
-            LocationType.GLASS_DESERT -> "A vitrified wasteland of fused sand, knife-sharp dunes, brutal heat shimmer, and almost no natural cover."
-            LocationType.CULT_TERRITORY -> "A fanatical dominion marked by shrine roads, warning totems, sacrificial compounds, and armed watchfires."
+            LocationType.RUINED_CITY -> context?.getString(R.string.intel_terrain_ruined_city) ?: "A dead urban basin of collapsed towers, blocked avenues, and exposed utility corridors."
+            LocationType.FOREST -> context?.getString(R.string.intel_terrain_forest) ?: "A regrown wilderness where the old world is disappearing under roots, spores, and standing water."
+            LocationType.MILITARY_BASE -> context?.getString(R.string.intel_terrain_military_base) ?: "A hardened military footprint with blast walls, depot yards, and half-buried command structures."
+            LocationType.FARMLAND -> context?.getString(R.string.intel_terrain_farmland) ?: "A broad agricultural zone of broken irrigation, skeletal silos, and long open sightlines."
+            LocationType.UNDERGROUND_RIVER -> context?.getString(R.string.intel_terrain_underground_river) ?: "A subterranean water network threaded through caverns, shafts, and unstable access tunnels."
+            LocationType.MOUNTAIN_PASS -> context?.getString(R.string.intel_terrain_mountain_pass) ?: "A steep highland route of exposed ridges, rockfall choke points, and narrow defensible ground."
+            LocationType.COASTAL_TOWN -> context?.getString(R.string.intel_terrain_coastal_town) ?: "A drowned shoreline settlement where salt, flood damage, and broken harbor works define the landscape."
+            LocationType.RESEARCH_FACILITY -> context?.getString(R.string.intel_terrain_research_facility) ?: "A sealed research compound ringed with service tunnels, labs, and damaged containment systems."
+            LocationType.RADIOACTIVE_SWAMP -> context?.getString(R.string.intel_terrain_radioactive_swamp) ?: "A glowing wetland of chemical muck, irradiated reeds, and sinkholes that swallow equipment whole."
+            LocationType.MEGACRATER -> context?.getString(R.string.intel_terrain_megacrater) ?: "A colossal impact scar of shattered earth, sulfur vents, unstable rims, and strange mineral exposure."
+            LocationType.PLAGUE_ZONE -> context?.getString(R.string.intel_terrain_plague_zone) ?: "A disease-haunted urban quarantine belt littered with burned checkpoints, triage ruins, and biohazard pits."
+            LocationType.SCRAP_HEAP -> context?.getString(R.string.intel_terrain_scrap_heap) ?: "A metallic wasteland of crushed vehicles, twisted cranes, collapsing heaps, and razor-edged salvage corridors."
+            LocationType.ABANDONED_SUBWAY -> context?.getString(R.string.intel_terrain_abandoned_subway) ?: "A buried transit labyrinth of dark platforms, flooded tunnels, collapsed passages, and blind choke points."
+            LocationType.FUNGAL_WASTES -> context?.getString(R.string.intel_terrain_fungal_wastes) ?: "A spore-heavy biome where mutated fungal growth blankets the ground, structures, and even the air itself."
+            LocationType.GLASS_DESERT -> context?.getString(R.string.intel_terrain_glass_desert) ?: "A vitrified wasteland of fused sand, knife-sharp dunes, brutal heat shimmer, and almost no natural cover."
+            LocationType.CULT_TERRITORY -> context?.getString(R.string.intel_terrain_cult_territory) ?: "A fanatical dominion marked by shrine roads, warning totems, sacrificial compounds, and armed watchfires."
         }
 
         val radiationLine = when (radiation) {
-            RadiationLevel.NONE -> "Readings suggest the air is unusually clean for the post-war surface."
-            RadiationLevel.LOW -> "Background radiation remains present but appears manageable with disciplined precautions."
-            RadiationLevel.MODERATE -> "Radiation sits above safe pre-war limits and would demand continuous monitoring."
-            RadiationLevel.HIGH -> "Hot zones are widespread enough that every work crew would need shielding and route control."
-            RadiationLevel.LETHAL -> "The area is saturated with lethal contamination that would kill the unprotected quickly."
+            RadiationLevel.NONE -> context?.getString(R.string.intel_radiation_none) ?: "Readings suggest the air is unusually clean for the post-war surface."
+            RadiationLevel.LOW -> context?.getString(R.string.intel_radiation_low) ?: "Background radiation remains present but appears manageable with disciplined precautions."
+            RadiationLevel.MODERATE -> context?.getString(R.string.intel_radiation_moderate) ?: "Radiation sits above safe pre-war limits and would demand continuous monitoring."
+            RadiationLevel.HIGH -> context?.getString(R.string.intel_radiation_high) ?: "Hot zones are widespread enough that every work crew would need shielding and route control."
+            RadiationLevel.LETHAL -> context?.getString(R.string.intel_radiation_lethal) ?: "The area is saturated with lethal contamination that would kill the unprotected quickly."
         }
 
         val waterLine = when (water) {
-            WaterAvailability.ABUNDANT -> "Water signatures are strong, offering reliable collection, storage, and purification potential."
-            WaterAvailability.SCARCE -> "Water exists, but not in the volumes needed for comfort or rapid growth."
-            WaterAvailability.NONE -> "No dependable water source is visible near the primary settlement zone."
+            WaterAvailability.ABUNDANT -> context?.getString(R.string.intel_water_abundant) ?: "Water signatures are strong, offering reliable collection, storage, and purification potential."
+            WaterAvailability.SCARCE -> context?.getString(R.string.intel_water_scarce) ?: "Water exists, but not in the volumes needed for comfort or rapid growth."
+            WaterAvailability.NONE -> context?.getString(R.string.intel_water_none) ?: "No dependable water source is visible near the primary settlement zone."
         }
 
         val foodLine = when (food) {
-            FoodPotential.FERTILE -> "Soil and biomass patterns suggest crops could take hold once the first season is secured."
-            FoodPotential.MARGINAL -> "Food production is possible, but only with ration discipline, treatment, and careful site selection."
-            FoodPotential.BARREN -> "The land offers little natural support for agriculture, forcing dependence on stores or engineered systems."
+            FoodPotential.FERTILE -> context?.getString(R.string.intel_food_fertile) ?: "Soil and biomass patterns suggest crops could take hold once the first season is secured."
+            FoodPotential.MARGINAL -> context?.getString(R.string.intel_food_marginal) ?: "Food production is possible, but only with ration discipline, treatment, and careful site selection."
+            FoodPotential.BARREN -> context?.getString(R.string.intel_food_barren) ?: "The land offers little natural support for agriculture, forcing dependence on stores or engineered systems."
         }
 
         val shelterLine = when (shelter) {
-            ShelterQuality.EXCELLENT -> "Several intact structures could be sealed and occupied almost immediately."
-            ShelterQuality.GOOD -> "Some surviving structures could be repaired into workable housing and storage."
-            ShelterQuality.POOR -> "Existing cover is damaged and patchwork, buying time rather than real safety."
-            ShelterQuality.NONE -> "Settlers would need to build shelter from scratch as soon as they arrived."
+            ShelterQuality.EXCELLENT -> context?.getString(R.string.intel_shelter_excellent) ?: "Several intact structures could be sealed and occupied almost immediately."
+            ShelterQuality.GOOD -> context?.getString(R.string.intel_shelter_good) ?: "Some surviving structures could be repaired into workable housing and storage."
+            ShelterQuality.POOR -> context?.getString(R.string.intel_shelter_poor) ?: "Existing cover is damaged and patchwork, buying time rather than real safety."
+            ShelterQuality.NONE -> context?.getString(R.string.intel_shelter_none) ?: "Settlers would need to build shelter from scratch as soon as they arrived."
         }
 
         val resourceLine = when (resources) {
-            ResourceRichness.RICH -> "The site shows enough salvage, ore, or industrial remnants to support early expansion."
-            ResourceRichness.MODERATE -> "Useful material exists here, though growth would still demand careful extraction and reuse."
-            ResourceRichness.POOR -> "Salvage density is low, so every tool and structural part would matter."
+            ResourceRichness.RICH -> context?.getString(R.string.intel_resource_rich) ?: "The site shows enough salvage, ore, or industrial remnants to support early expansion."
+            ResourceRichness.MODERATE -> context?.getString(R.string.intel_resource_moderate) ?: "Useful material exists here, though growth would still demand careful extraction and reuse."
+            ResourceRichness.POOR -> context?.getString(R.string.intel_resource_poor) ?: "Salvage density is low, so every tool and structural part would matter."
         }
 
         val threatLine = when (nativeHostility) {
-            Hostility.NONE -> "No organized hostile presence is visible from current telemetry."
-            Hostility.BANDITS -> "Small raider activity is likely, especially against slow convoys or exposed workers."
-            Hostility.WASTELAND_CULT -> "Fanatical groups appear active nearby and may treat the vault emergence as a target or omen."
-            Hostility.WARLORD -> "The area appears contested by a heavily armed force capable of siege, taxation, or outright conquest."
+            Hostility.NONE -> context?.getString(R.string.intel_hostility_none) ?: "No organized hostile presence is visible from current telemetry."
+            Hostility.BANDITS -> context?.getString(R.string.intel_hostility_bandits) ?: "Small raider activity is likely, especially against slow convoys or exposed workers."
+            Hostility.WASTELAND_CULT -> context?.getString(R.string.intel_hostility_wasteland_cult) ?: "Fanatical groups appear active nearby and may treat the vault emergence as a target or omen."
+            Hostility.WARLORD -> context?.getString(R.string.intel_hostility_warlord) ?: "The area appears contested by a heavily armed force capable of siege, taxation, or outright conquest."
         }
 
         val anomalyLine = anomaly?.let {
@@ -991,10 +912,10 @@ class GameEngine(private val eventRepository: EventRepository) {
         if (travelDeaths <= 0) return " "
 
         val lead = when (location.travelProfile.riskLevel) {
-            TravelRisk.LOW -> " The march out of the vault was orderly but still costly,"
-            TravelRisk.MODERATE -> " The transit to the site bled the convoy through exposure and breakdowns,"
-            TravelRisk.HIGH -> " The approach to the site turned into a lethal migration under constant pressure,"
-            TravelRisk.EXTREME -> " Reaching the site was almost a battle in itself,"
+            TravelRisk.LOW -> context?.getString(R.string.transit_lead_low) ?: " The march out of the vault was orderly but still costly,"
+            TravelRisk.MODERATE -> context?.getString(R.string.transit_lead_moderate) ?: " The transit to the site bled the convoy through exposure and breakdowns,"
+            TravelRisk.HIGH -> context?.getString(R.string.transit_lead_high) ?: " The approach to the site turned into a lethal migration under constant pressure,"
+            TravelRisk.EXTREME -> context?.getString(R.string.transit_lead_extreme) ?: " Reaching the site was almost a battle in itself,"
         }
         return "$lead and ${location.travelProfile.durationText.lowercase()} cost $travelDeaths lives before the colony could even begin."
     }
