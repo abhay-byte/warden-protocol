@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -200,12 +201,12 @@ fun MainMenuContent(
             casualtyRate = casualtyRate
         )
         SideCommandButton(
-            title = "Run History",
+            title = stringResource(R.string.menu_run_history),
             icon = Icons.Filled.History,
             onClick = onOpenHistory
         )
         SideCommandButton(
-            title = "Global Leaderboard",
+            title = stringResource(R.string.menu_global_leaderboard),
             icon = Icons.Filled.EmojiEvents,
             onClick = onOpenLeaderboard
         )
@@ -258,12 +259,12 @@ private fun DesktopHomeContent(
                 casualtyRate = casualtyRate
             )
             SideCommandButton(
-                title = "Run History",
+                title = stringResource(R.string.menu_run_history),
                 icon = Icons.Filled.History,
                 onClick = onOpenHistory
             )
             SideCommandButton(
-                title = "Global Leaderboard",
+                title = stringResource(R.string.menu_global_leaderboard),
                 icon = Icons.Filled.EmojiEvents,
                 onClick = onOpenLeaderboard
             )
@@ -307,7 +308,7 @@ private fun ArchiveStatsPanel(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "VAULT ARCHIVE STATISTICS",
+                text = stringResource(R.string.menu_section_archive_stats),
                 style = MaterialTheme.typography.labelMedium,
                 color = HomeAmber.copy(alpha = 0.72f)
             )
@@ -317,19 +318,19 @@ private fun ArchiveStatsPanel(
         Spacer(modifier = Modifier.height(12.dp))
 
         StatTile(
-            label = "High Score Record",
+            label = stringResource(R.string.menu_stat_high_score),
             value = formatScore(highScore),
             accent = HomeAmberStrong
         )
         Spacer(modifier = Modifier.height(8.dp))
         StatTile(
-            label = "Successful Extractions",
+            label = stringResource(R.string.menu_stat_successful_runs),
             value = successfulRuns.toString(),
             accent = HomeGreen
         )
         Spacer(modifier = Modifier.height(8.dp))
         StatTile(
-            label = "Casualty Rate",
+            label = stringResource(R.string.menu_stat_casualty_rate),
             value = "${casualtyRate.coerceAtLeast(0f).roundToInt().coerceAtMost(100)}%",
             accent = HomeError
         )
@@ -437,18 +438,18 @@ private fun HomeHeroPanel(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "WARDEN CORE",
+                    text = stringResource(R.string.menu_warden_core),
                     style = MaterialTheme.typography.displayMedium,
                     color = HomeOnSurface,
                     fontStyle = FontStyle.Italic,
-                    letterSpacing = (-1).sp // tracking-tighter
+                    letterSpacing = (-1).sp
                 )
                 Text(
-                    text = "CENTRAL INTELLIGENCE INTERFACE • BUNKER SUBLEVEL 01",
+                    text = stringResource(R.string.menu_subtitle),
                     style = MaterialTheme.typography.labelSmall,
                     color = HomeAmber.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,
-                    letterSpacing = 2.sp // tracking-widest
+                    letterSpacing = 2.sp
                 )
             }
 
@@ -458,13 +459,13 @@ private fun HomeHeroPanel(
             ) {
                 MiniTelemetryCard(
                     modifier = Modifier.weight(1f),
-                    label = "Core Stability",
-                    value = "99.98%",
+                    label = stringResource(R.string.menu_mini_core_stability),
+                    value = stringResource(R.string.menu_mini_core_stability_value),
                     accent = HomeGreen
                 )
                 MiniTelemetryCard(
                     modifier = Modifier.weight(1f),
-                    label = "Network Load",
+                    label = stringResource(R.string.menu_mini_network_load),
                     value = buildNetworkLoad(runCount),
                     accent = HomeAmber
                 )
@@ -642,7 +643,7 @@ private fun StartMissionButton(onClick: () -> Unit) {
                 modifier = Modifier.size(34.dp)
             )
             Text(
-                text = "START NEW MISSION",
+                text = stringResource(R.string.menu_start_mission),
                 style = MaterialTheme.typography.titleLarge,
                 color = HomeBackground,
                 textAlign = TextAlign.Center,
@@ -658,16 +659,16 @@ private fun DiagnosticsPanel() {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "SYSTEM DIAGNOSTICS",
+            text = stringResource(R.string.menu_diagnostics_title),
             style = MaterialTheme.typography.labelMedium,
             color = HomeAmber.copy(alpha = 0.72f)
         )
         Spacer(modifier = Modifier.height(14.dp))
-        DiagnosticRow(label = "Oxygen Scrubbers", value = "NOMINAL", accent = HomeGreen, fraction = 1f)
+        DiagnosticRow(label = stringResource(R.string.menu_diag_oxygen), value = stringResource(R.string.value_nominal), accent = HomeGreen, fraction = 1f)
         Spacer(modifier = Modifier.height(12.dp))
-        DiagnosticRow(label = "Shield Integrity", value = "82%", accent = HomeAmber, fraction = 0.82f)
+        DiagnosticRow(label = stringResource(R.string.menu_diag_shield), value = stringResource(R.string.menu_diag_shield_value), accent = HomeAmber, fraction = 0.82f)
         Spacer(modifier = Modifier.height(12.dp))
-        DiagnosticRow(label = "Radiation Leak", value = "DETECTED", accent = HomeError, fraction = 0.15f)
+        DiagnosticRow(label = stringResource(R.string.menu_diag_radiation), value = stringResource(R.string.value_detected), accent = HomeError, fraction = 0.15f)
     }
 }
 
@@ -729,12 +730,12 @@ private fun BroadcastInterceptPanel() {
         )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = "BROADCAST INTERCEPT",
+                text = stringResource(R.string.menu_broadcast_intercept),
                 style = MaterialTheme.typography.bodySmall,
                 color = HomeAmber
             )
             Text(
-                text = "\"...transmission lost at depth 400m. Emergency power only. Awaiting command input from Warden...\"",
+                text = stringResource(R.string.menu_broadcast_intercept_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = HomeOnSurface.copy(alpha = 0.8f),
                 fontStyle = FontStyle.Italic
@@ -805,7 +806,7 @@ private fun TacticalOverlayPanel() {
         }
 
         Text(
-            text = "LIVE TACTICAL OVERLAY",
+            text = stringResource(R.string.menu_tactical_overlay),
             style = MaterialTheme.typography.bodySmall,
             color = HomeAmber,
             modifier = Modifier

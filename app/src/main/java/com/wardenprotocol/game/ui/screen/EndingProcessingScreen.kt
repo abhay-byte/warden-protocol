@@ -47,6 +47,8 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
+import androidx.compose.ui.res.stringResource
+import com.ivarna.wardenprotocol.R
 
 private val ProcessingBackground = Color(0xFF121414)
 private val ProcessingPrimary = Color(0xFFFFD597)
@@ -142,19 +144,19 @@ fun EndingProcessingScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "SETTLEMENT DOSSIER OPEN",
+                        text = stringResource(R.string.processing_settlement_dossier),
                         style = MaterialTheme.typography.labelLarge,
                         color = ProcessingSecondary,
                         letterSpacing = 2.sp
                     )
                     Text(
-                        text = "COMPILING LONG-RANGE OUTLOOK",
+                        text = stringResource(R.string.processing_compiling_outlook),
                         style = MaterialTheme.typography.displaySmall,
                         color = ProcessingText,
                         letterSpacing = (-1).sp
                     )
                     Text(
-                        text = "Command is reconstructing what the colony becomes after the vault opens. Decade markers, terminal state, and the final settlement chronicle are still being assembled.",
+                        text = stringResource(R.string.processing_subtitle),
                         style = MaterialTheme.typography.bodyLarge,
                         color = ProcessingMuted
                     )
@@ -179,13 +181,13 @@ fun EndingProcessingScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ProcessingMiniCard(
-                        label = "SETTLEMENT",
+                        label = stringResource(R.string.processing_mini_settlement),
                         value = outcome.settlementName,
                         accent = ProcessingPrimary,
                         modifier = Modifier.weight(1f)
                     )
                     ProcessingMiniCard(
-                        label = "CLASSIFICATION",
+                        label = stringResource(R.string.processing_mini_classification),
                         value = outcome.classification,
                         accent = ProcessingCyan,
                         modifier = Modifier.weight(1f)
@@ -197,20 +199,20 @@ fun EndingProcessingScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ProcessingMiniCard(
-                        label = "SURVIVORS",
+                        label = stringResource(R.string.processing_mini_survivors),
                         value = outcome.detailedStats?.survivors?.toString() ?: "0",
                         accent = ProcessingSecondary,
                         modifier = Modifier.weight(1f)
                     )
                     ProcessingMiniCard(
-                        label = "YEARS SEALED",
+                        label = stringResource(R.string.processing_mini_years_sealed),
                         value = outcome.detailedStats?.yearsSinceWar?.toString() ?: "0",
                         accent = ProcessingPrimary,
                         modifier = Modifier.weight(1f)
                     )
                     ProcessingMiniCard(
-                        label = "TARGET SITE",
-                        value = outcome.detailedStats?.locationName ?: "UNKNOWN",
+                        label = stringResource(R.string.processing_mini_target_site),
+                        value = outcome.detailedStats?.locationName ?: stringResource(R.string.processing_mini_target_site_unknown),
                         accent = ProcessingCyan,
                         modifier = Modifier.weight(1.2f)
                     )
@@ -224,7 +226,7 @@ fun EndingProcessingScreen(
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     Text(
-                        text = "ARCHIVE COMPILATION",
+                        text = stringResource(R.string.processing_archive_compilation),
                         style = MaterialTheme.typography.titleMedium,
                         color = ProcessingPrimary
                     )
@@ -287,7 +289,7 @@ fun EndingProcessingScreen(
                     }
 
                     ProcessingWaitTicker(
-                        message = "We'll get back to you. Just wait.",
+                        message = stringResource(R.string.processing_wait_ticker),
                         drift = animation.tickerDrift,
                         pulse = animation.pulse
                     )
@@ -300,10 +302,10 @@ fun EndingProcessingScreen(
                         .padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ProcessingLine("Travel Route", outcome.detailedStats?.travelRoute ?: "Unavailable")
-                    ProcessingLine("Travel Risk", outcome.detailedStats?.travelRisk ?: "Unknown")
-                    ProcessingLine("Vault Power", "${outcome.detailedStats?.powerGrid ?: 0}%")
-                    ProcessingLine("Archive Integrity", "${(((outcome.detailedStats?.culturalArchive ?: 0) + (outcome.detailedStats?.scientificArchive ?: 0)) / 2)}%")
+                    ProcessingLine(stringResource(R.string.processing_line_travel_route), outcome.detailedStats?.travelRoute ?: "Unavailable")
+                    ProcessingLine(stringResource(R.string.processing_line_travel_risk), outcome.detailedStats?.travelRisk ?: "Unknown")
+                    ProcessingLine(stringResource(R.string.processing_line_vault_power), "${outcome.detailedStats?.powerGrid ?: 0}%")
+                    ProcessingLine(stringResource(R.string.processing_line_archive_integrity), "${(((outcome.detailedStats?.culturalArchive ?: 0) + (outcome.detailedStats?.scientificArchive ?: 0)) / 2)}%")
                 }
             }
         }
@@ -353,7 +355,7 @@ private fun ProcessingHeader() {
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = "WARDEN_PROTOCOL_V1.0.4",
+                text = stringResource(R.string.processing_top_bar),
                 style = MaterialTheme.typography.titleMedium,
                 color = ProcessingPrimary,
                 letterSpacing = (-0.5).sp
@@ -452,13 +454,13 @@ private fun ProcessingSignalSweep(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "LIVE SIGNAL SWEEP",
+                text = stringResource(R.string.processing_live_signal),
                 style = MaterialTheme.typography.labelSmall,
                 color = ProcessingSecondary,
                 letterSpacing = 1.6.sp
             )
             Text(
-                text = "ACTIVE",
+                text = stringResource(R.string.processing_live_active),
                 style = MaterialTheme.typography.labelSmall,
                 color = ProcessingCyan,
                 letterSpacing = 1.4.sp
@@ -538,7 +540,7 @@ private fun ProcessingCoreLoader(
         }
 
         Text(
-            text = "FORECAST ENGINE ACTIVE",
+            text = stringResource(R.string.processing_forecast_engine),
             style = MaterialTheme.typography.labelLarge,
             color = ProcessingSecondary,
             letterSpacing = 2.sp
@@ -580,7 +582,7 @@ private fun ProcessingProgressRail(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "SYNTHESIS PROGRESS",
+                text = stringResource(R.string.processing_synthesis_progress),
                 style = MaterialTheme.typography.labelSmall,
                 color = ProcessingMuted,
                 letterSpacing = 1.5.sp
@@ -652,11 +654,12 @@ private fun ProcessingWaitTicker(
     }
 }
 
+@Composable
 private fun processingStatusText(phase: Int): String = when (phase) {
-    0 -> "Indexing survivor records and casualty ledgers."
-    1 -> "Projecting decade markers across the settlement lifespan."
-    2 -> "Reconciling travel losses against long-term viability."
-    else -> "Final colony chronicle will appear automatically."
+    0 -> stringResource(R.string.processing_status_phase_0)
+    1 -> stringResource(R.string.processing_status_phase_1)
+    2 -> stringResource(R.string.processing_status_phase_2)
+    else -> stringResource(R.string.processing_status_phase_3)
 }
 
 @Composable

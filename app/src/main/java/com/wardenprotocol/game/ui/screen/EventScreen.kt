@@ -29,8 +29,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.EventChoice
 import com.ivarna.wardenprotocol.data.model.GameEvent
+import com.ivarna.wardenprotocol.ui.localizedChoiceDescription
+import com.ivarna.wardenprotocol.ui.localizedChoiceLabel
+import com.ivarna.wardenprotocol.ui.localizedEventDescription
+import com.ivarna.wardenprotocol.ui.localizedEventTitle
 
 // High-Fidelity Color Tokens (Material 3 Surface Mappings)
 private val BackgroundColor = Color(0xFF121414)
@@ -121,9 +127,11 @@ fun EventScreen(
                         TelemetryAnalysis(event.id)
                     }
 
-                    // Right Side: Command Interface
                     Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-                        ApexThreatHeader(event.title, event.description)
+                        ApexThreatHeader(
+                            title = localizedEventTitle(event.id) ?: event.title,
+                            description = localizedEventDescription(event.id) ?: event.description
+                        )
                         ProtocolResponseSection(event, onChoiceSelected)
                     }
                 }
@@ -156,7 +164,7 @@ private fun EventTopBar() {
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = "WARDEN_PROTOCOL_V1.0.4",
+                text = stringResource(R.string.event_outcome_top_bar),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
                 color = Primary,
@@ -187,14 +195,14 @@ private fun StatusBreadcrumb(eventId: String) {
     ) {
         Column {
             Text(
-                "ALARM_LEVEL: CRITICAL",
+                stringResource(R.string.event_alarm_level),
                 style = MaterialTheme.typography.labelSmall,
                 color = Error,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
             )
             Text(
-                "SECTOR: SUBLEVEL_${eventId.take(2).uppercase()}_VAULT_ENTRY",
+                stringResource(R.string.event_sector_format, eventId.take(2).uppercase()),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 letterSpacing = 2.sp
@@ -212,7 +220,7 @@ private fun StatusBreadcrumb(eventId: String) {
                     }
             )
             Text(
-                "SCANNER_ONLINE",
+                stringResource(R.string.event_scanner_online),
                 style = MaterialTheme.typography.labelSmall,
                 color = Secondary,
                 fontWeight = FontWeight.Bold
@@ -243,7 +251,7 @@ private fun ThreatVisualizer(event: GameEvent) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                "TARGET_ACQUIRED",
+                stringResource(R.string.event_target_acquired),
                 modifier = Modifier
                     .background(Error)
                     .padding(horizontal = 8.dp, vertical = 2.dp),
@@ -266,7 +274,7 @@ private fun ThreatVisualizer(event: GameEvent) {
         // Tactical Image
         Image(
             painter = painterResource(id = imageKey.drawableRes),
-            contentDescription = "Threat Visual",
+            contentDescription = stringResource(R.string.event_threat_visual_desc),
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
@@ -295,8 +303,8 @@ private fun ThreatVisualizer(event: GameEvent) {
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("LAT: 44.232.1", color = Primary.copy(0.4f), style = MaterialTheme.typography.labelSmall)
-            Text("LONG: -12.449.0", color = Primary.copy(0.4f), style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.event_lat), color = Primary.copy(0.4f), style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.event_long), color = Primary.copy(0.4f), style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -321,7 +329,7 @@ private fun TelemetryAnalysis(eventId: String) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Filled.QueryStats, contentDescription = null, tint = Primary, modifier = Modifier.size(16.dp))
             Text(
-                "Telemetry_Analysis",
+                stringResource(R.string.event_telemetry_analysis),
                 style = MaterialTheme.typography.labelSmall,
                 color = Primary,
                 fontWeight = FontWeight.Bold,
@@ -329,8 +337,8 @@ private fun TelemetryAnalysis(eventId: String) {
             )
         }
 
-        TelemetryBar("BIOMASS_DENSITY", density, Primary)
-        TelemetryBar("STRUCTURAL_INTEGRITY", integrity, if (integrity < 20) Error else Primary)
+        TelemetryBar(stringResource(R.string.event_telemetry_biomass), density, Primary)
+        TelemetryBar(stringResource(R.string.event_telemetry_structure), integrity, if (integrity < 20) Error else Primary)
     }
 }
 
@@ -363,7 +371,7 @@ private fun ApexThreatHeader(title: String, description: String) {
         val titleParts = title.split(":")
         Column {
             Text(
-                text = (titleParts.getOrNull(0) ?: "INCIDENT").uppercase(),
+                text = (titleParts.getOrNull(0) ?: stringResource(R.string.event_default_incident)).uppercase(),
                 style = MaterialTheme.typography.displaySmall,
                 color = TextPrimary,
                 fontWeight = FontWeight.Black,
@@ -405,7 +413,7 @@ private fun ProtocolResponseSection(event: GameEvent, onChoiceSelected: (EventCh
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
             Text(
-                "SELECT_PROTOCOL_RESPONSE",
+                stringResource(R.string.event_select_protocol),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 fontWeight = FontWeight.Bold,
@@ -414,10 +422,10 @@ private fun ProtocolResponseSection(event: GameEvent, onChoiceSelected: (EventCh
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ProtocolChoiceCard("01", event.choiceA) { onChoiceSelected(event.choiceA) }
-            ProtocolChoiceCard("02", event.choiceB) { onChoiceSelected(event.choiceB) }
+            ProtocolChoiceCard("01", event.choiceA, event.id, 0) { onChoiceSelected(event.choiceA) }
+            ProtocolChoiceCard("02", event.choiceB, event.id, 1) { onChoiceSelected(event.choiceB) }
             event.choiceC?.let { choiceC ->
-                ProtocolChoiceCard("03", choiceC, isCritical = true) { onChoiceSelected(choiceC) }
+                ProtocolChoiceCard("03", choiceC, event.id, 2, isCritical = true) { onChoiceSelected(choiceC) }
             }
         }
     }
@@ -427,6 +435,8 @@ private fun ProtocolResponseSection(event: GameEvent, onChoiceSelected: (EventCh
 private fun ProtocolChoiceCard(
     index: String,
     choice: EventChoice,
+    eventId: String,
+    choiceIndex: Int,
     isCritical: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -465,14 +475,14 @@ private fun ProtocolChoiceCard(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            choice.label.uppercase(),
+                            (localizedChoiceLabel(eventId, choiceIndex) ?: choice.label).uppercase(),
                             style = MaterialTheme.typography.titleMedium,
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        choice.description,
+                        localizedChoiceDescription(eventId, choiceIndex) ?: choice.description,
                         color = TextSecondary,
                         style = MaterialTheme.typography.bodySmall,
                         lineHeight = 20.sp
@@ -482,7 +492,7 @@ private fun ProtocolChoiceCard(
                         modifier = Modifier.padding(top = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        MetricLine(Icons.Filled.Bolt, "ENERGY_COST", "[REDACTED]", Primary)
+                        MetricLine(Icons.Filled.Bolt, stringResource(R.string.event_energy_cost), "[REDACTED]", Primary)
                     }
                 }
 
@@ -515,7 +525,7 @@ private fun MetricLine(icon: androidx.compose.ui.graphics.vector.ImageVector, la
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(12.dp))
         Text(
-            "$label: $value",
+            stringResource(R.string.event_metric_format, label, value),
             style = MaterialTheme.typography.labelSmall,
             color = color,
             fontWeight = FontWeight.Bold,

@@ -42,10 +42,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.RunRecord
 import com.ivarna.wardenprotocol.data.model.locationTypeOrNull
 import com.ivarna.wardenprotocol.data.model.resolvedGradeLabel
@@ -104,7 +106,7 @@ fun RunArchiveCard(
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "CAM_REF: ${(entry.id.hashCode() % 99).toMathAbs()}-X",
+                        text = stringResource(R.string.archive_cam_ref_format, (entry.id.hashCode() % 99).toMathAbs()),
                         style = MaterialTheme.typography.labelSmall,
                         color = WarningAmber,
                         fontSize = 8.sp,
@@ -140,7 +142,7 @@ fun RunArchiveCard(
                 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "FINAL SCORE",
+                        text = stringResource(R.string.archive_final_score),
                         style = MaterialTheme.typography.labelSmall,
                         color = TextSecondary,
                         fontSize = 9.sp,
@@ -166,21 +168,21 @@ fun RunArchiveCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ArchiveGridField(
-                    label = "SURVIVORS",
+                    label = stringResource(R.string.archive_field_survivors),
                     value = "%,d".format(entry.survivors),
                     icon = Icons.Filled.Groups,
                     iconTint = VaultGreen,
                     modifier = Modifier.weight(1f)
                 )
                 ArchiveGridField(
-                    label = "DURATION",
-                    value = "${entry.yearsSinceWar} YEARS",
+                    label = stringResource(R.string.archive_field_duration),
+                    value = stringResource(R.string.archive_duration_format, entry.yearsSinceWar),
                     icon = Icons.Filled.Schedule,
                     iconTint = WarningAmber,
                     modifier = Modifier.weight(1f)
                 )
                 ArchiveGridField(
-                    label = "OUTCOME",
+                    label = stringResource(R.string.archive_field_outcome),
                     value = entry.resolvedOutcomeLabel(),
                     modifier = Modifier.weight(1.2f)
                 )
@@ -324,7 +326,7 @@ fun CompactRunArchiveRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "#$rank",
+                    text = stringResource(R.string.archive_rank_format, rank),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color(0xFF121414),
                     fontWeight = FontWeight.Black
@@ -368,7 +370,7 @@ fun CompactRunArchiveRow(
                 letterSpacing = 1.sp
             )
             Text(
-                text = "${entry.survivors} SURVIVORS / ${entry.yearsSinceWar} YEARS",
+                text = stringResource(R.string.archive_survivors_years_format, entry.survivors, entry.yearsSinceWar),
                 style = MaterialTheme.typography.labelSmall,
                 color = VaultGreen,
                 fontSize = 10.sp,
@@ -428,8 +430,9 @@ private fun ArchiveMetricCard(
     }
 }
 
+@Composable
 fun formatArchiveDate(timestamp: Long): String {
-    if (timestamp == 0L) return "Unknown"
+    if (timestamp == 0L) return stringResource(R.string.archive_date_unknown)
     return DateTimeFormatter.ofPattern("dd MMM yyyy")
         .format(Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()))
 }
@@ -492,12 +495,12 @@ fun WardenBottomNav(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        WardenBottomNavItem("COMMAND", Icons.Filled.GridView, activeTab == WardenTab.COMMAND) { onTabClick(WardenTab.COMMAND) }
+        WardenBottomNavItem(stringResource(R.string.nav_command), Icons.Filled.GridView, activeTab == WardenTab.COMMAND) { onTabClick(WardenTab.COMMAND) }
         if (showSurface) {
-            WardenBottomNavItem("SURFACE", Icons.Filled.Visibility, activeTab == WardenTab.SURFACE) { onTabClick(WardenTab.SURFACE) }
+            WardenBottomNavItem(stringResource(R.string.nav_surface), Icons.Filled.Visibility, activeTab == WardenTab.SURFACE) { onTabClick(WardenTab.SURFACE) }
         }
-        WardenBottomNavItem("ARCHIVE", Icons.Filled.Storage, activeTab == WardenTab.ARCHIVE) { onTabClick(WardenTab.ARCHIVE) }
-        WardenBottomNavItem("SYSTEM", Icons.Filled.SettingsApplications, activeTab == WardenTab.SYSTEM) { onTabClick(WardenTab.SYSTEM) }
+        WardenBottomNavItem(stringResource(R.string.nav_archive), Icons.Filled.Storage, activeTab == WardenTab.ARCHIVE) { onTabClick(WardenTab.ARCHIVE) }
+        WardenBottomNavItem(stringResource(R.string.nav_system), Icons.Filled.SettingsApplications, activeTab == WardenTab.SYSTEM) { onTabClick(WardenTab.SYSTEM) }
     }
 }
 
@@ -543,10 +546,10 @@ private fun WardenBottomNavItem(
 @Composable
 fun TerminalDecorFooter(
     lines: List<String> = listOf(
-        "> INITIALIZING TERMINAL BUFFER...",
-        "> AUTHENTICATION: SUCCESS",
-        "> SYNCING_DISTRIBUTED_LOGS...",
-        "> END OF DATA FEED"
+        stringResource(R.string.footer_line_default_1),
+        stringResource(R.string.footer_line_default_2),
+        stringResource(R.string.footer_line_default_3),
+        stringResource(R.string.footer_line_default_4)
     )
 ) {
     Column(

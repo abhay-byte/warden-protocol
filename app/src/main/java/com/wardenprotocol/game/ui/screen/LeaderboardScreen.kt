@@ -37,9 +37,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.PaddingValues
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.RunRecord
 import com.ivarna.wardenprotocol.ui.component.*
 import com.ivarna.wardenprotocol.ui.theme.TextSecondary
@@ -59,7 +61,7 @@ fun LeaderboardScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color(0xFF121414),
-        topBar = { WardenTopBar(title = "GLOBAL_ARCHIVE_v1.0.4") },
+        topBar = { WardenTopBar(title = stringResource(R.string.leaderboard_top_bar)) },
         bottomBar = {
             WardenBottomNav(
                 activeTab = WardenTab.ARCHIVE,
@@ -106,7 +108,7 @@ fun LeaderboardContent(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (entries.isEmpty()) {
                     Text(
-                        text = "NO RANKED RECORDS DETECTED IN GLOBAL BUFFER.",
+                        text = stringResource(R.string.leaderboard_empty),
                         style = MaterialTheme.typography.bodySmall,
                         color = WarningAmber.copy(alpha = 0.6f),
                         fontWeight = FontWeight.Bold,
@@ -158,7 +160,7 @@ private fun LeaderboardHeaderTelemetry(totalRuns: Int, topScore: Int) {
     ) {
         Column {
             Text(
-                "GLOBAL PERFORMANCE INDEX",
+                stringResource(R.string.leaderboard_index_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = WarningAmber,
                 fontSize = 10.sp,
@@ -167,7 +169,7 @@ private fun LeaderboardHeaderTelemetry(totalRuns: Int, topScore: Int) {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                "HALL_OF_WARDENS",
+                stringResource(R.string.leaderboard_index_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = WarningAmber,
                 fontWeight = FontWeight.Black,
@@ -182,7 +184,7 @@ private fun LeaderboardHeaderTelemetry(totalRuns: Int, topScore: Int) {
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    "TOP_RATING: %,d".format(topScore),
+                    stringResource(R.string.leaderboard_top_rating_format, topScore),
                     style = MaterialTheme.typography.labelSmall,
                     color = WarningAmber,
                     fontSize = 9.sp,
@@ -191,7 +193,7 @@ private fun LeaderboardHeaderTelemetry(totalRuns: Int, topScore: Int) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "RUNS RANKED: $totalRuns",
+                stringResource(R.string.leaderboard_runs_ranked_format, totalRuns),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary,
                 fontSize = 10.sp,
@@ -226,7 +228,7 @@ private fun StartMissionFAB(onClick: () -> Unit) {
             modifier = Modifier.size(24.dp)
         )
         Text(
-            text = "START NEW MISSION",
+            text = stringResource(R.string.leaderboard_fab),
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF121414),
             fontWeight = FontWeight.Black,

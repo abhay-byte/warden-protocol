@@ -32,8 +32,8 @@ android {
         applicationId = "com.ivarna.wardenprotocol"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
         buildConfigField(
             "String",
             "NVIDIA_NIM_API_KEY",
@@ -120,4 +120,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }

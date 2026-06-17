@@ -13,6 +13,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.NvidiaModelOption
 import com.ivarna.wardenprotocol.data.model.RunRecord
 import com.ivarna.wardenprotocol.ui.component.WardenBottomNav
@@ -31,6 +33,7 @@ fun MainHubScreen(
     musicEnabled: Boolean,
     sfxEnabled: Boolean,
     selectedAiModel: String,
+    currentLocaleTag: String,
     availableAiModels: List<NvidiaModelOption>,
     onTabSelected: (HubTab) -> Unit,
     onNewGame: () -> Unit,
@@ -38,6 +41,7 @@ fun MainHubScreen(
     onToggleMusic: () -> Unit,
     onToggleSfx: () -> Unit,
     onSelectAiModel: (String) -> Unit,
+    onSelectLocale: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -47,10 +51,10 @@ fun MainHubScreen(
         topBar = {
             WardenTopBar(
                 title = when (currentTab) {
-                    HubTab.MENU -> "COMMAND_DECK_v1.0.4"
-                    HubTab.LEADERBOARD -> "GLOBAL_ARCHIVE_v1.0.4"
-                    HubTab.HISTORY -> "ARCHIVE_LOGS_v1.0.4"
-                    HubTab.SETTINGS -> "SYSTEM_CONFIG_v1.0.4"
+                    HubTab.MENU -> stringResource(R.string.top_bar_command_deck)
+                    HubTab.LEADERBOARD -> stringResource(R.string.top_bar_global_archive)
+                    HubTab.HISTORY -> stringResource(R.string.top_bar_archive_logs)
+                    HubTab.SETTINGS -> stringResource(R.string.top_bar_system_config)
                 }
             )
         },
@@ -117,9 +121,11 @@ fun MainHubScreen(
                             sfxEnabled = sfxEnabled,
                             selectedModelId = selectedAiModel,
                             modelOptions = availableAiModels,
+                            currentLocaleTag = currentLocaleTag,
                             onToggleMusic = onToggleMusic,
                             onToggleSfx = onToggleSfx,
-                            onSelectModel = onSelectAiModel
+                            onSelectModel = onSelectAiModel,
+                            onSelectLocale = onSelectLocale
                         )
                     }
                 }

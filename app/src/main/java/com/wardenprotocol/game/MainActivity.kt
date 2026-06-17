@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         
         enableEdgeToEdge()
         
-        val eventRepository = EventRepository()
+        val eventRepository = EventRepository(applicationContext)
         val gameEngine = GameEngine(eventRepository, applicationContext)
         val highScoreRepository = HighScoreRepository(applicationContext)
         val aiEndingForecastRepository = AiEndingForecastRepository()

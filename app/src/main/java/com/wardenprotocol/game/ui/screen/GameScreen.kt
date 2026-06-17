@@ -54,12 +54,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ivarna.wardenprotocol.R
+import com.ivarna.wardenprotocol.ui.*
 import com.ivarna.wardenprotocol.data.model.FoodPotential
 import com.ivarna.wardenprotocol.data.model.GameState
 import com.ivarna.wardenprotocol.data.model.Hostility
@@ -176,14 +178,14 @@ private fun SurfaceHeaderRow(gameState: GameState, location: SurfaceLocation) {
             )
             Column {
                 Text(
-                    "WARDEN_PROTOCOL_V1.0.4",
+                    stringResource(R.string.top_bar_default),
                     style = MaterialTheme.typography.titleMedium,
                     color = Primary,
                     fontWeight = FontWeight.Black,
                     letterSpacing = (-0.5).sp
                 )
                 Text(
-                    "${location.type.displayName()} / YEAR ${gameState.yearsSinceWar}",
+                    "${locationTypeDisplayName(location.type)} / YEAR ${gameState.yearsSinceWar}",
                     style = MaterialTheme.typography.labelSmall,
                     color = TextPrimary.copy(alpha = 0.55f),
                     fontWeight = FontWeight.Bold
@@ -232,7 +234,7 @@ private fun VaultStatusPanel(gameState: GameState) {
                         .graphicsLayer { shadowElevation = 8.dp.toPx(); ambientShadowColor = Secondary; spotShadowColor = Secondary }
                 )
                 Text(
-                    "VAULT 01 STATUS",
+                    stringResource(R.string.surface_vault_01_status),
                     color = Primary,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
@@ -244,9 +246,9 @@ private fun VaultStatusPanel(gameState: GameState) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                StatusItem("HEALTH", "${String.format("%.1f", coreAverage)}%", Secondary)
-                StatusItem("RADIATION", "${String.format("%.2f", radiationMsv)} mSv", Error.copy(alpha = 0.8f))
-                StatusItem("FOOD RESERVES", "$foodDays DAYS", Primary)
+                StatusItem(stringResource(R.string.surface_metric_health), "${String.format("%.1f", coreAverage)}%", Secondary)
+                StatusItem(stringResource(R.string.surface_metric_radiation), "${String.format("%.2f", radiationMsv)} mSv", Error.copy(alpha = 0.8f))
+                StatusItem(stringResource(R.string.surface_metric_food_reserves), "$foodDays DAYS", Primary)
             }
 
             // Progress Section
@@ -285,16 +287,16 @@ private fun BunkerTelemetryPanel(gameState: GameState, location: SurfaceLocation
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
             Text(
-                "BUNKER TELEMETRY",
+                stringResource(R.string.surface_bunker_telemetry),
                 color = TextPrimary.copy(0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp
             )
 
-            TelemetryRow("Survivors", gameState.survivors.toString())
-            TelemetryRow("Years Sealed", gameState.yearsSinceWar.toString().padStart(3, '0'))
-            TelemetryRow("Sites Scanned", gameState.surfaceLocationsScanned.toString().padStart(2, '0'))
-            TelemetryRow("Active Probes", gameState.surfaceProbes.toString().padStart(2, '0'))
+            TelemetryRow(stringResource(R.string.surface_metric_survivors), gameState.survivors.toString())
+            TelemetryRow(stringResource(R.string.surface_metric_years_sealed), gameState.yearsSinceWar.toString().padStart(3, '0'))
+            TelemetryRow(stringResource(R.string.surface_metric_sites_scanned), gameState.surfaceLocationsScanned.toString().padStart(2, '0'))
+            TelemetryRow(stringResource(R.string.surface_metric_active_probes), gameState.surfaceProbes.toString().padStart(2, '0'))
 
             Box(
                 modifier = Modifier
@@ -346,7 +348,7 @@ private fun EnvironmentTelemetryPanel(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
-                "ENVIRONMENT TELEMETRY",
+                stringResource(R.string.surface_env_telemetry),
                 color = TextPrimary.copy(0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp
@@ -354,19 +356,19 @@ private fun EnvironmentTelemetryPanel(
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 EnvBox(
-                    "Radiation",
+                    stringResource(R.string.surface_env_radiation),
                     scannerReading(
                         gameState.vaultSystems.radiationScanner,
-                        location.radiation.displayName,
+                        radiationDisplayName(location.radiation),
                         radiationTone(location.radiation)
                     ),
                     Modifier.weight(1f)
                 )
                 EnvBox(
-                    "Water",
+                    stringResource(R.string.surface_env_water),
                     scannerReading(
                         gameState.vaultSystems.waterScanner,
-                        location.water.displayName,
+                        waterDisplayName(location.water),
                         waterTone(location.water)
                     ),
                     Modifier.weight(1f)
@@ -375,19 +377,19 @@ private fun EnvironmentTelemetryPanel(
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 EnvBox(
-                    "Food",
+                    stringResource(R.string.surface_env_food),
                     scannerReading(
                         gameState.vaultSystems.agriculturalScanner,
-                        location.food.displayName,
+                        foodDisplayName(location.food),
                         foodTone(location.food)
                     ),
                     Modifier.weight(1f)
                 )
                 EnvBox(
-                    "Shelter",
+                    stringResource(R.string.surface_env_shelter),
                     scannerReading(
                         gameState.vaultSystems.structureScanner,
-                        location.shelter.displayName,
+                        shelterDisplayName(location.shelter),
                         shelterTone(location.shelter)
                     ),
                     Modifier.weight(1f)
@@ -396,19 +398,19 @@ private fun EnvironmentTelemetryPanel(
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 EnvBox(
-                    "Resources",
+                    stringResource(R.string.surface_env_resources),
                     scannerReading(
                         gameState.vaultSystems.resourceScanner,
-                        location.resources.displayName,
+                        resourceDisplayName(location.resources),
                         resourceTone(location.resources)
                     ),
                     Modifier.weight(1f)
                 )
                 EnvBox(
-                    "Threat",
+                    stringResource(R.string.surface_env_threat),
                     scannerReading(
                         gameState.vaultSystems.threatAssessment,
-                        location.nativeHostility.displayName,
+                        hostilityDisplayName(location.nativeHostility),
                         hostilityTone(location.nativeHostility)
                     ),
                     Modifier.weight(1f)
@@ -449,18 +451,18 @@ private fun ScannerDiagnosticsPanel(gameState: GameState) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(
-                "SCANNER ARRAY",
+                stringResource(R.string.surface_scanner_array),
                 color = TextPrimary.copy(0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp
             )
 
-            SignalBar("Radiation Scanner", gameState.vaultSystems.radiationScanner)
-            SignalBar("Water Scanner", gameState.vaultSystems.waterScanner)
-            SignalBar("Agricultural Scanner", gameState.vaultSystems.agriculturalScanner)
-            SignalBar("Structure Scanner", gameState.vaultSystems.structureScanner)
-            SignalBar("Resource Scanner", gameState.vaultSystems.resourceScanner)
-            SignalBar("Threat Assessment", gameState.vaultSystems.threatAssessment)
+            SignalBar(stringResource(R.string.surface_scanner_radiation), gameState.vaultSystems.radiationScanner)
+            SignalBar(stringResource(R.string.surface_scanner_water), gameState.vaultSystems.waterScanner)
+            SignalBar(stringResource(R.string.surface_scanner_agriculture), gameState.vaultSystems.agriculturalScanner)
+            SignalBar(stringResource(R.string.surface_scanner_structure), gameState.vaultSystems.structureScanner)
+            SignalBar(stringResource(R.string.surface_scanner_resource), gameState.vaultSystems.resourceScanner)
+            SignalBar(stringResource(R.string.surface_scanner_threat), gameState.vaultSystems.threatAssessment)
         }
     }
 }
@@ -538,7 +540,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation, probeRevealed: Boo
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "TARGET_LOCKED",
+                        stringResource(R.string.surface_target_locked),
                         color = BackgroundColor,
                         modifier = Modifier
                             .background(Primary)
@@ -559,7 +561,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation, probeRevealed: Boo
                 }
 
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(location.type.displayName().uppercase(), color = Primary.copy(0.72f), style = MaterialTheme.typography.labelSmall)
+                    Text(locationTypeDisplayName(location.type).uppercase(), color = Primary.copy(0.72f), style = MaterialTheme.typography.labelSmall)
                     Text(location.travelProfile.routeName.uppercase(), color = Primary.copy(0.58f), style = MaterialTheme.typography.labelSmall)
                 }
             }
@@ -589,7 +591,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation, probeRevealed: Boo
                     )
 
                     Text(
-                        text = if (expanded) "COLLAPSE FIELD REPORT" else "EXPAND FIELD REPORT",
+                        text = if (expanded) stringResource(R.string.surface_collapse_report) else stringResource(R.string.surface_expand_report),
                         color = SignalBlue,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
@@ -614,7 +616,7 @@ private fun SurfaceScanTargetPanel(location: SurfaceLocation, probeRevealed: Boo
 private fun ProbeTelemetryGrid(location: SurfaceLocation) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            text = "DEEP FIELD TELEMETRY",
+            text = stringResource(R.string.surface_deep_field_telemetry),
             color = Secondary,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
@@ -623,14 +625,14 @@ private fun ProbeTelemetryGrid(location: SurfaceLocation) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             ProbeBox(
-                "ANOMALY",
-                location.anomaly?.displayName ?: "No dominant anomaly",
+                stringResource(R.string.surface_probe_anomaly),
+                location.anomaly?.let { anomalyDisplayName(it) } ?: stringResource(R.string.surface_probe_anomaly_none),
                 location.anomaly?.let(::anomalyTone) ?: TextPrimary,
                 Modifier.weight(1f)
             )
             ProbeBox(
-                "RECOMMENDATION",
-                location.probeData?.recommendation ?: "Probe uplink incomplete.",
+                stringResource(R.string.surface_probe_recommendation),
+                location.probeData?.recommendation ?: stringResource(R.string.surface_probe_recommendation_none),
                 Secondary,
                 Modifier.weight(1f)
             )
@@ -638,22 +640,22 @@ private fun ProbeTelemetryGrid(location: SurfaceLocation) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             ProbeBox(
-                "RESOURCES",
-                location.probeData?.hiddenResources ?: "No deeper resource packet received.",
+                stringResource(R.string.surface_probe_resources),
+                location.probeData?.hiddenResources ?: stringResource(R.string.surface_probe_resources_none),
                 Primary,
                 Modifier.weight(1f)
             )
             ProbeBox(
-                "STRUCTURE",
-                location.probeData?.structuralIntegrity ?: "No structural packet received.",
+                stringResource(R.string.surface_probe_structure),
+                location.probeData?.structuralIntegrity ?: stringResource(R.string.surface_probe_structure_none),
                 SignalBlue,
                 Modifier.weight(1f)
             )
         }
 
         ProbeBox(
-            "SOIL QUALITY",
-            location.probeData?.soilQuality ?: "No soil packet received.",
+            stringResource(R.string.surface_probe_soil),
+            location.probeData?.soilQuality ?: stringResource(R.string.surface_probe_soil_none),
             PrimaryFixedDim,
             Modifier.fillMaxWidth()
         )
@@ -689,7 +691,7 @@ private fun LockedProbeBanner() {
             .padding(14.dp)
     ) {
         Text(
-            text = "PROBE LINK READY: deploy a probe to reveal anomaly classification plus structural, resource, soil, and settlement viability telemetry.",
+            text = stringResource(R.string.surface_probe_link_ready),
             color = TextPrimary.copy(alpha = 0.82f),
             style = MaterialTheme.typography.bodySmall
         )
@@ -721,27 +723,27 @@ private fun TransitSectionPanel(location: SurfaceLocation) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
-                "TRANSIT SECTION",
+                stringResource(R.string.surface_transit_section),
                 color = TextPrimary.copy(0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp
             )
 
             Column {
-                Text("ACTIVE ROUTE", color = TextPrimary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.surface_active_route), color = TextPrimary.copy(0.6f), style = MaterialTheme.typography.labelSmall)
                 Text(location.travelProfile.routeName, color = Primary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(location.travelProfile.durationText, color = TextMuted, style = MaterialTheme.typography.bodySmall)
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 TransitMetric(
-                    "RISK",
-                    location.travelProfile.riskLevel.displayName,
+                    stringResource(R.string.surface_metric_risk),
+                    travelRiskDisplayName(location.travelProfile.riskLevel),
                     travelRiskTone(location.travelProfile.riskLevel),
                     Modifier.weight(1f)
                 )
                 TransitMetric(
-                    "ATTRITION",
+                    stringResource(R.string.surface_metric_attrition),
                     "${location.travelProfile.minLossPercent}-${location.travelProfile.maxLossPercent}%",
                     travelRiskTone(location.travelProfile.riskLevel),
                     Modifier.weight(1f)
@@ -749,8 +751,8 @@ private fun TransitSectionPanel(location: SurfaceLocation) {
             }
 
             TransitMetric(
-                "SCORE PENALTY",
-                "-${location.travelProfile.scorePenalty}",
+                stringResource(R.string.surface_metric_score_penalty),
+                stringResource(R.string.surface_score_penalty_value, location.travelProfile.scorePenalty),
                 Primary,
                 Modifier.fillMaxWidth()
             )
@@ -803,7 +805,7 @@ private fun SystemAlertsPanel(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(
-                "SYSTEM ALERTS",
+                stringResource(R.string.surface_system_alerts),
                 color = TextPrimary.copy(0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp
@@ -858,7 +860,7 @@ private fun SurfaceBottomCommandTray(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         CrtCommandButton(
-            title = "SEARCH",
+            title = stringResource(R.string.surface_action_search),
             icon = Icons.Filled.GridView,
             tone = Primary,
             onClick = onSearch,
@@ -866,7 +868,7 @@ private fun SurfaceBottomCommandTray(
         )
 
         CrtCommandButton(
-            title = "PROBE",
+            title = stringResource(R.string.surface_action_probe),
             icon = Icons.Filled.Radar,
             tone = Secondary,
             enabled = probesAvailable && !probeRevealed,
@@ -875,8 +877,8 @@ private fun SurfaceBottomCommandTray(
         )
 
         CrtVaultButton(
-            title = "OPEN VAULT",
-            subtitle = "AUTHORIZATION REQUIRED",
+            title = stringResource(R.string.surface_action_open_vault),
+            subtitle = stringResource(R.string.surface_action_open_vault_subtitle),
             icon = Icons.Filled.PowerSettingsNew,
             location = location,
             onClick = onOpenVault,
@@ -1037,6 +1039,7 @@ private data class AlertRow(
     val color: Color
 )
 
+@Composable
 private fun scannerReading(
     systemValue: Int,
     displayValue: String,
@@ -1044,44 +1047,46 @@ private fun scannerReading(
 ): ScannerReading {
     return if (systemValue <= 15) {
         ScannerReading(
-            value = "Unknown",
-            supportingLine = "Scanner offline at $systemValue%",
+            value = stringResource(R.string.value_unknown),
+            supportingLine = stringResource(R.string.surface_scanner_offline, systemValue),
             color = TextMuted
         )
     } else {
         ScannerReading(
             value = displayValue,
-            supportingLine = "Integrity $systemValue%",
+            supportingLine = stringResource(R.string.surface_scanner_integrity, systemValue),
             color = tone
         )
     }
 }
 
+@Composable
 private fun buildOverviewLine(location: SurfaceLocation): String {
     val hazard = when {
-        location.radiation == RadiationLevel.LETHAL -> "lethal radiation saturation"
-        location.water == WaterAvailability.NONE -> "no dependable water source"
-        location.nativeHostility == Hostility.WARLORD -> "heavy hostile presence"
-        else -> "mixed but survivable conditions"
+        location.radiation == RadiationLevel.LETHAL -> stringResource(R.string.surface_overview_hazard_lethal)
+        location.water == WaterAvailability.NONE -> stringResource(R.string.surface_overview_hazard_no_water)
+        location.nativeHostility == Hostility.WARLORD -> stringResource(R.string.surface_overview_hazard_warlord)
+        else -> stringResource(R.string.surface_overview_hazard_mixed)
     }
-    return "${location.name} is the current target. Transit risk is ${location.travelProfile.riskLevel.displayName.lowercase()} with projected losses of ${location.travelProfile.minLossPercent}-${location.travelProfile.maxLossPercent}% before settlement. Primary concern: $hazard."
+    return stringResource(R.string.surface_overview_line, location.name, travelRiskDisplayName(location.travelProfile.riskLevel).lowercase(), location.travelProfile.minLossPercent, location.travelProfile.maxLossPercent, hazard)
 }
 
+@Composable
 private fun buildAlerts(gameState: GameState, location: SurfaceLocation): List<AlertRow> {
     val alerts = mutableListOf<AlertRow>()
     val systems = gameState.vaultSystems
 
-    fun addIfLow(name: String, value: Int, failureText: String) {
+    fun addIfLow(nameLabel: String, value: Int, failureDesc: String) {
         if (value <= 15) {
             alerts += AlertRow(
-                title = "$name failure threshold reached",
-                description = failureText,
+                title = "$nameLabel failure threshold reached",
+                description = failureDesc,
                 color = Error
             )
         } else if (value <= 35) {
             alerts += AlertRow(
-                title = "$name unstable",
-                description = "$name is down to $value% integrity. Expect worsening read fidelity.",
+                title = "$nameLabel unstable",
+                description = "$nameLabel is down to $value% integrity. Expect worsening read fidelity.",
                 color = PrimaryFixedDim
             )
         }
@@ -1096,24 +1101,24 @@ private fun buildAlerts(gameState: GameState, location: SurfaceLocation): List<A
 
     if (gameState.surfaceProbes == 0) {
         alerts += AlertRow(
-            title = "Probe inventory exhausted",
-            description = "No additional deep scans can be performed on future locations this run.",
+            title = stringResource(R.string.surface_alert_probe_exhausted),
+            description = stringResource(R.string.surface_alert_probe_exhausted_desc),
             color = PrimaryFixedDim
         )
     }
 
     if (location.travelProfile.riskLevel == TravelRisk.EXTREME) {
         alerts += AlertRow(
-            title = "Extreme transit exposure",
-            description = "This route projects up to ${location.travelProfile.maxLossPercent}% convoy losses before settlement begins.",
+            title = stringResource(R.string.surface_alert_extreme_transit),
+            description = stringResource(R.string.surface_alert_extreme_transit_desc, location.travelProfile.maxLossPercent),
             color = Error
         )
     }
 
     if (alerts.isEmpty()) {
         alerts += AlertRow(
-            title = "No critical alerts",
-            description = "All monitored scan systems remain above failure threshold.",
+            title = stringResource(R.string.surface_alert_no_critical),
+            description = stringResource(R.string.surface_alert_no_critical_desc),
             color = Secondary
         )
     }
@@ -1121,11 +1126,12 @@ private fun buildAlerts(gameState: GameState, location: SurfaceLocation): List<A
     return alerts
 }
 
+@Composable
 private fun vaultStatusLine(coreAverage: Int, criticalCount: Int): String = when {
-    criticalCount > 0 -> "$criticalCount critical systems need immediate command attention before prolonged searching."
-    coreAverage >= 85 -> "Vault stability remains high. Search and deployment operations are fully supported."
-    coreAverage >= 60 -> "Vault resilience is slipping, but surface operations remain viable."
-    else -> "Vault endurance is weakening. Every additional search cycle carries rising risk."
+    criticalCount > 0 -> stringResource(R.string.surface_vault_status_critical, criticalCount)
+    coreAverage >= 85 -> stringResource(R.string.surface_vault_status_high)
+    coreAverage >= 60 -> stringResource(R.string.surface_vault_status_mid)
+    else -> stringResource(R.string.surface_vault_status_low)
 }
 
 private fun splitName(name: String): List<String> {
@@ -1218,10 +1224,11 @@ private fun anomalyTone(value: SurfaceAnomaly): Color = when (value) {
     else -> Secondary
 }
 
+@Composable
 private fun openingRiskLabel(location: SurfaceLocation): String = when {
-    location.radiation == RadiationLevel.LETHAL || location.travelProfile.riskLevel == TravelRisk.EXTREME -> "OPENING RISK: EXTREME"
-    location.nativeHostility == Hostility.WARLORD || location.radiation == RadiationLevel.HIGH -> "OPENING RISK: HIGH"
-    else -> "OPENING RISK: EVALUATED"
+    location.radiation == RadiationLevel.LETHAL || location.travelProfile.riskLevel == TravelRisk.EXTREME -> stringResource(R.string.surface_opening_risk_extreme)
+    location.nativeHostility == Hostility.WARLORD || location.radiation == RadiationLevel.HIGH -> stringResource(R.string.surface_opening_risk_high)
+    else -> stringResource(R.string.surface_opening_risk_evaluated)
 }
 
 private fun severityColor(location: SurfaceLocation): Color = when {
@@ -1230,12 +1237,7 @@ private fun severityColor(location: SurfaceLocation): Color = when {
     else -> Primary
 }
 
-private fun LocationType.displayName(): String {
-    return name
-        .lowercase()
-        .split("_")
-        .joinToString(" ") { part -> part.replaceFirstChar { it.titlecase() } }
-}
+
 
 @Composable
 private fun SurfaceScanlineOverlay() {
