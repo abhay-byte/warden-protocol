@@ -3,7 +3,7 @@
     <!-- App / Common -->
     <string name="app_name">The Warden Protocol</string>
     <string name="app_name_full">Warden Protocol</string>
-    <string name="app_version">v1.0.4</string>
+    <string name="app_version">v1.2.0</string>
     <string name="app_subtitle">Central intelligence interface</string>
     <string name="default_value">Unavailable</string>
     <string name="value_unknown">Unknown</string>
@@ -24,10 +24,10 @@
 
     <!-- Top bar / navigation labels -->
     <string name="top_bar_default">WARDEN_PROTOCOL_V1.0.4</string>
-    <string name="top_bar_command_deck">COMMAND_DECK_v1.0.4</string>
-    <string name="top_bar_global_archive">GLOBAL_ARCHIVE_v1.0.4</string>
-    <string name="top_bar_archive_logs">ARCHIVE_LOGS_v1.0.4</string>
-    <string name="top_bar_system_config">SYSTEM_CONFIG_v1.0.4</string>
+    <string name="top_bar_command_deck">COMMAND_DECK_v1.2.0</string>
+    <string name="top_bar_global_archive">GLOBAL_ARCHIVE_v1.2.0</string>
+    <string name="top_bar_archive_logs">ARCHIVE_LOGS_v1.2.0</string>
+    <string name="top_bar_system_config">SYSTEM_CONFIG_v1.2.0</string>
 
     <!-- Bottom navigation -->
     <string name="nav_command">COMMAND</string>
@@ -327,7 +327,7 @@
     <string name="locale_russian">Русский</string>
 
     <!-- Leaderboard -->
-    <string name="leaderboard_top_bar">GLOBAL_ARCHIVE_v1.0.4</string>
+    <string name="leaderboard_top_bar">GLOBAL_ARCHIVE_v1.2.0</string>
     <string name="leaderboard_index_label">GLOBAL PERFORMANCE INDEX</string>
     <string name="leaderboard_index_title">HALL_OF_WARDENS</string>
     <string name="leaderboard_top_rating_format">TOP_RATING: %1$,d</string>
@@ -336,7 +336,7 @@
     <string name="leaderboard_fab">START NEW MISSION</string>
 
     <!-- History -->
-    <string name="history_top_bar">ARCHIVE_LOGS_v1.0.4</string>
+    <string name="history_top_bar">ARCHIVE_LOGS_v1.2.0</string>
     <string name="history_index_label">DATA RECOVERY STATUS</string>
     <string name="history_index_title">ARCHIVE LOGS</string>
     <string name="history_auth">AUTH: WARDEN_IDENT</string>

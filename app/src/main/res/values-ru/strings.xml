@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Протокол Смотрителя</string>
     <string name="app_name_full">Протокол Смотрителя</string>
-    <string name="app_version">v1.0.4</string>
+    <string name="app_version">v1.2.0</string>
     <string name="app_subtitle">Центральный интерфейс разведки</string>
     <string name="default_value">Недоступно</string>
     <string name="value_unknown">Неизвестно</string>
@@ -20,11 +20,11 @@
     <string name="no_upper">НЕТ</string>
     <string name="ok_upper">ОК</string>
     <string name="cancel_upper">ОТМЕНА</string>
-    <string name="top_bar_default">ПРОТОКОЛ_СМОТРИТЕЛЯ_v1.0.4</string>
-    <string name="top_bar_command_deck">ПУЛЬТ_УПРАВЛЕНИЯ_v1.0.4</string>
-    <string name="top_bar_global_archive">ГЛОБАЛЬНЫЙ_АРХИВ_v1.0.4</string>
-    <string name="top_bar_archive_logs">ЖУРНАЛЫ_АРХИВА_v1.0.4</string>
-    <string name="top_bar_system_config">СИСТЕМНАЯ_КОНФИГУРАЦИЯ_v1.0.4</string>
+    <string name="top_bar_default">ПРОТОКОЛ_СМОТРИТЕЛЯ_v1.2.0</string>
+    <string name="top_bar_command_deck">ПУЛЬТ_УПРАВЛЕНИЯ_v1.2.0</string>
+    <string name="top_bar_global_archive">ГЛОБАЛЬНЫЙ_АРХИВ_v1.2.0</string>
+    <string name="top_bar_archive_logs">ЖУРНАЛЫ_АРХИВА_v1.2.0</string>
+    <string name="top_bar_system_config">СИСТЕМНАЯ_КОНФИГУРАЦИЯ_v1.2.0</string>
     <string name="nav_command">КОМАНДА</string>
     <string name="nav_surface">ПОВЕРХНОСТЬ</string>
     <string name="nav_archive">АРХИВ</string>
@@ -300,14 +300,14 @@
     <string name="locale_system">По умолчанию системы</string>
     <string name="locale_english">Английский</string>
     <string name="locale_russian">Русский</string>
-    <string name="leaderboard_top_bar">ГЛОБАЛЬНЫЙ_АРХИВ_v1.0.4</string>
+    <string name="leaderboard_top_bar">ГЛОБАЛЬНЫЙ_АРХИВ_v1.2.0</string>
     <string name="leaderboard_index_label">ГЛОБАЛЬНЫЙ ИНДЕКС ЭФФЕКТИВНОСТИ</string>
     <string name="leaderboard_index_title">ЗАЛ_СМОТРИТЕЛЕЙ</string>
     <string name="leaderboard_top_rating_format">ЛУЧШИЙ_РЕЗУЛЬТАТ: %1$,d</string>
     <string name="leaderboard_runs_ranked_format">ЗАПУСКОВ В РЕЙТИНГЕ: %1$d</string>
     <string name="leaderboard_empty">В ГЛОБАЛЬНОМ БУФЕРЕ НЕ ОБНАРУЖЕНО РАНЖИРОВАННЫХ ЗАПИСЕЙ.</string>
     <string name="leaderboard_fab">НАЧАТЬ НОВУЮ МИССИЮ</string>
-    <string name="history_top_bar">ЖУРНАЛЫ_АРХИВА_v1.0.4</string>
+    <string name="history_top_bar">ЖУРНАЛЫ_АРХИВА_v1.2.0</string>
     <string name="history_index_label">СТАТУС ВОССТАНОВЛЕНИЯ ДАННЫХ</string>
     <string name="history_index_title">ЖУРНАЛЫ АРХИВА</string>
     <string name="history_auth">АВТ: ИДЕНТ_СМОТРИТЕЛЯ</string>
