@@ -1,14 +1,38 @@
 package com.ivarna.wardenprotocol.domain.engine
 
+import android.content.Context
+import com.ivarna.wardenprotocol.R
 import com.ivarna.wardenprotocol.data.model.*
 import com.ivarna.wardenprotocol.data.repository.EventRepository
 import kotlin.random.Random
 
-class GameEngine(private val eventRepository: EventRepository) {
+class GameEngine(
+    private val eventRepository: EventRepository,
+    private val context: Context? = null
+) {
 
     private companion object {
         private const val FOLLOW_UP_EVENT_BASE_CHANCE = 0.4f
         private const val FOLLOW_UP_EVENT_DECAY = 0.3f
+
+        private fun locationNameArrayId(type: LocationType): Int = when (type) {
+            LocationType.RUINED_CITY -> R.array.location_names_ruined_city
+            LocationType.FOREST -> R.array.location_names_forest
+            LocationType.MILITARY_BASE -> R.array.location_names_military_base
+            LocationType.FARMLAND -> R.array.location_names_farmland
+            LocationType.UNDERGROUND_RIVER -> R.array.location_names_underground_river
+            LocationType.MOUNTAIN_PASS -> R.array.location_names_mountain_pass
+            LocationType.COASTAL_TOWN -> R.array.location_names_coastal_town
+            LocationType.RESEARCH_FACILITY -> R.array.location_names_research_facility
+            LocationType.RADIOACTIVE_SWAMP -> R.array.location_names_radioactive_swamp
+            LocationType.MEGACRATER -> R.array.location_names_megacrater
+            LocationType.PLAGUE_ZONE -> R.array.location_names_plague_zone
+            LocationType.SCRAP_HEAP -> R.array.location_names_scrap_heap
+            LocationType.ABANDONED_SUBWAY -> R.array.location_names_abandoned_subway
+            LocationType.FUNGAL_WASTES -> R.array.location_names_fungal_wastes
+            LocationType.GLASS_DESERT -> R.array.location_names_glass_desert
+            LocationType.CULT_TERRITORY -> R.array.location_names_cult_territory
+        }
     }
 
     private data class LocationIntel(
@@ -25,121 +49,18 @@ class GameEngine(private val eventRepository: EventRepository) {
         val scorePenalty: Int
     )
 
-    private val locationNameGenerators = mapOf(
-        LocationType.RUINED_CITY to listOf(
-            "Flooded Detroit", "Silent Chicago Ruins", "Ash-Covered Boston", "Broken Los Angeles",
-            "Shattered New York", "Hollow Philadelphia", "Scorched Phoenix", "Frozen Minneapolis",
-            "Crumbling Seattle", "Dead Miami", "Ghost Atlanta", "Buried Denver",
-            "Ashen St. Louis", "Blasted Newark", "Sunken Baltimore", "Husk of Houston",
-            "Static Las Vegas", "Melted Cleveland", "Bonewhite Dallas", "Collapsed Sacramento",
-            "Dread Memphis", "Shiver Portland"
-        ),
-        LocationType.FOREST to listOf(
-            "Ash-Grey Pinelands", "Recovering Oak Valley", "Mutant Redwood Grove", "Dead Birch Forest",
-            "Twisted Maple Woods", "Blackened Cedar Stand", "Poisoned Willow Marsh", "Charred Sequoia Basin",
-            "Spore-Choked Timberline", "Hanging Moss Hollow", "Rotfen Grove", "Pale Fungus Thicket"
-        ),
-        LocationType.MILITARY_BASE to listOf(
-            "Fort Zulu", "Outpost Kilo-7", "Fort Alpha Ruins", "Base Tango-9", "Fort Whiskey",
-            "Outpost Delta", "Fort November", "Base Echo-3", "Fort Sierra", "Outpost Bravo-6",
-            "Missile Silo Raven", "Checkpoint Mordred", "Fort Blackglass", "Outpost Widow",
-            "Battery Helix", "Silo Jericho", "Camp Raptor", "Redoubt Cain",
-            "Ordnance Yard 14", "Fort Harrow", "Launch Complex M", "Garrison Hollow"
-        ),
-        LocationType.FARMLAND to listOf(
-            "Withered Corn Belt", "Salted Wheat Fields", "Toxic Vineyard", "Barren Pastures",
-            "Irradiated Orchards", "Dead Soybean Plains", "Poisoned Rice Paddies", "Scorched Cropland",
-            "Maggot Orchard", "Ash Harvest Flats", "Rotted Cattle Range", "Grey Millet Basin"
-        ),
-        LocationType.UNDERGROUND_RIVER to listOf(
-            "Subterranean Flow", "Hidden Aquifer", "Deep Water Vein", "Buried Stream",
-            "Cavern Springs", "Underground Lake", "Limestone River", "Crystal Waters Below",
-            "Blackwater Shaft", "Echo Flood Galleries", "Stalagmite Channel", "Sunless Delta"
-        ),
-        LocationType.MOUNTAIN_PASS to listOf(
-            "Frozen Summit Trail", "Rockslide Pass", "Avalanche Corridor", "High Ridge Path",
-            "Shattered Peak Route", "Windswept Col", "Glacier Pass", "Stone Gate Mountains",
-            "Bleak Horn Divide", "Bonewind Ascent", "Needle Ridge", "Frostbite Traverse",
-            "Widowmaker Notch", "Ashcliff Traverse", "Hollow Fang Pass", "Razor Scree Ascent",
-            "Crowstep Ridge", "The Ice Maw", "Black Flag Switchback", "Deadfall Crest",
-            "Stormblind Gap", "Hanging Rock Ladder"
-        ),
-        LocationType.COASTAL_TOWN to listOf(
-            "Drowned Harbor", "Tsunami-Swept Bay", "Radioactive Shoreline", "Flooded Pier Town",
-            "Toxic Beach Settlement", "Submerged Port", "Poisoned Fishing Village", "Dead Seaside",
-            "Barnacle Mile", "Oil-Black Cove", "Rotted Marina", "Saltgrave Inlet",
-            "Corpse Tide Wharf", "Deadlight Breakwater", "Anchor Grave", "Blightwater Quay",
-            "The Black Jetty", "Foamrot Village", "Harpoon Wreck", "Tideburn Reach",
-            "Siltlung Coast", "Mildew Pier"
-        ),
-        LocationType.RESEARCH_FACILITY to listOf(
-            "Blacksite Omega", "Research Station 7", "Laboratory Complex Alpha", "Science Outpost Theta",
-            "Experimental Facility", "Biotech Center Ruins", "Weapons Lab Delta", "Particle Accelerator Site",
-            "Cryolab Epsilon", "Containment Annex 4", "Geneforge Campus", "Telemetry Yard Nine"
-        ),
-        LocationType.RADIOACTIVE_SWAMP to listOf(
-            "Glowmire Basin", "Irradiated Fen", "Neon Bog", "Rotwater Marsh", "Cinder Reed Flats",
-            "Luminous Peat", "Fever Swale", "Sourwater Hollow", "Mire Delta 6", "Blister Marsh",
-            "Yellow Silt Wetland", "Dead Lantern Bog", "Hotmist Fen", "Boilroot Marsh",
-            "Greenfire Mire", "Sludge Bloom Wetlands", "Mutter Fen", "The Leech Beds",
-            "Glowrot Backwater", "Ashswell Marsh", "Canker Reed Delta", "Slimewake Basin",
-            "Bilewater Sump"
-        ),
-        LocationType.MEGACRATER to listOf(
-            "Impact Cradle", "Saint Helix Crater", "Obsidian Bowl", "Ashfall Caldera", "Broken Horizon Pit",
-            "Red Mile Crater", "Thunder Glass Basin", "Meteor Hollow", "Char Basin Prime", "The Long Scar",
-            "Sulfur Crown", "Shatter Rim", "Gravesmoke Crater", "The Ember Throat",
-            "Widow's Caldera", "Ashwheel Pit", "Meltline Crater", "Skullglass Hollow",
-            "Black Echo Basin", "The Fallen Eye", "Shrapnel Crown", "Breach Bowl",
-            "Smokeveil Impact"
-        ),
-        LocationType.PLAGUE_ZONE to listOf(
-            "Quarantine Block K", "The Fever District", "Carrion Ward", "Mourning Blocks", "Bleachline Sector",
-            "Triage Ruins", "Bodyburn Square", "Red Mask Borough", "Sickhouse Row", "Isolation Parish",
-            "Pestilent Commons", "Grief Market", "The Coughing Mile", "Septic Avenue",
-            "Vomit Gate", "Last Breath Quarter", "Pall Street", "Ashen Infirmary",
-            "Needle Market", "Woundbridge", "The Weeping Blocks", "Mortuary Circle",
-            "Contagion Court"
-        ),
-        LocationType.SCRAP_HEAP to listOf(
-            "Titan Scrap Fields", "The Iron Mound", "Crushed Freight Sea", "Rust Cathedral", "Wrecker's Spine",
-            "Machine Grave", "Tangle Yard", "The Broken Conveyor", "Magnet Hill", "Smelter Bones",
-            "Derelict Stack", "Copper Teeth", "Junkspire", "The Razor Yard",
-            "Crankshaft Ridge", "Broken Axle Plain", "Shearwall Heap", "Rustwake Valley",
-            "The Shredder Fields", "Wiregut Dump", "Bleeding Foundry", "Gearstorm Mound",
-            "Hacksaw Terrace"
-        ),
-        LocationType.ABANDONED_SUBWAY to listOf(
-            "Line Zero", "Collapsed Metro Arc", "Tunnel 19", "Ghost Platform", "Station Mercy",
-            "Flooded Transfer", "Black Rail Junction", "Sublevel Delta", "Terminal Ash", "Signal Pit",
-            "Platform Thirteen", "Rat King Interchange", "Last Stop Hollow", "Blind Switch Nine",
-            "Mold Rail Annex", "Red Signal Tunnel", "The Hollow Concourse", "Dripshaft Terminal",
-            "Grime Loop", "Third Rail Catacomb", "Station Dread", "The Choking Underpass",
-            "Trackbed Ossuary"
-        ),
-        LocationType.FUNGAL_WASTES to listOf(
-            "Mycelium Flats", "Spore Bloom Expanse", "The Mold Barrens", "Fungal Drift", "Puffball Valley",
-            "Velvet Rot Fields", "Stalk Forest", "Capgrave Plain", "Lichen Storm Reach", "Softbone Hollow",
-            "White Veil Steppe", "Toadstool Shelf", "Dustcap Expanse"
-        ),
-        LocationType.GLASS_DESERT to listOf(
-            "Vitrified Sea", "Mirror Dunes", "Shard Horizon", "Glasswind Expanse", "Sunburn Flats",
-            "Cracked Silica Basin", "Knife Sand Reach", "The Bright Waste", "Fused Tide Plain", "Burnglass Coast",
-            "Heat Mirage Yard", "Scorched Prism Fields", "The Singing Dunes"
-        ),
-        LocationType.CULT_TERRITORY to listOf(
-            "Pilgrim's Ash", "Shrine Belt", "The Chanting Vale", "Icon Graveyard", "Ash Sermon Camp",
-            "Red Banner Reach", "Temple of Static", "Bellfire Steppe", "Sacrament Ditch", "Prophet's Crossing",
-            "The Tithe Roads", "Oracle Stockade", "Martyr's Gate", "Bone Reliquary Plains",
-            "The Witness Roads", "Ash Halo Station", "Sermon Basin", "The Burning Choir",
-            "Ritual Fence", "Censer Hollow", "Static Gospel Camp", "Saintwire Encampment",
-            "The Kneeling Mile"
-        )
-    )
+    private fun locationNames(type: LocationType): List<String> {
+        if (context == null) return emptyList()
+        return try {
+            context.resources.getStringArray(locationNameArrayId(type)).toList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     fun generateSurfaceLocation(): SurfaceLocation {
         val type = LocationType.entries.random()
-        val name = locationNameGenerators[type]?.random() ?: "Unknown Location"
+        val name = locationNames(type).randomOrNull() ?: "Unknown Location"
 
         val radiation = RadiationLevel.entries.random()
         val water = WaterAvailability.entries.random()

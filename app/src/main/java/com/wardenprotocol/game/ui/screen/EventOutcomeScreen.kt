@@ -23,8 +23,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.ivarna.wardenprotocol.R
 
 // Re-using same tokens for consistency
 private val BackgroundColor = Color(0xFF121414)
@@ -81,8 +84,8 @@ fun EventOutcomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    TelemetryMiniCard("INCIDENT_ID", "EVT-${narrative.length % 1000}", Modifier.weight(1f))
-                    TelemetryMiniCard("STATUS", "FILED", Modifier.weight(1f), SignalCyan)
+                    TelemetryMiniCard(stringResource(R.string.event_outcome_incident_id_label), stringResource(R.string.event_outcome_incident_id_format, narrative.length % 1000), Modifier.weight(1f))
+                    TelemetryMiniCard(stringResource(R.string.event_outcome_status_label), stringResource(R.string.event_outcome_status_filed), Modifier.weight(1f), SignalCyan)
                 }
 
                 // Narrative Resolution Panel
@@ -117,7 +120,7 @@ private fun OutcomeTopBar() {
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = "WARDEN_PROTOCOL_V1.0.4",
+                text = stringResource(R.string.event_outcome_top_bar),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
                 color = Primary,
@@ -179,21 +182,21 @@ private fun OutcomeTacticalHeader() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "REPORT_ACCEPTED",
+            stringResource(R.string.event_outcome_report_accepted),
             style = MaterialTheme.typography.labelSmall,
             color = Secondary,
             letterSpacing = 2.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            "COMMAND RESPONSE FILED",
+            stringResource(R.string.event_outcome_command_response),
             style = MaterialTheme.typography.displaySmall,
             color = TextPrimary,
             fontWeight = FontWeight.Black,
             letterSpacing = (-1).sp
         )
         Text(
-            "The data from this encounter has been logged into the vault recovery archive.",
+            stringResource(R.string.event_outcome_logged_msg),
             style = MaterialTheme.typography.bodyMedium,
             color = TextSecondary.copy(alpha = 0.7f)
         )
@@ -209,8 +212,8 @@ private fun TelemetryMiniCard(label: String, value: String, modifier: Modifier =
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextSecondary.copy(alpha = 0.5f))
-        Text(value, style = MaterialTheme.typography.titleMedium, color = accent, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = TextSecondary.copy(alpha = 0.5f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(value, style = MaterialTheme.typography.titleMedium, color = accent, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -265,13 +268,13 @@ private fun OutcomeActionSection(onDismiss: () -> Unit) {
             }
             Column {
                 Text(
-                    "CONTINUE SCANNING".uppercase(),
+                    stringResource(R.string.event_outcome_continue_scanning),
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "Return to the surface grid for further deployment.",
+                    stringResource(R.string.event_outcome_continue_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
