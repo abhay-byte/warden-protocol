@@ -11,8 +11,8 @@ os.makedirs(out_dir, exist_ok=True)
 font_title_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 font_desc_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
-font_title = ImageFont.truetype(font_title_path, 80)
-font_desc = ImageFont.truetype(font_desc_path, 45)
+font_title = ImageFont.truetype(font_title_path, 65)
+font_desc = ImageFont.truetype(font_desc_path, 40)
 font_fg_title = ImageFont.truetype(font_title_path, 70)
 font_fg_desc = ImageFont.truetype(font_desc_path, 35)
 
@@ -93,14 +93,14 @@ def create_promo_image(idx, data):
     
     draw.text((text_x, text_y), f"// {title}", fill=color_amber, font=font_title)
     
-    wrapped_desc = textwrap.wrap(desc, width=35)
+    wrapped_desc = textwrap.wrap(desc, width=42)
     dy = text_y + 120
     for line in wrapped_desc:
         draw.text((text_x, dy), line, fill=(220, 220, 220), font=font_desc)
         dy += 60
 
     # Draw screenshot panel on the right
-    ss_x = 1150
+    ss_x = 1250
     ss_y = 100
     ss_h = 880
     
