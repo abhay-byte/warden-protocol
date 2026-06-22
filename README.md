@@ -29,7 +29,10 @@
 
 <br>
 
-<img src="fastlane/metadata/android/en-US/images/featureGraphic.png" alt="Feature Graphic" width="85%">
+<picture>
+  <source srcset="docs/storelisting/promo.gif" media="(prefers-reduced-motion: no-preference)">
+  <img src="docs/storelisting/feature_graphic.png" alt="Feature Graphic" width="85%" loading="lazy">
+</picture>
 
 </div>
 
