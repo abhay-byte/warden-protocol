@@ -11,8 +11,8 @@ os.makedirs(out_dir, exist_ok=True)
 font_title_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 font_desc_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
-font_title = ImageFont.truetype(font_title_path, 65)
-font_desc = ImageFont.truetype(font_desc_path, 40)
+font_title = ImageFont.truetype(font_title_path, 55)
+font_desc = ImageFont.truetype(font_desc_path, 35)
 font_fg_title = ImageFont.truetype(font_title_path, 70)
 font_fg_desc = ImageFont.truetype(font_desc_path, 35)
 
@@ -68,14 +68,14 @@ def create_promo_image(idx, data):
     
     # Brutalist elements
     # Panel for text
-    draw.rectangle([(80, 250), (1050, 850)], fill=(0, 0, 0, 180), outline=color_panel, width=2)
+    draw.rectangle([(80, 250), (1200, 850)], fill=(0, 0, 0, 180), outline=color_panel, width=2)
     # Accent line
     draw.rectangle([(80, 250), (90, 850)], fill=color_amber)
     # Target reticle decor
-    draw.line([(1000, 260), (1030, 260)], fill=color_green, width=3)
-    draw.line([(1030, 260), (1030, 290)], fill=color_green, width=3)
+    draw.line([(1150, 260), (1180, 260)], fill=color_green, width=3)
+    draw.line([(1180, 260), (1180, 290)], fill=color_green, width=3)
     
-    text_x = 140
+    text_x = 120
     text_y = 350
     
     if idx == 1:
@@ -93,19 +93,19 @@ def create_promo_image(idx, data):
     
     draw.text((text_x, text_y), f"// {title}", fill=color_amber, font=font_title)
     
-    wrapped_desc = textwrap.wrap(desc, width=42)
+    wrapped_desc = textwrap.wrap(desc, width=35)
     dy = text_y + 120
     for line in wrapped_desc:
         draw.text((text_x, dy), line, fill=(220, 220, 220), font=font_desc)
         dy += 60
 
     # Draw screenshot panel on the right
-    ss_x = 1250
+    ss_x = 1350
     ss_y = 100
     ss_h = 880
     
     # Outer frame
-    draw.rectangle([(ss_x - 10, ss_y - 10), (ss_x + 460, ss_y + ss_h + 10)], fill=(0,0,0,200), outline=color_green, width=2)
+    draw.rectangle([(ss_x - 10, ss_y - 10), (ss_x + 505, ss_y + ss_h + 10)], fill=(0,0,0,200), outline=color_green, width=2)
     # "TERMINAL" label
     draw.text((ss_x, ss_y - 50), "[ SYSTEM TERMINAL ]", fill=color_green, font=ImageFont.truetype(font_desc_path, 25))
 
